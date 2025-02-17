@@ -17,8 +17,8 @@ const Login = () => {
 
       const data = await response.json();
       if (data.token) {
-        localStorage.setItem("authToken", data.token); // Store token in local storage
-        navigate("/dashboard"); // Redirect to dashboard
+        localStorage.setItem("authToken", data.token);
+        navigate("/dashboard");
       } else {
         alert(data.message);
       }
@@ -49,6 +49,16 @@ const Login = () => {
         />
         <button className="w-full bg-blue-500 text-white p-2 rounded">Login</button>
       </form>
+
+      <p className="mt-4 text-sm text-center">
+        <a href="/forgot-password" className="text-blue-500 hover:underline">
+          Forgot Password?
+        </a>
+      </p>
+
+      <p className="mt-2 text-sm text-center">
+        Don't have an account? <a href="/signup" className="text-green-500">Sign Up</a>
+      </p>
     </div>
   );
 };

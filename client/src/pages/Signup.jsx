@@ -17,7 +17,7 @@ const Signup = () => {
 
       const data = await response.json();
       if (data.success) {
-        alert("Signup successful, please login.");
+        alert("Signup successful! Please login.");
         navigate("/login");
       } else {
         alert(data.message);
@@ -29,7 +29,7 @@ const Signup = () => {
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white shadow-md rounded-md">
-      <h2 className="text-2xl font-bold mb-4">Signup</h2>
+      <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
       <form onSubmit={handleSignup}>
         <input
           type="email"
@@ -47,10 +47,14 @@ const Signup = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button className="w-full bg-green-500 text-white p-2 rounded">Signup</button>
+        <button className="w-full bg-green-500 text-white p-2 rounded">Sign Up</button>
       </form>
+      <p className="mt-4 text-sm text-center">
+        Already have an account? <a href="/login" className="text-blue-500">Login</a>
+      </p>
     </div>
   );
 };
 
 export default Signup;
+
