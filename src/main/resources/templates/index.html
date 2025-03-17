@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Arth</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="wrapper">
+
+    <!-- Header Section -->
+    <div class="header" th:fragment="header">
+        <div class="logo-section">
+            <img th:src="@{/images/logo.png}" alt="Arth Logo" class="logo">
+            <div class="text-section">
+                <h1>Arth</h1>
+                <p>Keep Your Goals and Finances on Track</p>
+            </div>
+        </div>
+        <div class="auth-links">
+            <a th:href="@{/login}">Login</a>&nbsp;|&nbsp;<a th:href="@{/register}">Register</a>
+        </div>
+    </div>
+
+    <!-- Main Content for Home Page -->
+    <div class="container">
+
+        <div class="home-header">
+            <h2>Why Choose Arth?</h2>
+            <div>
+                <img th:src="@{/images/whyarth.png}" alt="Why choose Arth?" class="home-header-image">
+                <div class="home-header-text">
+                    <p>
+                        Arth is designed to help you manage your tasks and track your finances efficiently.
+                        Whether you need to organize daily activities, set long-term goals, or manage project tasks,
+                        Arth provides a comprehensive dashboard that adapts to your needs.
+                    </p>
+                    <p>
+                        We blend a playful yet professional approach to simplify both task management and expense tracking.
+                        With features tailored to keep you on top of your responsibilities, you’ll enjoy a streamlined
+                        experience that turns everyday challenges into engaging achievements.
+                    </p>
+                    <p>
+                        Our mobile-friendly interface ensures that you can access Arth anytime, anywhere – empowering you
+                        to stay productive on the go.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <!-- Horizontal line separator -->
+            <hr/>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features">
+            <div class="feature-item">
+                <img th:src="@{/images/tracktask.png}" alt="Track Your Tasks">
+                <h3>Track Your Tasks</h3>
+                <p class="feature-item-highlight">Manage your tasks effortlessly.</p>
+                <div class="feature-item-text">
+                    Stay organized and focused by managing all your tasks in one place. Arth helps you keep track of your to-do list, ensuring nothing falls through the cracks.
+                </div>
+            </div>
+            <div class="feature-item">
+                <img th:src="@{/images/personalizeddashboard.png}" alt="Personalized Dashboard">
+                <h3>Personalized Dashboard</h3>
+                <p class="feature-item-highlight">Tailored to your needs.</p>
+                <div class="feature-item-text">
+                    Your workspace, your way. Arth offers a customizable dashboard designed for both task management and financial tracking, making it easy to monitor what matters most.
+                </div>
+            </div>
+            <div class="feature-item">
+                <img th:src="@{/images/mobile_friendly.png}" alt="Mobile Friendly">
+                <h3>Mobile Friendly</h3>
+                <p class="feature-item-highlight">Access from any device.</p>
+                <div class="feature-item-text">
+                    Whether you're on the move or working from home, Arth's mobile-optimized design lets you manage tasks and track finances anywhere, anytime.
+                </div>
+            </div>
+            <div class="feature-item">
+                <img th:src="@{/images/chatbot.png}" alt="Intelligent Assistant">
+                <h3>Intelligent Assistant</h3>
+                <p class="feature-item-highlight">Your digital productivity partner.</p>
+                <div class="feature-item-text">
+                    Coming soon – interact with our AI-powered assistant for personalized productivity tips and financial insights to boost your everyday performance.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+</body>
+</html>

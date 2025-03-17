@@ -1,0 +1,116 @@
+/* Define CSS variables for consistent branding */
+:root {
+    --container-bg: #E8F8FD;       /* Light background for registration container */
+    --heading-color: #0F515C;      /* Deep teal for headings */
+    --label-color: #004733;        /* Dark green for form labels */
+    --input-border: #ccc;
+    --btn-register-bg: #007BFF;    /* Blue for register button */
+    --btn-register-hover: #0056b3;
+    --btn-cancel-bg: #DC3545;      /* Red for cancel button */
+    --btn-cancel-hover: #c82333;
+}
+
+/* Registration Form Styles */
+.registration-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 25px auto;
+    padding: 20px;
+    background-color: var(--container-bg);
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Main heading */
+.registration-container h1 {
+    color: var(--heading-color);
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Form labels and inputs */
+.registration-container label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--label-color);
+}
+
+.registration-container label.padLeft {
+    padding-left: 30px;
+}
+
+.registration-container input[type="text"],
+.registration-container input[type="email"],
+.registration-container input[type="password"],
+.registration-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--input-border);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+/* Flexbox structure for radio buttons and checkboxes */
+.radio-group,
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.registration-container input[type="checkbox"],
+.registration-container input[type="radio"] {
+    margin-right: 10px;
+}
+
+/* Button group layout */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;  /* Space between the buttons */
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.btn-register {
+    background-color: var(--btn-register-bg);
+    color: white;
+}
+
+.btn-register:hover {
+    background-color: var(--btn-register-hover);
+}
+
+.btn-cancel {
+    background-color: var(--btn-cancel-bg);
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: var(--btn-cancel-hover);
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 768px) {
+    .registration-container {
+        width: 90%;
+    }
+    .button-group {
+        flex-direction: column;  /* Stack buttons vertically on mobile */
+    }
+    .btn {
+        width: 100%;  /* Full width buttons for mobile */
+    }
+}
