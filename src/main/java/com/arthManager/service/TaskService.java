@@ -45,13 +45,10 @@ public class TaskService {
     public List<Task> getTodayTasksForCurrentUser() {
         // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // Get the username
         String username = authentication.getName();
 
         // Get the user object
         User user = userRepository.findByUsername(username);
-
 
         // Get current date
         LocalDate currentDate = LocalDate.now();
@@ -59,9 +56,7 @@ public class TaskService {
         // Get Task list
         List<Task> taskListForToday = new ArrayList<>();
 
-
         taskListForToday = taskRepository.findByUserAndDueDateAndCompleted(user, currentDate, false);
-
 
         return taskListForToday;
 
@@ -71,7 +66,6 @@ public class TaskService {
     public List<Task> getAllTasksForCurrentUser() {
         // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         // Get the username
         String username = authentication.getName();
 
@@ -86,19 +80,14 @@ public class TaskService {
 
         // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         // Get the username
         String username = authentication.getName();
-
         // Get the user object
         User user = userRepository.findByUsername(username);
 
         // Get the Task with user combined
         Task task = taskRepository.findByUserAndId(user, taskId);
-
         if (task != null && !task.isCompleted()) {
-
-
             task.setCompletionDate(LocalDate.now());
             task.setCompleted(true);
             taskRepository.save(task);
@@ -111,30 +100,23 @@ public class TaskService {
 
     // Method to get a task which is not done
     public Task getTaskById(Long taskId) {
-
         // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         // Get the username
         String username = authentication.getName();
-
         // Get the user object
         User user = userRepository.findByUsername(username);
-
         // Get the Task with user combined
         Task task = taskRepository.findByUserAndId(user, taskId);
-
         if (task != null && !task.isCompleted()) {
             return task;
         }
-
         // Task not found, not owned by user
         return null;
     }
 
     // Method to get a task which does not look at the done flag
     public Task getTaskByIdAny(Long taskId) {
-
         // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -157,10 +139,8 @@ public class TaskService {
 
     // Method to update an existing task
     public boolean updateTaskForUser(Task task) {
-
         // Get the current authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         // Get the username
         String username = authentication.getName();
 
