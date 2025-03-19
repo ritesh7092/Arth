@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Finance Dashboard - Arth</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS for responsiveness -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/finance_dashboard.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="wrapper">
+    <!-- Include the Finance Sidebar Menu -->
+    <div th:replace="~{fragments/menu :: menu}"></div>
+<!--    <div th:replace="~{fragments/finance_menu :: menu}"></div>-->
+
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="logo-section d-flex align-items-center">
+<!--                <img th:src="@{/images/logo.png}" alt="Arth Logo" class="logo me-2">-->
+                <div class="text-section">
+                    <h1 class="h4 m-0">Arth Finance Management</h1>
+                    <p class="m-0 small">Keep Your Finance on Track</p>
+                </div>
+            </div>
+            <div class="heading-section text-center d-none d-md-block">
+                <h2 style="color: #fff;" class="mb-0">Dashboard</h2>
+                <small style="color: #fff;">
+                    <span class="text-primary">Server Date:</span>
+                    <span th:text="${serverTime}"></span>
+                </small>
+            </div>
+            <div class="auth-links">
+                <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        <!-- Flash Messages -->
+        <div class="flash-messages mb-3" style="margin-left: 5vw;">
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+            <div th:if="${successMessage}" class="alert alert-success" role="alert">
+                <p th:text="${successMessage}"></p>
+            </div>
+        </div>
+
+        <!-- Filter Section (default to current month) -->
+        <section class="filter-section mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="filterMonth" class="form-label">Filter by Month:</label>
+                    <input type="month" id="filterMonth" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label for="filterCategory" class="form-label">Filter by Category:</label>
+                    <select id="filterCategory" class="form-control">
+                        <option value="">All</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Food">Food</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Loan">Loan</option>
+                        <!-- Add more categories as needed -->
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <a th:href="@{/finance/report}" class="btn btn-primary w-100">Detailed Reports</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions Table -->
+        <section class="transactions-section">
+            <h4 class="mb-3">Recent Transactions (This Month)</h4>
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Counterparty</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="financeTable">
+                <tr th:each="finance : ${allFinances}">
+                    <td th:text="${finance.transactionDate}"></td>
+                    <td th:text="${finance.description}"></td>
+                    <td th:text="${finance.category}"></td>
+                    <td th:text="${finance.transactionType}"></td>
+                    <td th:text="'₹ ' + ${finance.amount}"></td>
+                    <td th:text="${finance.paymentMethod}"></td>
+                    <td th:text="${finance.counterparty}"></td>
+                    <td th:text="${finance.loanStatus}"></td>
+                    <td>
+                        <a th:href="@{'/finance/view'(financeId=${finance.id})}" class="btn btn-sm btn-info">View</a>
+                        <a th:href="@{'/finance/edit'(financeId=${finance.id})}" class="btn btn-sm btn-warning">Edit</a>
+                        <form th:action="@{/finance/delete}" method="post" class="d-inline">
+                            <input type="hidden" name="financeId" th:value="${finance.id}">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Server Time Display -->
+        <section class="server-time text-end mt-3">
+            <small class="text-muted">Server Time: <span th:text="${serverTime}"></span></small>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="footer bg-dark text-white py-3">
+        <div class="container text-center">
+            <span>&copy; 2025 Arth. All rights reserved.</span>
+        </div>
+    </footer>
+</div>
+
+<!-- jQuery, Bootstrap JS, and Chart.js -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS for Filtering (defaults to current month) -->
+<script>
+    $(document).ready(function(){
+      // Set default month filter to current month
+      var today = new Date();
+      var month = (today.getMonth() + 1).toString().padStart(2, '0');
+      var year = today.getFullYear();
+      $("#filterMonth").val(year + '-' + month);
+      applyMonthFilter();
+    });
+
+    function applyMonthFilter(){
+      var filterMonth = $("#filterMonth").val();
+      var filterCategory = $("#filterCategory").val().toLowerCase();
+
+      $("#financeTable tr").filter(function(){
+        var rowDate = $(this).find("td:eq(0)").text(); // expecting format yyyy-mm-dd
+        var rowMonth = rowDate.substring(0, 7); // extract yyyy-mm
+        var dateMatch = filterMonth === "" || rowMonth === filterMonth;
+        var rowCategory = $(this).find("td:eq(2)").text().toLowerCase();
+        var categoryMatch = filterCategory === "" || rowCategory === filterCategory;
+        $(this).toggle(dateMatch && categoryMatch);
+      });
+    }
+
+    $("#filterMonth, #filterCategory").on("change", function(){
+      applyMonthFilter();
+    });
+</script>
+
+<!-- Custom JS for Sidebar Toggle -->
+<script>
+    $(document).ready(function(){
+      $("#menuIcon").on("click", function(){
+        $("#sidebar").toggleClass("open");
+      });
+      $("#sidebarCloseBtn").on("click", function(){
+        $("#sidebar").removeClass("open");
+      });
+    });
+</script>
+</body>
+</html>

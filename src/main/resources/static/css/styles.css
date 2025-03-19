@@ -6,8 +6,8 @@ html, body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background-color: #F0F4F8; /* Light Gray background */
-    color: #004733; /* Dark green text */
+    background-color: #F4F7FA; /* Very light blue-gray background */
+    color: #2C3E50; /* Dark slate blue text */
     box-sizing: border-box;
 }
 
@@ -16,7 +16,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 100vh; /* Minimum height of 100% viewport height */
-    background-color: #EEFBFF;
+    background-color: #F4F7FA;
 }
 
 /* Header section */
@@ -25,26 +25,27 @@ html, body {
     justify-content: space-between; /* Space out the logo and login links */
     align-items: center;
     padding: 20px;
-    background-color: #E8F8FD;
+    background: linear-gradient(135deg, #1F618D, #16A085); /* Deep blue-teal gradient */
+    color: #fff;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Drop shadow */
 }
 
-.logo-section .text-section  h1 {
+.logo-section .text-section h1 {
     margin: 0;
-    color: #004733;
-    font-family:   "Brush Script MT", "Lucida Handwriting", "Comic Sans MS", cursive;
+    /* Using a script font for a unique look; adjust if needed */
+    font-family: "Brush Script MT", "Lucida Handwriting", "Comic Sans MS", cursive;
     font-style: italic;
     font-size: 27px;
     padding-bottom: 7px;
+    color: #fff;
 }
 
 .logo-section .text-section p {
     margin: 0;
-    color: #04A777;
+    color: #A2D9CE; /* Lighter teal for contrast */
     font-size: 15px;
     font-family: Arial, sans-serif;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
-
 }
 
 .logo-section {
@@ -71,14 +72,13 @@ html, body {
 
 .auth-links a {
     margin: 0px 10px; /* Add spacing between the links */
-    color: #007BFF;
+    color: #ECF0F1; /* White text for high contrast on dark header */
     text-decoration: none;
 }
 
 .auth-links a:hover {
     text-decoration: underline;
 }
-
 
 /* Horizontal line */
 hr {
@@ -87,7 +87,7 @@ hr {
     background-color: #FF9C05; /* Orange line separating header */
 }
 
-/* home header */
+/* Home header styles */
 .home-header {
     margin: 2vw;
     position: relative;
@@ -95,30 +95,26 @@ hr {
     text-align: justify;
 }
 
-/* home header heading */
 .home-header h2 {
-    color: #0F515C;
+    color: #1F618D;
 }
 
-/* Float the image to the left */
 .home-header-image {
     float: left;
     width: 150px;
     height: auto;
-    margin-right: 20px; /* Space between image and text */
-    margin-bottom: 20px; /* Clear space at the bottom if text is shorter */
+    margin-right: 20px;
+    margin-bottom: 20px;
 }
 
-/* Text next to the floating image */
 .home-header-text {
     text-align: justify;
 }
 
-
 /* Footer styles */
 footer {
     background: linear-gradient(to right, #141E30, #243B55); /* Professional blue gradient */
-    color: #ecf0f1; /* Light grey text */
+    color: #ECF0F1; /* Light grey text */
     padding: 30px 20px;
     text-align: center;
     margin-top: auto;
@@ -185,7 +181,6 @@ footer {
     opacity: 0.8;
 }
 
-
 /* Features section */
 .features {
     display: flex;
@@ -200,18 +195,16 @@ footer {
     margin-bottom: 30px;
     margin-right: 20px;
     text-align: center;
-    border: 2px solid #F0D6AF; /* Softer orange than hr */
-    border-radius: 15px; /* Rounded corners */
+    border: 2px solid #F0D6AF;
+    border-radius: 15px;
     padding: 20px;
-    margin-bottom: 30px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
-
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .feature-item:hover {
-    background-color: #E6F7F9; /* Light blue background on hover */
-    border: 2px solid #FFB84D;  /* Deepen the orange */
-    transform: scale(1.02); /* Slight scale-up on hover */
+    background-color: #E6F7F9;
+    border: 2px solid #FFB84D;
+    transform: scale(1.02);
     transition: all 0.3s ease-in-out;
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
 }
@@ -223,24 +216,23 @@ footer {
 }
 
 .feature-item h3 {
-    color:#0F515C;
+    color: #1F618D;
 }
 
 .feature-item-highlight {
     color: #04559D;
     font-weight: bold;
-    transition: transform 0.5s ease, font-size 0.5s ease; /* Add smooth transition to the text */
+    transition: transform 0.5s ease, font-size 0.5s ease;
 }
 
 .feature-item:hover .feature-item-highlight {
-    transform: scale(1.2); /* Grow the text when hovering over the feature item */
-    font-size: 18px; /* Increase font size */
-    transition: transform 0.5s ease, font-size 0.5s ease; /* Smooth transition when hover ends */
+    transform: scale(1.2);
+    font-size: 18px;
 }
 
 .feature-item div.feature-item-text {
     text-align: justify;
-    padding: .7vw;
+    padding: 0.7vw;
 }
 
 /* Responsive adjustments for larger screens */
@@ -261,26 +253,23 @@ footer {
         width: 30%;
     }
 
-    /* Header adjustment for larger screens */
     .logo {
         margin-left: 0;
     }
 
     .auth-links {
-        margin-right: 100px; /* Align links with padding */
+        margin-right: 100px;
     }
 }
 
-
-
-/* for flash messages */
+/* Flash messages */
 .flash-alert {
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
     font-weight: bold;
     text-align: center;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease-in-out;
 }
 
@@ -297,19 +286,19 @@ footer {
 }
 
 .flash-alert:hover {
-    transform: scale(1.02); /* Slightly enlarge on hover */
-    box-shadow: 0px 5px 12px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+    transform: scale(1.02);
+    box-shadow: 0px 5px 12px rgba(0, 0, 0, 0.15);
 }
 
-
+/* Client alerts */
 .client-alert {
     text-align: left;
     margin-bottom: 20px;
-    padding-left:10px;
+    padding-left: 10px;
     box-shadow: 0px 5px 12px rgba(0, 0, 0, 0.10);
 }
 
-.client-alert  .error-heading {
+.client-alert .error-heading {
     text-align: left;
     color: #721C24;
     font-size: 18px;
@@ -328,7 +317,6 @@ footer {
     margin-top: 5px;
 }
 
-
 /* Responsive adjustments for mobile screens */
 @media (max-width: 768px) {
     .header .text-section h1 {
@@ -339,3 +327,4 @@ footer {
         font-size: 11px;
     }
 }
+

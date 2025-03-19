@@ -1,0 +1,208 @@
+/* finance_dashboard.css */
+
+/* Global Styles */
+body {
+  background-color: #f5f5f5;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sidebar Menu */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: #343a40;
+  color: #fff;
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 2000;
+  padding-top: 20px;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding: 10px 0;
+  background-color: #23272b;
+  margin-bottom: 15px;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar ul li a {
+  display: block;
+  padding: 12px 20px;
+  color: #ddd;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+  background-color: #495057;
+}
+
+/* Menu Icon */
+.menu-icon {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 24px;
+  color: #343a40;
+  z-index: 2100;
+  cursor: pointer;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block;
+  }
+}
+
+/* Header Styles */
+.header {
+  background-color: #007bff;
+  color: #fff;
+  padding: 15px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+}
+
+.logo-section .logo {
+  width: 50px;
+  margin-right: 15px;
+}
+
+.text-section h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.heading-section {
+  text-align: center;
+}
+
+.dashboard-icon {
+  width: 30px;
+}
+
+.auth-links a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 15px;
+}
+
+/* Summary Cards */
+.summary-section .summary-card {
+  border: none;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.summary-section .summary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.income-card {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.expense-card {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.pending-card {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Filter Section */
+.filter-section {
+  margin-bottom: 20px;
+}
+
+/* Transactions Table */
+.transactions-section {
+  margin-top: 20px;
+}
+
+.transactions-section table {
+  width: 100%;
+}
+
+.transactions-section table th,
+.transactions-section table td {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.transactions-section table th {
+  background-color: #343a40;
+  color: #fff;
+}
+
+.transactions-section table tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+/* Server Time Display */
+.server-time {
+  font-size: 0.9rem;
+}
+
+/* Footer Styles */
+.footer {
+  background-color: #343a40;
+  color: #fff;
+  text-align: center;
+  padding: 15px 0;
+  margin-top: 20px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .header .container {
+    flex-direction: column;
+    text-align: center;
+  }
+  .logo-section, .heading-section, .auth-links {
+    margin-bottom: 10px;
+  }
+}
+

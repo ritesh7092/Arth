@@ -176,5 +176,19 @@ public class FinanceService {
         financeRepository.save(finance);
         return true;
     }
+
+    public Finance findFinanceById(Long financeId) {
+        User user = getAuthenticatedUser();
+        Optional<Finance> financeOpt = financeRepository.findById(financeId);
+        if (financeOpt.isEmpty()) {
+            return null;
+        }
+        Finance finance = financeOpt.get();
+        // Ensure the finance record belongs to the authenticated user
+        if (!finance.getUser().equals(user)) {
+            return null;
+        }
+        return finance;
+    }
 }
 

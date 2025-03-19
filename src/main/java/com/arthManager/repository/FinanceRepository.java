@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface FinanceRepository extends JpaRepository<Finance, Long> {
 
-    List<Finance> findByUserAndDate(User user, LocalDate specificDate);
 
     List<Finance> findByUser(User user);
 
