@@ -1,5 +1,29 @@
 /* finance_dashboard.css */
 
+/* Define CSS variables for common colors */
+:root {
+  --wrapper-bg: #EEFBFF;
+  --sidebar-bg: #343a40;
+  --sidebar-hover: #495057;
+  --header-bg: #007bff;
+  --header-text: #fff;
+  --footer-bg: #343a40;
+  --footer-text: #fff;
+
+  /* Action Button Colors */
+  --btn-view-bg: #3498db;        /* Blue for view */
+  --btn-view-border: #2980b9;
+  --btn-view-hover-bg: #138496;
+
+  --btn-edit-bg: #f1c40f;        /* Yellow for edit */
+  --btn-edit-border: #d4ac0d;
+  --btn-edit-hover-bg: #e0a800;
+
+  --btn-delete-bg: #e74c3c;      /* Red for delete */
+  --btn-delete-border: #c0392b;
+  --btn-delete-hover-bg: #c82333;
+}
+
 /* Global Styles */
 body {
   background-color: #f5f5f5;
@@ -11,16 +35,23 @@ body {
 .wrapper {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--wrapper-bg);
+}
+
+/* Ensure main content grows and pushes footer down */
+main {
+  flex: 1;
 }
 
 /* Sidebar Menu */
 .sidebar {
   position: fixed;
   top: 0;
-  left: -250px;
+  left: -250px; /* Hidden by default */
   width: 250px;
   height: 100%;
-  background-color: #343a40;
+  background-color: var(--sidebar-bg);
   color: #fff;
   overflow-y: auto;
   transition: left 0.3s ease;
@@ -61,33 +92,27 @@ body {
 }
 
 .sidebar ul li a:hover {
-  background-color: #495057;
+  background-color: var(--sidebar-hover);
 }
 
-/* Menu Icon */
+/* Menu Icon - Always visible for toggling */
 .menu-icon {
   position: fixed;
   top: 15px;
   left: 15px;
   font-size: 24px;
-  color: #343a40;
+  color: var(--sidebar-bg);
   z-index: 2100;
   cursor: pointer;
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .menu-icon {
-    display: block;
-  }
+  display: block;
 }
 
 /* Header Styles */
 .header {
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--header-bg);
+  color: var(--header-text);
   padding: 15px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header .container {
@@ -99,6 +124,8 @@ body {
 .logo-section {
   display: flex;
   align-items: center;
+  padding-left: 20px;
+  margin-left: 20px;
 }
 
 .logo-section .logo {
@@ -120,7 +147,7 @@ body {
 }
 
 .auth-links a {
-  color: #fff;
+  color: var(--header-text);
   text-decoration: none;
   margin-left: 15px;
 }
@@ -134,7 +161,7 @@ body {
 
 .summary-section .summary-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .income-card {
@@ -157,19 +184,51 @@ body {
   margin-bottom: 20px;
 }
 
+/* Filter Inputs: Calendar and Category Select */
+.filter-section input[type="month"],
+.filter-section select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.filter-section input[type="month"]:focus,
+.filter-section select:focus {
+  border-color: var(--header-bg);
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Balance Field */
+.balance-field {
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2C3E50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 /* Transactions Table */
 .transactions-section {
   margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .transactions-section table {
   width: 100%;
+  border-collapse: collapse;
 }
 
 .transactions-section table th,
 .transactions-section table td {
   vertical-align: middle;
   text-align: center;
+  padding: 8px;
 }
 
 .transactions-section table th {
@@ -184,15 +243,68 @@ body {
 /* Server Time Display */
 .server-time {
   font-size: 0.9rem;
+  color: #7F8C8D;
 }
 
 /* Footer Styles */
 .footer {
-  background-color: #343a40;
-  color: #fff;
+  background-color: var(--footer-bg);
+  color: var(--footer-text);
   text-align: center;
   padding: 15px 0;
-  margin-top: 20px;
+  margin-top: auto;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Action Buttons */
+/* View Button */
+.btn-view,
+/* Edit Button */
+.btn-edit,
+/* Delete Button */
+.btn-delete {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* View Button */
+.btn-view {
+  background-color: var(--btn-view-bg, #3498db);
+  border-color: var(--btn-view-border, #2980b9);
+  color: #fff;
+}
+.btn-view:hover {
+  background-color: var(--btn-view-hover-bg, #138496);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Edit Button */
+.btn-edit {
+  background-color: var(--btn-edit-bg, #f1c40f);
+  border-color: var(--btn-edit-border, #d4ac0d);
+  color: #333;
+}
+.btn-edit:hover {
+  background-color: var(--btn-edit-hover-bg, #e0a800);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Delete Button */
+.btn-delete {
+  background-color: var(--btn-delete-bg, #e74c3c);
+  border-color: var(--btn-delete-border, #c0392b);
+  color: #fff;
+}
+.btn-delete:hover {
+  background-color: var(--btn-delete-hover-bg, #c82333);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* Responsive Adjustments */
