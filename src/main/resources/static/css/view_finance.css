@@ -1,0 +1,254 @@
+/* view_finance.css */
+
+/* Define CSS variables for consistency */
+:root {
+  --background: #f5f5f5;
+  --wrapper-bg: #EEFBFF;
+  --body-text: #004733;
+
+  /* Header & Footer Colors */
+  --header-bg: #1F2A44; /* Deep blue-teal for header */
+  --header-text: #fff;
+  --footer-gradient-start: #141E30;
+  --footer-gradient-end: #243B55;
+  --footer-text: #ecf0f1;
+
+  /* Sidebar Colors */
+  --sidebar-bg: #343a40;
+  --sidebar-hover: #495057;
+
+  /* View Finance Section Colors */
+  --view-bg: #fff;
+  --view-border: #e0e0e0;
+  --view-shadow: rgba(0, 0, 0, 0.1);
+  --view-label-color: #2C3E50;
+  --view-heading-color: #1F618D;
+
+  /* Button Colors for Actions */
+  --btn-back-bg: #3498db;  /* Blue for back button */
+  --btn-back-hover: #2980b9;
+}
+
+/* Global Layout */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: var(--background);
+  color: var(--body-text);
+  box-sizing: border-box;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--wrapper-bg);
+}
+
+/* Sidebar Menu */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: var(--sidebar-bg);
+  color: #fff;
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 2000;
+  padding-top: 20px;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding: 10px 0;
+  background-color: #23272b;
+  margin-bottom: 15px;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar ul li a {
+  display: block;
+  padding: 12px 20px;
+  color: #ddd;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+  background-color: var(--sidebar-hover);
+}
+
+/* Menu Icon */
+.menu-icon {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 24px;
+  color: var(--sidebar-bg);
+  z-index: 2100;
+  cursor: pointer;
+  display: block;
+}
+
+/* Header */
+.header {
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  padding: 15px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  margin-left: 20px;
+}
+
+.logo-section .logo {
+  width: 60px;
+  margin-right: 10px;
+}
+
+.text-section h1 {
+  margin: 0;
+  font-family: "Brush Script MT", cursive;
+  font-style: italic;
+  font-size: 27px;
+  padding-bottom: 7px;
+  color: var(--header-text);
+}
+
+.text-section p {
+  margin: 0;
+  color: #A2D9CE;
+  font-size: 15px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.heading-section {
+  text-align: center;
+}
+
+.auth-links a {
+  color: var(--header-text);
+  text-decoration: none;
+  margin-left: 15px;
+}
+
+/* Footer */
+footer {
+  background: linear-gradient(135deg, var(--footer-gradient-start), var(--footer-gradient-end));
+  color: var(--footer-text);
+  text-align: center;
+  padding: 15px 0;
+  margin-top: auto;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
+}
+
+/* View Finance Section */
+.view-finance-section {
+  background-color: var(--view-bg);
+  border: 1px solid var(--view-border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 8px var(--view-shadow);
+  margin-bottom: 30px;
+}
+
+.view-finance-section h4 {
+  color: var(--view-heading-color);
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.view-finance-details {
+  padding: 15px;
+}
+
+.view-finance-details label {
+  color: var(--view-label-color);
+  margin-bottom: 5px;
+}
+
+.view-finance-details .form-control-plaintext {
+  background-color: transparent;
+  border: none;
+  padding-left: 0;
+  font-size: 1rem;
+  color: var(--body-text);
+}
+
+/* Action Button: Back to Finance Dashboard */
+.btn-back {
+  background-color: var(--btn-back-bg);
+  border: 2px solid var(--btn-back-bg);
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.btn-back:hover {
+  background-color: var(--btn-back-hover, #2980b9);
+  border-color: var(--btn-back-hover, #2980b9);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* Server Time */
+.server-time {
+  font-size: 0.9rem;
+  color: #7F8C8D;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .header .container {
+    flex-direction: column;
+    text-align: center;
+  }
+  .logo-section, .heading-section, .auth-links {
+    margin-bottom: 10px;
+  }
+  .button-group {
+    flex-direction: column;
+  }
+}
+
+
+

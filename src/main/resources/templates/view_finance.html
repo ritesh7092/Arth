@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Finance - Arth</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS for responsiveness -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS for View Finance Page -->
+  <link rel="stylesheet" href="/css/view_finance.css">
+  <!-- Global styles (if any) -->
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="wrapper">
+  <!-- Include the Finance Sidebar Menu -->
+  <div th:replace="~{fragments/finance_menu :: menu}"></div>
+
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="logo-section d-flex align-items-center">
+        <!-- Optionally, uncomment the image below -->
+        <!-- <img th:src="@{/images/logo.png}" alt="Arth Logo" class="logo me-2"> -->
+        <div class="text-section">
+          <h1 class="h4 m-0">Arth Finance Management</h1>
+          <p class="m-0 small">Keep Your Finance on Track</p>
+        </div>
+      </div>
+      <div class="heading-section text-center d-none d-md-block">
+        <h2 class="mb-0" style="color: #fff;">View Finance</h2>
+        <small style="color: #fff;">
+          <span class="text-primary">Server Date:</span>
+          <span th:text="${serverTime}"></span>
+        </small>
+      </div>
+      <div class="auth-links">
+        <a th:href="@{/logout}" class="btn btn-outline-light btn-sm">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container my-4">
+    <!-- Flash Messages -->
+    <div class="flash-messages mb-3" style="margin-left: 5vw;">
+      <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}"></p>
+      </div>
+      <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+      </div>
+    </div>
+
+    <!-- View Finance Section -->
+    <section class="view-finance-section mb-4">
+      <h4 class="mb-3">Finance Record Details</h4>
+      <div class="view-finance-details">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Transaction Date:</label>
+            <p class="form-control-plaintext" th:text="${finance.transactionDate}">2025-01-01</p>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Amount (₹):</label>
+            <p class="form-control-plaintext" th:text="${finance.amount}">0.00</p>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Description:</label>
+          <p class="form-control-plaintext" th:text="${finance.description}">Description here</p>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Category:</label>
+            <p class="form-control-plaintext" th:text="${finance.category}">Rent</p>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Transaction Type:</label>
+            <p class="form-control-plaintext" th:text="${finance.transactionType}">EXPENSE</p>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Payment Method:</label>
+            <p class="form-control-plaintext" th:text="${finance.paymentMethod}">Credit Card</p>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Counterparty:</label>
+            <p class="form-control-plaintext" th:text="${finance.counterparty}">Landlord</p>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Loan Status:</label>
+            <p class="form-control-plaintext" th:text="${finance.loanStatus}">COMPLETED</p>
+          </div>
+        </div>
+      </div>
+      <div class="button-group mt-4">
+        <a th:href="@{/finance/dashboard}" class="btn btn-back">Back to Finance Dashboard</a>
+        <!-- Optional: Add Edit/Delete actions if needed -->
+      </div>
+    </section>
+
+    <!-- Server Time Display -->
+    <section class="server-time text-end mt-3">
+      <small class="text-muted">Server Date: <span th:text="${serverTime}"></span></small>
+    </section>
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="footer">
+    <div class="container text-center">
+      <p>© 2025 Arth. All rights reserved.</p>
+      <p>Engineered with Passion & Precision by Ritesh Raj Tiwari</p>
+    </div>
+  </footer>
+</div>
+
+<!-- jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+
+<!-- Custom JS for Sidebar Toggle -->
+<script>
+  $(document).ready(function(){
+    $("#menuIcon").on("click", function(){
+      $("#sidebar").toggleClass("open");
+    });
+    $("#sidebarCloseBtn").on("click", function(){
+      $("#sidebar").removeClass("open");
+    });
+  });
+</script>
+</body>
+</html>
+
