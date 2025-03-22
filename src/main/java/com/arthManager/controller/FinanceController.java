@@ -58,7 +58,7 @@ public class FinanceController {
                 if (f2.getTransactionDate() == null) {
                     return -1;
                 }
-                return f1.getTransactionDate().compareTo(f2.getTransactionDate());
+                return f2.getTransactionDate().compareTo(f1.getTransactionDate());
             }
         });
     }
