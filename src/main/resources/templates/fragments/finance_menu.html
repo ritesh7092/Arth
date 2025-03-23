@@ -10,8 +10,18 @@
         </div>
         <ul class="list-unstyled components">
             <li>
+                <a th:href="@{/}">
+                    <i class="fas fa-file-alt me-2"></i>Home
+                </a>
+            </li>
+            <li>
                 <a th:href="@{/finance/dashboard}">
                     <i class="fas fa-chart-line me-2"></i> Finance Dashboard
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/dashboard}">
+                    <i class="fas fa-file-alt me-2"></i>Todo Dashboard
                 </a>
             </li>
             <li>
@@ -20,13 +30,18 @@
                 </a>
             </li>
             <li>
-                <a th:href="@{/finance/view}">
-                    <i class="fas fa-eye me-2"></i>View Finance
+                <a th:href="@{/addtask}">
+                    <i class="fas fa-plus me-2"></i>Add Todo
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/chatbot}">
+                    <i class="fas fa-eye me-2"></i>Arth (Chat with me)
                 </a>
             </li>
             <li>
                 <a th:href="@{/finance/report}">
-                    <i class="fas fa-file-alt me-2"></i>Reports
+                    <i class="fas fa-file-alt me-2"></i> Finance Reports
                 </a>
             </li>
             <!-- Add additional menu items here -->

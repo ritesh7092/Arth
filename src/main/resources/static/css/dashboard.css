@@ -1,320 +1,321 @@
-/* Define CSS variables for common colors */
-:root {
-    --header-text: #333;
-    --priority-heading: #333;
-    --high-priority-bg: #c88a8a;
-    --medium-priority-bg: #d0d063;
-    --low-priority-bg: #88bf88;
-    --row-b-bg: #e1f8ff;
-    --row-b-border: #a2c7d3;
-    --todo-bg-light: rgba(255, 255, 255, 0.7);
-    --todo-bg-odd: rgba(255, 255, 255, 0.65);
-    --todo-bg-even: rgba(255, 255, 255, 0.5);
-    --btn-done-bg: #28a745;
-    --btn-done-hover-bg: #218838;
-    --btn-show-bg: #ffc107;
-    --btn-show-hover-bg: #e0a800;
-    --btn-delete-bg: #dc3545;
-    --btn-delete-hover-bg: #c82333;
-    --btn-update-bg: #28a745;
-    --btn-update-hover-bg: #218838;
-    --btn-view-bg: #ffc107;
-    --btn-view-hover-bg: #e0a800;
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* General Page and Logo Adjustments */
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Optional: Set custom text colors for headings and paragraphs */
+h1, h2, h3, h4, h5, h6 {
+  color: #1F3A93;  /* A deep blue for clear contrast */
+}
+p, span, li {
+  color: #555;  /* A slightly lighter shade to ensure readability */
+}
+
+a {
+  color: #1F3A93; /* Link color consistent with headings */
+}
+
+/* Wrapper for overall layout */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Navbar/Header Section */
+.header {
+  /* Using a deep blue that feels modern and professional */
+  background: linear-gradient(135deg, #1F3A93, #162C5C);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+}
+
 .logo-section {
-    padding-left: 20px;
-    display: flex;
-    align-items: center;
-    margin-left: 20px;
+  display: flex;
+  align-items: center;
 }
 
-.logo-section .heading-section {
-    display: inline-block;
-    margin-left: 20vw;
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--header-text);
+.logo {
+  width: 60px;
+  height: auto;
+  margin-right: 15px;
 }
 
-/* Styling for Row A */
-.row-a {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px 0;
-    height: 200px;
+.text-section h1 {
+  font-size: 24px;
+  margin: 0;
+  line-height: 1;
 }
 
-.column {
-    flex: 1;
-    margin: 0 10px;
-    border-radius: 15px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
+.text-section p {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
-/* Priority Section Heading */
+/* Added additional color for the heading-section for clarity */
+.heading-section {
+  margin-left: 30px;
+  font-size: 18px;
+  color: #e0e0e0;
+}
+
+/* Auth Links */
+.auth-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 15px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.auth-links a:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Main Container */
+.container {
+  flex: 1;
+  padding: 30px 20px;
+}
+
+/* Flash Messages */
+.flash-alert {
+  padding: 12px 20px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.flash-alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.flash-alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Priority Heading Container */
 .priority-heading-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.priority-heading {
-    margin: 10px 20px;
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--priority-heading);
-}
-
-/* Specific colors for each priority column */
-.high-priority {
-    background-color: var(--high-priority-bg);
-    color: #333;
-}
-
-.medium-priority {
-    background-color: var(--medium-priority-bg);
-    color: #333;
-}
-
-.low-priority {
-    background-color: var(--low-priority-bg);
-    color: #333;
-}
-
-.column-heading {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    background-color: rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    text-align: center;
-    width: 100%;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
-}
-
-.todo-container {
-    overflow-y: auto;
-    height: 130px;
-    width: 100%;
-    text-align: center;
-}
-
-.todo-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-radius: 10px;
-    margin: 5px 0;
-    background-color: var(--todo-bg-light);
-}
-
-.todo-container .todo-item:nth-child(odd) {
-    background-color: var(--todo-bg-odd);
-}
-
-.todo-container .todo-item:nth-child(even) {
-    background-color: var(--todo-bg-even);
-}
-
-.task-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    font-size: 0.9em;
-    text-align: left;
-}
-
-.button-group {
-    display: flex;
-    gap: 5px;
-}
-
-/* Buttons */
-.btn-done {
-    background-color: var(--btn-done-bg);
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
-
-.btn-done:hover {
-    background-color: var(--btn-done-hover-bg);
-}
-
-.btn-show {
-    background-color: var(--btn-show-bg);
-    color: #333;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
-
-.btn-show:hover {
-    background-color: var(--btn-show-hover-bg);
-}
-
-/* Styling for Row B (My Todo's Section) */
-.row-b {
-    flex: 1;
-    padding: 10px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    min-height: calc(100vh - 500px);
-    background-color: var(--row-b-bg);
-    border-radius: 25px;
-    border: 1px solid var(--row-b-border);
-    margin: 20px;
-}
-
-.my-todos {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 5px;
-    background-color: #fff;
-}
-
-.header-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #98bcdb;
-    border-bottom: 2px solid #e0e0e0;
-    border-radius: 10px 10px 0 0;
-}
-
-.header-flex h2 {
-    margin: 0;
-    color: #333;
-    font-weight: bold;
-    font-size: 1.5em;
+.priority-heading-container h2 {
+  font-size: 22px;
+  color: #333;
 }
 
 .add-task-btn {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 10px 20px;
+  background-color: #1F3A93;
+  color: #fff;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
 }
 
-/* Task list container */
-.task-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
-    padding: 10px;
+.add-task-btn:hover {
+  background-color: #162C5C;
+}
+
+/* Row A - Priority Columns */
+.row-a {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.column {
+  flex: 1;
+  min-width: 280px;
+  margin: 10px;
+  border: 1px solid #e1e8ee;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Distinct, strong background colors for priority columns */
+.high-priority {
+  background: #ff4d4d;  /* Strong red */
+  color: #fff;
+}
+
+.medium-priority {
+  background: #ffcc00;  /* Bold amber */
+  color: #333;
+}
+
+.low-priority {
+  background: #33cc33;  /* Vivid green */
+  color: #fff;
+}
+
+.column-heading {
+  background-color: rgba(240, 244, 247, 0.8);
+  padding: 12px 15px;
+  border-bottom: 1px solid #e1e8ee;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Todo Container and Items */
+.todo-container {
+  padding: 15px;
+}
+
+.todo-item {
+  background-color: #fafafa;
+  border: 1px solid #e1e8ee;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.todo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.task-details {
+  margin-bottom: 10px;
+}
+
+.task-details strong {
+  display: inline-block;
+  width: 60px;
+  color: #1F3A93; /* Emphasize the label text */
+}
+
+/* Button Group Styles */
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* Additional custom tweaks for Bootstrap buttons */
+.btn {
+  border-radius: 4px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Row B - My Todo's Section */
+.row-b {
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #e1e8ee;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-flex h2 {
+  font-size: 22px;
+  color: #333;
+}
+
+.my-todos .task-list {
+  border-top: 1px solid #e1e8ee;
 }
 
 .task-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 5px 0;
-    background-color: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  border-bottom: 1px solid #e1e8ee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.alt-row {
-    background-color: rgba(230, 230, 230, 0.9);
+.task-item.alt-row {
+  background-color: #f9f9f9;
 }
 
 .task-info p {
-    margin: 0;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #555;
 }
 
-.button-group {
-    display: flex;
-    gap: 5px;
+/* Button Group within Task List */
+.task-item .button-group {
+  display: flex;
+  gap: 8px;
 }
 
-.btn-delete {
-    background-color: var(--btn-delete-bg);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
+/* Footer Styles */
+.footer {
+  background-color: #343a40;
+  color: #ccc;
+  text-align: center;
+  padding: 15px 0;
+  margin-top: auto;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.btn-delete:hover {
-    background-color: var(--btn-delete-hover-bg);
-}
-
-.btn-update {
-    background-color: var(--btn-update-bg);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn-update:hover {
-    background-color: var(--btn-update-hover-bg);
-}
-
-.btn-view {
-    background-color: var(--btn-view-bg);
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.btn-view:hover {
-    background-color: var(--btn-view-hover-bg);
-}
-
-/* Mobile adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
 
-    .logo-section .heading-section {
-        display: none;
-    }
+  .logo-section {
+    margin-bottom: 15px;
+  }
 
-    .row-a {
-        flex-direction: column;
-        height: auto;
-    }
+  .heading-section {
+    margin-left: 0;
+    margin-top: 10px;
+  }
 
-    .column {
-        margin: 10px 10px 10px 5px;
-    }
+  .priority-heading-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-    .row-b {
-        min-height: 300px;
-        margin-left: 0;
-    }
+  .add-task-btn {
+    margin-top: 10px;
+  }
 
-    .add-task-btn {
-        width: 100%;
-    }
+  .row-a {
+    flex-direction: column;
+  }
 
-    .task-item .button-group {
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
-    }
+  .task-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

@@ -1,89 +1,326 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Arth - Intelligent Task & Finance Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arth - Intelligent Task & Finance Management</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-..." crossorigin="anonymous">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" th:href="@{/css/landing.css}">
+    <!-- Custom CSS (you can extract this to landing.css) -->
+    <style>
+        /* CSS Variables for theme */
+        :root {
+          --primary-color: #1565C0;       /* Strong blue */
+          --primary-hover: #0D47A1;         /* Darker blue on hover */
+          --accent-color: #f1c40f;          /* Yellow accent */
+          --bg-color: #f5f5f5;              /* Light gray background */
+          --text-color: #004733;            /* Dark green text */
+          --header-bg: linear-gradient(135deg, #5D9CEC, #4267B2); /* Modern gradient for header */
+          --footer-gradient-start: #141E30;
+          --footer-gradient-end: #243B55;
+          --footer-text: #ecf0f1;
+        }
+
+        /* Global Styles */
+        html, body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+          background-color: var(--bg-color);
+          color: var(--text-color);
+          box-sizing: border-box;
+        }
+        a { text-decoration: none; }
+
+        /* Wrapper */
+        .wrapper {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+          background-color: var(--bg-color);
+        }
+
+        /* Navbar */
+        .navbar-custom {
+          background: var(--header-bg);
+          padding: 15px 0;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-custom .navbar-brand {
+          font-family: "Brush Script MT", cursive;
+          font-size: 2rem;
+          font-weight: bold;
+          color: var(--footer-text);
+        }
+        .navbar-custom .nav-link {
+          color: var(--footer-text);
+          font-weight: bold;
+          margin-right: 20px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          transition: color 0.3s ease;
+        }
+        .navbar-custom .nav-link:hover {
+          color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        .hero {
+          background: url('/images/bg-theme.png') no-repeat center center/cover;
+          height: 80vh;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+        .hero-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+        }
+        .hero-content {
+          position: relative;
+          z-index: 1;
+          text-align: center;
+          max-width: 800px;
+          padding: 0 15px;
+        }
+        .hero-content h1 {
+          font-size: 3rem;
+          margin-bottom: 20px;
+        }
+        .hero-content p {
+          font-size: 1.2rem;
+          margin-bottom: 30px;
+        }
+        .hero-content .btn-primary {
+          background-color: var(--primary-color);
+          border: none;
+          padding: 12px 30px;
+          font-size: 1.1rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          transition: background-color 0.3s ease;
+        }
+        .hero-content .btn-primary:hover {
+          background-color: var(--primary-hover);
+        }
+
+        /* Features Section */
+        .features {
+          padding: 60px 15px;
+          background-color: #fff;
+        }
+        .features h2 {
+          text-align: center;
+          font-size: 2.5rem;
+          margin-bottom: 40px;
+          color: var(--header-bg);
+        }
+        .feature-item {
+          padding: 20px;
+          text-align: center;
+          border: 1px solid #e0e0e0;
+          border-radius: 10px;
+          background-color: var(--bg-color);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          margin-bottom: 30px;
+        }
+        .feature-item:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .feature-item i {
+          font-size: 3rem;
+          margin-bottom: 15px;
+          color: var(--primary-color);
+        }
+        .feature-item h3 {
+          font-size: 1.8rem;
+          margin-bottom: 10px;
+        }
+        .feature-item p {
+          font-size: 1rem;
+          color: var(--text-color);
+        }
+
+        /* Call To Action Section */
+        .cta {
+          background-color: var(--primary-color);
+          color: #fff;
+          text-align: center;
+          padding: 40px 15px;
+        }
+        .cta h2 {
+          font-size: 2.5rem;
+          margin-bottom: 20px;
+        }
+        .cta p {
+          font-size: 1.2rem;
+          margin-bottom: 30px;
+        }
+        .cta .btn {
+          background-color: #fff;
+          color: var(--primary-color);
+          border: 2px solid var(--primary-color);
+          padding: 12px 30px;
+          font-size: 1.1rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          transition: all 0.3s ease;
+        }
+        .cta .btn:hover {
+          background-color: var(--primary-color);
+          color: #fff;
+        }
+
+        /* Footer */
+        footer {
+          background: linear-gradient(135deg, var(--footer-gradient-start), var(--footer-gradient-end));
+          color: var(--footer-text);
+          text-align: center;
+          padding: 20px 15px;
+          font-size: 0.9rem;
+          box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
+        }
+        footer p {
+          margin: 0;
+        }
+
+        /* Utility: Scroll-to-top Button */
+        .scroll-to-top {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          background-color: var(--primary-color);
+          color: #fff;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 50%;
+          font-size: 1.2rem;
+          cursor: pointer;
+          display: none;
+          z-index: 2200;
+          transition: background-color 0.3s ease;
+        }
+        .scroll-to-top:hover {
+          background-color: var(--primary-hover);
+        }
+    </style>
 </head>
 <body>
-<div class="wrapper d-flex flex-column min-vh-100">
-    <!-- Header / Navbar -->
-    <header class="bg-dark text-white py-3">
-        <div class="container d-flex justify-content-between align-items-center">
-            <h1 class="mb-0" style="font-family: 'Brush Script MT', cursive; font-size: 2rem;">Arth</h1>
-            <nav>
-                <ul class="nav">
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link text-white" th:href="@{/todo/dashboard}">Todo Dashboard</a>
+<div class="wrapper">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}" >Arth</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/todo/dashboard}">Todo Dashboard</a>
                     </li>
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link text-white" th:href="@{/finance/dashboard}">Finance Dashboard</a>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/finance/dashboard}">Finance Dashboard</a>
                     </li>
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link text-white" th:href="@{/logout}">Logout</a>
+                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                        <a class="nav-link" th:href="@{/logout}">Logout</a>
                     </li>
-                    <li class="nav-item" sec:authorize="!isAuthenticated()">
-                        <a class="nav-link text-white" th:href="@{/login}">Login</a>
+                    <li class="nav-item" th:if="${!#authorization.expression('isAuthenticated()')}">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
                     </li>
-                    <li class="nav-item" sec:authorize="!isAuthenticated()">
-                        <a class="nav-link text-white" th:href="@{/register}">Register</a>
+                    <li class="nav-item" th:if="${!#authorization.expression('isAuthenticated()')}">
+                        <a class="nav-link" th:href="@{/register}">Register</a>
                     </li>
                 </ul>
-            </nav>
+            </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Hero Section -->
-    <section class="hero position-relative text-center text-white d-flex align-items-center" style="background: url('/images/hero-bg.jpg') no-repeat center center/cover; height: 80vh;">
-        <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background-color: rgba(0,0,0,0.5);"></div>
-        <div class="hero-content position-relative container">
-            <h1 class="display-4">Welcome to Ritesh's Arth</h1>
-            <p class="lead">Manage your tasks, track your finances, and stay productive—all in one intelligent platform.</p>
-            <div sec:authorize="isAuthenticated()">
-                <a class="btn btn-primary btn-lg me-3" th:href="@{/todo/dashboard}">Todo Dashboard</a>
-                <a class="btn btn-success btn-lg" th:href="@{/finance/dashboard}">Finance Dashboard</a>
-            </div>
-            <div sec:authorize="!isAuthenticated()">
-                <a class="btn btn-primary btn-lg me-3" th:href="@{/login}">Login</a>
-                <a class="btn btn-outline-primary btn-lg" th:href="@{/register}">Register</a>
+    <section class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Welcome to Arth</h1>
+            <p>Your intelligent platform for Task and Finance Management</p>
+            <a class="btn btn-primary" th:href="@{/todo/dashboard}">Explore Tasks</a>
+            <a class="btn btn-primary ms-2" th:href="@{/finance/dashboard}">Explore Finance</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Our Key Features</h2>
+            <div class="row">
+                <div class="col-md-4 feature-item">
+                    <i class="fas fa-tasks"></i>
+                    <h3>Task Management</h3>
+                    <p>Organize your tasks with ease and boost your productivity with our dynamic dashboard.</p>
+                </div>
+                <div class="col-md-4 feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Finance Tracking</h3>
+                    <p>Monitor your expenses and incomes, manage budgets, and get financial insights.</p>
+                </div>
+                <div class="col-md-4 feature-item">
+                    <i class="fas fa-robot"></i>
+                    <h3>Intelligent Assistance</h3>
+                    <p>Stay ahead with our smart assistant that provides tips and insights tailored for you.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Main Content (can include further information or features) -->
-    <main class="container my-5">
-        <div class="row">
-            <div class="col-md-6">
-                <h2>Task Management</h2>
-                <p>Stay organized by managing your tasks efficiently. Set priorities, track deadlines, and achieve your goals.</p>
-                <a class="btn btn-primary" th:href="@{/todo/dashboard}">Go to Tasks</a>
-            </div>
-            <div class="col-md-6">
-                <h2>Finance Management</h2>
-                <p>Monitor your income, track your expenses, and manage your finances effectively with our intuitive dashboard.</p>
-                <a class="btn btn-success" th:href="@{/finance/dashboard}">Go to Finance</a>
-            </div>
+    <!-- Call to Action -->
+    <section class="cta">
+        <div class="container">
+            <h2>Get Started with Arth Today!</h2>
+            <p>Join my platform to streamline your tasks and finances with cutting-edge technology.</p>
+<!--            <a class="btn" th:href="@{/register}">Register Now</a>-->
         </div>
-    </main>
+    </section>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-3 mt-auto">
+    <footer>
         <div class="container text-center">
             <p>© 2025 Arth. All rights reserved.</p>
-            <p>Designed and Developed by Ritesh Raj Tiwari</p>
+            <p>Engineered with Passion & Precision by Ritesh Raj Tiwari</p>
         </div>
     </footer>
 </div>
 
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery, Bootstrap JS, and Scroll-to-top JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-..." crossorigin="anonymous"></script>
+<script>
+    // Scroll-to-top button logic (if needed)
+    const scrollBtn = document.querySelector('.scroll-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        scrollBtn.style.display = 'block';
+      } else {
+        scrollBtn.style.display = 'none';
+      }
+    });
+    scrollBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+</script>
 </body>
 </html>
 
@@ -100,101 +337,96 @@
 
 
 
+
+
+
+
 <!--<!DOCTYPE html>-->
-<!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">-->
 <!--<head>-->
 <!--    <meta charset="UTF-8">-->
+<!--    <title>Arth - Intelligent Task & Finance Management</title>-->
 <!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <title>Home - Arth</title>-->
-<!--    <link rel="stylesheet" th:href="@{/css/styles.css}">-->
+<!--    &lt;!&ndash; Bootstrap CSS &ndash;&gt;-->
+<!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">-->
+<!--    &lt;!&ndash; FontAwesome for icons &ndash;&gt;-->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">-->
+<!--    &lt;!&ndash; Custom CSS &ndash;&gt;-->
+<!--    <link rel="stylesheet" th:href="@{/css/landing.css}">-->
 <!--</head>-->
 <!--<body>-->
-<!--<div class="wrapper">-->
+<!--<div class="wrapper d-flex flex-column min-vh-100">-->
+<!--    &lt;!&ndash; Header / Navbar &ndash;&gt;-->
+<!--    <header class="bg-dark text-white py-3">-->
+<!--        <div class="container d-flex justify-content-between align-items-center">-->
+<!--            <h1 class="mb-0" style="font-family: 'Brush Script MT', cursive; font-size: 2rem;">Arth</h1>-->
+<!--            <nav>-->
+<!--                <ul class="nav">-->
+<!--                    <li class="nav-item" sec:authorize="isAuthenticated()">-->
+<!--                        <a class="nav-link text-white" th:href="@{/todo/dashboard}">Todo Dashboard</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item" sec:authorize="isAuthenticated()">-->
+<!--                        <a class="nav-link text-white" th:href="@{/finance/dashboard}">Finance Dashboard</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item" sec:authorize="isAuthenticated()">-->
+<!--                        <a class="nav-link text-white" th:href="@{/logout}">Logout</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item" sec:authorize="!isAuthenticated()">-->
+<!--                        <a class="nav-link text-white" th:href="@{/login}">Login</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item" sec:authorize="!isAuthenticated()">-->
+<!--                        <a class="nav-link text-white" th:href="@{/register}">Register</a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </nav>-->
+<!--        </div>-->
+<!--    </header>-->
 
-<!--    &lt;!&ndash; Header Section &ndash;&gt;-->
-<!--    <div class="header" th:fragment="header">-->
-<!--        <div class="logo-section">-->
-<!--&lt;!&ndash;            <img th:src="@{/images/logo.png}" alt="Arth Logo" class="logo">&ndash;&gt;-->
-<!--            <div class="text-section">-->
-<!--                <h1>Arth</h1>-->
-<!--                <p>Keep Your Goals and Finances on Track</p>-->
+<!--    &lt;!&ndash; Hero Section &ndash;&gt;-->
+<!--    <section class="hero position-relative text-center text-white d-flex align-items-center" style="background: url('/images/hero-bg.jpg') no-repeat center center/cover; height: 80vh;">-->
+<!--        <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background-color: rgba(0,0,0,0.5);"></div>-->
+<!--        <div class="hero-content position-relative container">-->
+<!--            <h1 class="display-4">Welcome to Ritesh's Arth</h1>-->
+<!--            <p class="lead">Manage your tasks, track your finances, and stay productive—all in one intelligent platform.</p>-->
+<!--            <div sec:authorize="isAuthenticated()">-->
+<!--                <a class="btn btn-primary btn-lg me-3" th:href="@{/todo/dashboard}">Todo Dashboard</a>-->
+<!--                <a class="btn btn-success btn-lg" th:href="@{/finance/dashboard}">Finance Dashboard</a>-->
+<!--            </div>-->
+<!--            <div sec:authorize="!isAuthenticated()">-->
+<!--                <a class="btn btn-primary btn-lg me-3" th:href="@{/login}">Login</a>-->
+<!--                <a class="btn btn-outline-primary btn-lg" th:href="@{/register}">Register</a>-->
 <!--            </div>-->
 <!--        </div>-->
-<!--        <div class="auth-links">-->
-<!--            <a th:href="@{/login}">Login</a>&nbsp;|&nbsp;<a th:href="@{/register}">Register</a>-->
-<!--        </div>-->
-<!--    </div>-->
+<!--    </section>-->
 
-<!--    &lt;!&ndash; Main Content for Home Page &ndash;&gt;-->
-<!--    <div class="container">-->
-
-<!--        <div class="home-header">-->
-<!--            <h2>Why Choose Arth?</h2>-->
-<!--            <div>-->
-<!--                <img th:src="@{/images/whyarth.png}" alt="Why choose Arth?" class="home-header-image">-->
-<!--                <div class="home-header-text">-->
-<!--                    <p>-->
-<!--                        Arth is designed to help you manage your tasks and track your finances efficiently.-->
-<!--                        Whether you need to organize daily activities, set long-term goals, or manage project tasks,-->
-<!--                        Arth provides a comprehensive dashboard that adapts to your needs.-->
-<!--                    </p>-->
-<!--                    <p>-->
-<!--                        We blend a playful yet professional approach to simplify both task management and expense tracking.-->
-<!--                        With features tailored to keep you on top of your responsibilities, you’ll enjoy a streamlined-->
-<!--                        experience that turns everyday challenges into engaging achievements.-->
-<!--                    </p>-->
-<!--                    <p>-->
-<!--                        Our mobile-friendly interface ensures that you can access Arth anytime, anywhere – empowering you-->
-<!--                        to stay productive on the go.-->
-<!--                    </p>-->
-<!--                </div>-->
+<!--    &lt;!&ndash; Main Content (can include further information or features) &ndash;&gt;-->
+<!--    <main class="container my-5">-->
+<!--        <div class="row">-->
+<!--            <div class="col-md-6">-->
+<!--                <h2>Task Management</h2>-->
+<!--                <p>Stay organized by managing your tasks efficiently. Set priorities, track deadlines, and achieve your goals.</p>-->
+<!--                <a class="btn btn-primary" th:href="@{/todo/dashboard}">Go to Tasks</a>-->
+<!--            </div>-->
+<!--            <div class="col-md-6">-->
+<!--                <h2>Finance Management</h2>-->
+<!--                <p>Monitor your income, track your expenses, and manage your finances effectively with our intuitive dashboard.</p>-->
+<!--                <a class="btn btn-success" th:href="@{/finance/dashboard}">Go to Finance</a>-->
 <!--            </div>-->
 <!--        </div>-->
+<!--    </main>-->
 
-<!--        <div>-->
-<!--            &lt;!&ndash; Horizontal line separator &ndash;&gt;-->
-<!--            <hr/>-->
+<!--    &lt;!&ndash; Footer &ndash;&gt;-->
+<!--    <footer class="bg-dark text-white py-3 mt-auto">-->
+<!--        <div class="container text-center">-->
+<!--            <p>© 2025 Arth. All rights reserved.</p>-->
+<!--            <p>Designed and Developed by Ritesh Raj Tiwari</p>-->
 <!--        </div>-->
-
-<!--        &lt;!&ndash; Features Section &ndash;&gt;-->
-<!--        <div class="features">-->
-<!--            <div class="feature-item">-->
-<!--                <img th:src="@{/images/tracktask.png}" alt="Track Your Tasks">-->
-<!--                <h3>Track Your Tasks</h3>-->
-<!--                <p class="feature-item-highlight">Manage your tasks effortlessly.</p>-->
-<!--                <div class="feature-item-text">-->
-<!--                    Stay organized and focused by managing all your tasks in one place. Arth helps you keep track of your to-do list, ensuring nothing falls through the cracks.-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="feature-item">-->
-<!--                <img th:src="@{/images/personalizeddashboard.png}" alt="Personalized Dashboard">-->
-<!--                <h3>Personalized Dashboard</h3>-->
-<!--                <p class="feature-item-highlight">Tailored to your needs.</p>-->
-<!--                <div class="feature-item-text">-->
-<!--                    Your workspace, your way. Arth offers a customizable dashboard designed for both task management and financial tracking, making it easy to monitor what matters most.-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="feature-item">-->
-<!--                <img th:src="@{/images/mobile_friendly.png}" alt="Mobile Friendly">-->
-<!--                <h3>Mobile Friendly</h3>-->
-<!--                <p class="feature-item-highlight">Access from any device.</p>-->
-<!--                <div class="feature-item-text">-->
-<!--                    Whether you're on the move or working from home, Arth's mobile-optimized design lets you manage tasks and track finances anywhere, anytime.-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="feature-item">-->
-<!--                <img th:src="@{/images/chatbot.png}" alt="Intelligent Assistant">-->
-<!--                <h3>Intelligent Assistant</h3>-->
-<!--                <p class="feature-item-highlight">Your digital productivity partner.</p>-->
-<!--                <div class="feature-item-text">-->
-<!--                    Coming soon – interact with our AI-powered assistant for personalized productivity tips and financial insights to boost your everyday performance.-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Include the footer &ndash;&gt;-->
-<!--    <div th:replace="~{fragments/footer :: footer}"></div>-->
+<!--    </footer>-->
 <!--</div>-->
+
+<!--&lt;!&ndash; Bootstrap JS Bundle &ndash;&gt;-->
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>-->
 <!--</body>-->
 <!--</html>-->
+
