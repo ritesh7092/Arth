@@ -4,45 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard :: Arth:ToDo Rails</title>
-    <!-- Include Bootstrap CSS (v4 or v5) -->
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/css/menu.css}">
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
 </head>
 <body>
 <div class="wrapper">
-
-    <!-- Include the Sidebar Menu -->
+    <!-- Include the Sidebar Menu Fragment -->
     <div th:replace="~{fragments/menu :: menu}"></div>
 
     <!-- Header Section -->
     <div class="header" th:fragment="header">
         <div class="logo-section">
-            <!-- <img th:src="@{/images/logo.png}" alt="ToDo Rails Logo" class="logo"> -->
+            <img th:src="@{/images/logo.png}" alt="ToDo Rails Logo" class="logo">
             <div class="text-section">
                 <h1>Arth</h1>
                 <h1>ToDo Rails</h1>
                 <p>Keep Your Goals on Track</p>
             </div>
-
-            <div style="color: #fff;" class="heading-section">
-                <!-- <img th:src="@{/images/task.png}"/> -->
-                Dashboard
-                <br/>
+            <div class="heading-section" style="color: #fff;">
+                Dashboard<br/>
                 <span style="font-size: 12px;">
-          <span style="color: #fff;">Server Date:</span>
-          <span th:text="${serverTime}"></span>
-        </span>
+            <span style="color: #fff;">Server Date:</span>
+            <span th:text="${serverTime}"></span>
+          </span>
             </div>
         </div>
-
         <div class="auth-links">
             <a th:href="@{/logout}" class="btn btn-secondary">Logout</a>
         </div>
     </div>
 
-    <!-- Main Content for Dashboard -->
+    <!-- Main Content -->
     <div class="container">
         <!-- Flash messages (from server) -->
         <div style="margin-left: 5vw">
@@ -53,6 +51,8 @@
                 <p th:text="${successMessage}"></p>
             </div>
         </div>
+
+
 
         <!-- Heading for Priority Section -->
         <div class="priority-heading-container d-flex justify-content-between align-items-center mb-4">

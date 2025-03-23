@@ -1,128 +1,84 @@
-/* Define CSS variables for consistency */
+/* Define CSS variables for the sidebar */
 :root {
-  --sidebar-bg: #004733;
-  --sidebar-width: 120px;
-  --transition-speed: 0.3s;
-  --menu-icon-color: #FF9C05;
-  --menu-icon-open-color: #ffffff;
-  --link-color: #ffffff;
-  --link-hover-bg: #FFA500;
-  --link-hover-color: #000000;
+  --sidebar-bg: #343a40;
+  --sidebar-hover: #495057;
+  --menu-icon-color: #343a40;
 }
 
-/* Sidebar menu styles */
+/* Sidebar Styles */
 .sidebar {
-    width: var(--sidebar-width);
-    position: fixed;
-    top: 0;
-    left: -200px;
-    background-color: var(--sidebar-bg);
-    height: 100%;
-    padding-top: 20px;
-    transition: left var(--transition-speed);
-    z-index: 100;
-    overflow: auto;
+  position: fixed;
+  top: 0;
+  left: -250px; /* Hidden by default */
+  width: 250px;
+  height: 100%;
+  background-color: var(--sidebar-bg);
+  color: #fff;
+  overflow-y: auto;
+  transition: left 0.3s ease;
+  z-index: 2000;
+  padding-top: 20px;
 }
 
+.sidebar.open {
+  left: 0;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  text-align: center;
+  padding: 10px 0;
+  background-color: #23272b;
+  margin-bottom: 15px;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+}
+
+/* Sidebar Menu List */
 .sidebar ul {
-    list-style-type: none;
-    padding: 0;
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar ul li a {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--link-color);
-    padding: 20px;
-    text-decoration: none;
-    font-size: 16px;
-    text-align: center;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+  display: block;
+  padding: 12px 20px;
+  color: #ddd;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
 }
 
-.sidebar ul li a img {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 10px;
-    transition: transform 0.3s ease;
+.sidebar ul li a:hover {
+  background-color: var(--sidebar-hover);
 }
 
-.sidebar ul li a p {
-    margin: 0;
-    font-size: 14px;
-    transition: font-size 0.3s ease, font-weight 0.3s ease;
+/* Close Button */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #fff;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  cursor: pointer;
 }
 
-.sidebar ul li a:hover,
-.sidebar ul li a:active {
-    background-color: var(--link-hover-bg);
-    color: var(--link-hover-color);
-}
-
-.sidebar ul li a:hover img,
-.sidebar ul li a:active img {
-    transform: scale(0.8);
-}
-
-.sidebar ul li a:hover p,
-.sidebar ul li a:active p {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* Hamburger menu icon */
+/* Menu Icon Styles */
 .menu-icon {
-    display: block;
-    cursor: pointer;
-    font-size: 30px;
-    color: var(--menu-icon-color);
-    z-index: 101;
-    position: fixed;
-    top: 10px;
-    left: 10px;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 24px;
+  color: var(--menu-icon-color);
+  z-index: 2100;
+  cursor: pointer;
 }
 
-/* Sidebar open state */
-.sidebar.open {
-    left: 0;
-}
 
-/* Change the icon color when menu is open */
-.sidebar.open ~ .menu-icon {
-    color: var(--menu-icon-open-color);
-}
-
-/* Mobile-specific styles */
-@media (max-width: 768px) {
-    .menu-icon {
-        display: block;
-    }
-
-    .sidebar ul li a {
-        padding: 15px;
-    }
-
-    .sidebar ul li a img {
-        width: 40px;
-        height: 40px;
-    }
-
-    .sidebar ul li a p {
-        font-size: 12px;
-    }
-
-    .sidebar ul li a:active {
-        background-color: var(--link-hover-bg);
-        color: var(--link-hover-color);
-    }
-
-    .sidebar ul li a:active img {
-        transform: scale(0.8);
-    }
-
-    .sidebar ul li a:active p {
-        font-size: 18px;
-        font-weight: bold;
-    }
-}
