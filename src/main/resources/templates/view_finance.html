@@ -12,11 +12,12 @@
   <link rel="stylesheet" href="/css/view_finance.css">
   <!-- Global styles (if any) -->
   <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <link rel="stylesheet" th:href="@{/css/menu.css}">
 </head>
 <body>
 <div class="wrapper">
   <!-- Include the Finance Sidebar Menu -->
-  <div th:replace="~{fragments/finance_menu :: menu}"></div>
+  <div th:replace="~{fragments/menu :: menu}"></div>
 
   <!-- Header Section -->
   <header class="header">
@@ -133,6 +134,7 @@
     });
   });
 </script>
+
 </body>
 </html>
 

@@ -9,13 +9,15 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom CSS for Add Finance Page -->
+
   <link rel="stylesheet" href="/css/add_finance.css">
   <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <link rel="stylesheet" th:href="@{/css/menu.css}">
 </head>
 <body>
 <div class="wrapper">
   <!-- Include the Finance Sidebar Menu -->
-  <div th:replace="~{fragments/finance_menu :: menu}"></div>
+  <div th:replace="~{fragments/menu :: menu}"></div>
 
   <!-- Header Section -->
   <header class="header">
@@ -176,6 +178,7 @@
       });
   })();
 </script>
+
 </body>
 </html>
 

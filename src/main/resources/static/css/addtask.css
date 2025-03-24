@@ -1,36 +1,33 @@
 /* Form Container Styles */
-.container {
+.form-container {
     width: 100%;
     max-width: 600px;
     margin: 40px auto;
     padding: 20px;
-
-    /* Light background color for contrast */
     background-color: #E8F8FD;
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.logo-section  .heading-section {
+.logo-section .heading-section {
     display: inline-block;
     margin-left: 20vw;
     font-size: 18px;
     font-weight: bold;
 }
 
-
 /* Form Label and Input Styles */
-.container label {
+.form-container label {
     display: block;
     margin-top: 15px;
     font-weight: bold;
     color: #004733;
 }
 
-.container input[type="text"],
-.container input[type="date"],
-.container select,
-.container textarea {
+.form-container input[type="text"],
+.form-container input[type="date"],
+.form-container select,
+.form-container textarea {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
@@ -40,18 +37,18 @@
     box-sizing: border-box;
 }
 
-.container textarea {
-    resize: none; /* Disable resize for text area */
+.form-container textarea {
+    resize: none;
 }
 
 /* Button Group Styling */
-.button-group {
+.form-container .button-group {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
 }
 
-.btn {
+.form-container .btn {
     width: 48%;
     padding: 12px;
     font-size: 16px;
@@ -61,36 +58,37 @@
     color: white;
 }
 
-.btn-create {
-    background-color: #007BFF; /* Blue for Create button */
+.form-container .btn-create {
+    background-color: #007BFF;
 }
 
-.btn-create:hover {
+.form-container .btn-create:hover {
     background-color: #0056b3;
 }
 
-.btn-cancel {
-    background-color: #DC3545; /* Red for Cancel button */
+.form-container .btn-cancel {
+    background-color: #DC3545;
 }
 
-.btn-cancel:hover {
+.form-container .btn-cancel:hover {
     background-color: #c82333;
 }
 
 /* Responsive Layout for Mobile */
 @media (max-width: 768px) {
-    .container {
+    .form-container {
         width: 90%;
     }
 
-    .logo-section  .heading-section {
+    .logo-section .heading-section {
         display: none;
     }
 
-    .button-group {
+    .form-container .button-group {
         flex-direction: column;
     }
-    .btn {
+
+    .form-container .btn {
         width: 100%;
         margin-top: 10px;
     }
