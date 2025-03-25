@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,7 +33,7 @@ public class FinanceService {
         this.financeRepository = financeRepository;
     }
 
-    // Get authenticated user
+    // Get authenticated user from security context
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -40,9 +41,19 @@ public class FinanceService {
     }
 
     // Save a new finance transaction
+    @Transactional
     public Finance saveFinance(Finance finance) {
         User user = getAuthenticatedUser();
+
+        // Ensure user balance is not null (initialize it in User entity ideally)
+        BigDecimal currentBalance = (user.getBalance() != null) ? user.getBalance() : BigDecimal.ZERO;
+        BigDecimal adjusted = currentBalance.add(finance.getAmount());
+        user.setBalance(adjusted);
+
         finance.setUser(user);
+        // Set the finance record's balance field (if intended to represent user's balance after transaction)
+        finance.setBalance(adjusted);
+
         return financeRepository.save(finance);
     }
 
@@ -77,16 +88,28 @@ public class FinanceService {
     }
 
     // Update a finance record
+    @Transactional
     public boolean updateFinance(Finance finance) {
         User user = getAuthenticatedUser();
 
         Optional<Finance> financeInDbOpt = financeRepository.findById(finance.getId());
-        if (!financeInDbOpt.isPresent()) return false;
+        if (!financeInDbOpt.isPresent()) {
+            return false;
+        }
 
         Finance existingFinance = financeInDbOpt.get();
-        if (!existingFinance.getUser().equals(user)) return false;
+        // Compare by id for clarity (assuming neither is null)
+        if (existingFinance.getUser() == null ||
+                !existingFinance.getUser().getId().equals(user.getId())) {
+            return false;
+        }
 
-        // Update fields
+        // Adjust user's balance: subtract old transaction and add new one
+        BigDecimal currentBalance = (user.getBalance() != null) ? user.getBalance() : BigDecimal.ZERO;
+        BigDecimal adjusted = currentBalance.subtract(existingFinance.getAmount()).add(finance.getAmount());
+        user.setBalance(adjusted);
+
+        // Update finance fields
         existingFinance.setTransactionDate(finance.getTransactionDate());
         existingFinance.setDescription(finance.getDescription());
         existingFinance.setAmount(finance.getAmount());
@@ -94,22 +117,34 @@ public class FinanceService {
         existingFinance.setTransactionType(finance.getTransactionType());
         existingFinance.setPaymentMethod(finance.getPaymentMethod());
         existingFinance.setCounterparty(finance.getCounterparty());
-        existingFinance.setBalance(finance.getBalance());
         existingFinance.setLoanStatus(finance.getLoanStatus());
+
+        // Set finance record balance to reflect updated user balance if needed
+        existingFinance.setBalance(adjusted);
 
         financeRepository.save(existingFinance);
         return true;
     }
 
     // Delete a finance record
+    @Transactional
     public boolean deleteFinance(Long financeId) {
         User user = getAuthenticatedUser();
 
         Optional<Finance> financeOpt = financeRepository.findById(financeId);
-        if (!financeOpt.isPresent()) return false;
+        if (!financeOpt.isPresent()) {
+            return false;
+        }
 
         Finance finance = financeOpt.get();
-        if (!finance.getUser().equals(user)) return false;
+        if (finance.getUser() == null || !finance.getUser().getId().equals(user.getId())) {
+            return false;
+        }
+
+        // Subtract the finance amount from the user's balance
+        BigDecimal currentBalance = (user.getBalance() != null) ? user.getBalance() : BigDecimal.ZERO;
+        BigDecimal adjustedAmount = currentBalance.subtract(finance.getAmount());
+        user.setBalance(adjustedAmount);
 
         financeRepository.delete(finance);
         return true;
@@ -124,7 +159,9 @@ public class FinanceService {
                 .filter(finance -> YearMonth.from(finance.getTransactionDate()).equals(yearMonth))
                 .collect(Collectors.toList());
 
-        return transactions.stream().map(Finance::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return transactions.stream()
+                .map(Finance::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     // Get yearly financial summary
@@ -135,10 +172,12 @@ public class FinanceService {
                 .filter(finance -> finance.getTransactionDate().getYear() == year)
                 .collect(Collectors.toList());
 
-        return transactions.stream().map(Finance::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return transactions.stream()
+                .map(Finance::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    // Get total income vs expenses
+    // Get total income vs expenses summary
     public BigDecimal[] getIncomeVsExpenseSummary() {
         User user = getAuthenticatedUser();
         List<Finance> transactions = financeRepository.findByUser(user);
@@ -163,20 +202,26 @@ public class FinanceService {
     }
 
     // Mark a loan or borrow transaction as completed
+    @Transactional
     public boolean markLoanAsCompleted(Long financeId) {
         User user = getAuthenticatedUser();
 
         Optional<Finance> financeOpt = financeRepository.findById(financeId);
-        if (!financeOpt.isPresent()) return false;
+        if (!financeOpt.isPresent()) {
+            return false;
+        }
 
         Finance finance = financeOpt.get();
-        if (!finance.getUser().equals(user)) return false;
+        if (finance.getUser() == null || !finance.getUser().getId().equals(user.getId())) {
+            return false;
+        }
 
         finance.setLoanStatus(LoanStatus.COMPLETED);
         financeRepository.save(finance);
         return true;
     }
 
+    // Find finance by id ensuring it belongs to the authenticated user
     public Finance findFinanceById(Long financeId) {
         User user = getAuthenticatedUser();
         Optional<Finance> financeOpt = financeRepository.findById(financeId);
@@ -184,11 +229,15 @@ public class FinanceService {
             return null;
         }
         Finance finance = financeOpt.get();
-        // Ensure the finance record belongs to the authenticated user
-        if (!finance.getUser().equals(user)) {
+        if (finance.getUser() == null || !finance.getUser().getId().equals(user.getId())) {
             return null;
         }
         return finance;
+    }
+
+    public BigDecimal getUserBalance() {
+        User user = getAuthenticatedUser();
+        return user.getBalance();
     }
 }
 

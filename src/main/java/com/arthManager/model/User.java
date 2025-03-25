@@ -1,12 +1,15 @@
 package com.arthManager.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 
 @Entity
 public class User implements UserDetails {
@@ -31,6 +34,15 @@ public class User implements UserDetails {
 
     private Boolean termsAccepted = false;
 
+    private BigDecimal balance = BigDecimal.ZERO;
+
+    public BigDecimal getBalance(){
+        return this.balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
 
     // Overriding methods of UserDetails interface
 

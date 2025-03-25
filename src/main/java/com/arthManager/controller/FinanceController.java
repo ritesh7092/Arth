@@ -33,6 +33,8 @@ public class FinanceController {
         sortFinancesByTransactionDate(allFinances);
         model.addAttribute("allFinances", allFinances);
 
+        model.addAttribute("balance", financeService.getUserBalance());
+
         // Set server time to be displayed on the dashboard
         LocalDateTime now = LocalDateTime.now();
         String formattedDate = DateTimeFormatter.ofPattern("MM/dd/yyyy").format(now);

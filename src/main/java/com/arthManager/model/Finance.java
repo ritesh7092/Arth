@@ -60,7 +60,7 @@ public class Finance {
 
     // Optional balance field to track remaining amount for a loan/borrow transaction
     @Column(name = "balance")
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     // Relationship: Each Finance record belongs to one User.
     @ManyToOne
