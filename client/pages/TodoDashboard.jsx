@@ -1,10 +1,10 @@
+// TodoDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import 'animate.css'; // For fade-in animations
-import Navbar from '../components/NavbarWithSidebar';
+import 'animate.css'; // For animations
 
 const TodoDashboard = () => {
-  // Sample tasks simulating fetched data (dateAdded in "YYYY-MM-DD" format)
+  // Sample tasks simulating fetched data
   const sampleTasks = [
     { id: 1, title: "Finish report", shortDescription: "Complete quarterly report", priority: "high", dateAdded: "2025-03-28", dueDate: "2025-03-28", completed: false },
     { id: 2, title: "Team meeting", shortDescription: "Discuss project progress", priority: "medium", dateAdded: "2025-02-15", dueDate: "2025-02-15", completed: false },
@@ -40,7 +40,7 @@ const TodoDashboard = () => {
   const completedCount = allTasks.filter(task => task.completed).length;
   const pendingCount = allTasks.length - completedCount;
 
-  // For priority columns (using all tasks sorted by date)
+  // For priority columns (using today's tasks)
   const filterByPriority = (priority) => todayTasks.filter(task => task.priority === priority);
 
   // Filtering "My Todos" based on either a specific date or month/year
@@ -52,7 +52,6 @@ const TodoDashboard = () => {
       const taskMonth = taskDate.getMonth(); // 0-indexed: Jan=0, Feb=1, etc.
       const taskYear = taskDate.getFullYear();
       let monthMatch = selectedMonth === "All" || taskMonth === (months.indexOf(selectedMonth) - 1); 
-      // Explanation: months[0] is "All", so Jan is at index 1 which corresponds to 0.
       let yearMatch = selectedYear === "All" || taskYear === parseInt(selectedYear, 10);
       return monthMatch && yearMatch;
     }
@@ -98,58 +97,55 @@ const TodoDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6 space-y-10">
       {/* Header Section */}
-      {/* <Navbar/> */}
       <header 
-        className="relative rounded-lg overflow-hidden shadow-lg animate__animated animate__fadeIn"
+        className="relative rounded-xl overflow-hidden shadow-2xl animate__animated animate__fadeIn"
         style={{
-          background: "linear-gradient(135deg, #5D9CEC, #4267B2)",
-          backgroundImage: "url('/assets/images/dashboard-bg.jpg')",
+          background: "linear-gradient(135deg, #1F2937, #111827)",
+          backgroundImage: "url('/assets/images/todo-bg.jpg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-blue-900 opacity-60"></div>
-        <div className="relative z-10 p-6 flex flex-col sm:flex-row justify-between items-center">
+        <div className="absolute inset-0 bg-black opacity-70"></div>
+        <div className="relative z-10 p-8 flex flex-col sm:flex-row justify-between items-center">
           <div>
-            <h2 className="text-3xl font-semibold text-white">Tasks Due Today</h2>
-            <p className="text-sm text-blue-100">Keep your goals on track</p>
+            <h2 className="text-4xl font-bold text-white">Tasks Due Today</h2>
+            <p className="text-lg text-gray-300 mt-2">Keep your goals on track with precision.</p>
           </div>
           <Link 
             to="/todo/add" 
-            className="mt-4 sm:mt-0 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition duration-300"
+            className="mt-6 sm:mt-0 bg-green-500 text-white px-8 py-3 rounded-full shadow-lg hover:bg-green-600 transition duration-300"
           >
             + Add Task
           </Link>
         </div>
       </header>
 
-      {/* Priority Columns Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 animate__animated animate__fadeInUp">
-        {/* High Priority Column */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold text-blue-800 mb-4">High Priority</h3>
+      {/* Priority Columns Section (Smaller Boxes) */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4 animate__animated animate__fadeInUp">
+        {/* High Priority */}
+        <div className="bg-red-100 border-l-4 border-red-500 rounded-lg shadow p-4">
+          <h3 className="text-lg font-bold text-red-700 mb-3">High Priority</h3>
           {filterByPriority('high').length === 0 ? (
-            <p className="text-sm text-gray-500">No tasks for today</p>
+            <p className="text-base text-gray-600">No tasks for today.</p>
           ) : (
             filterByPriority('high').map(task => (
               <div
                 key={task.id}
-                className="p-3 mb-3 bg-white rounded shadow flex justify-between items-center transition transform hover:scale-105"
+                className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1"
               >
-                <div>
-                  <p className="font-medium text-gray-800">{task.title}</p>
-                  <p className="text-xs text-gray-500">{task.shortDescription}</p>
-                </div>
-                <div className="flex space-x-2">
+                <p className="font-semibold text-gray-800 text-base">{task.title}</p>
+                <p className="text-xs text-gray-500">{task.shortDescription}</p>
+                <div className="mt-2 flex justify-end space-x-2">
                   <Link
                     to={`/todo/${task.id}/done`}
-                    className="bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700 transition"
+                    className="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 transition"
                   >
                     Done
                   </Link>
                   <Link
                     to={`/todo/${task.id}`}
-                    className="bg-blue-600 text-white text-xs px-2 py-1 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600 transition"
                   >
                     Show
                   </Link>
@@ -159,31 +155,29 @@ const TodoDashboard = () => {
           )}
         </div>
 
-        {/* Medium Priority Column */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold text-yellow-800 mb-4">Medium Priority</h3>
+        {/* Medium Priority */}
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 rounded-lg shadow p-4">
+          <h3 className="text-lg font-bold text-yellow-700 mb-3">Medium Priority</h3>
           {filterByPriority('medium').length === 0 ? (
-            <p className="text-sm text-gray-500">No tasks for today</p>
+            <p className="text-base text-gray-600">No tasks for today.</p>
           ) : (
             filterByPriority('medium').map(task => (
               <div
                 key={task.id}
-                className="p-3 mb-3 bg-white rounded shadow flex justify-between items-center transition transform hover:scale-105"
+                className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1"
               >
-                <div>
-                  <p className="font-medium text-gray-800">{task.title}</p>
-                  <p className="text-xs text-gray-500">{task.shortDescription}</p>
-                </div>
-                <div className="flex space-x-2">
+                <p className="font-semibold text-gray-800 text-base">{task.title}</p>
+                <p className="text-xs text-gray-500">{task.shortDescription}</p>
+                <div className="mt-2 flex justify-end space-x-2">
                   <Link
                     to={`/todo/${task.id}/done`}
-                    className="bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700 transition"
+                    className="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 transition"
                   >
                     Done
                   </Link>
                   <Link
                     to={`/todo/${task.id}`}
-                    className="bg-blue-600 text-white text-xs px-2 py-1 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600 transition"
                   >
                     Show
                   </Link>
@@ -193,31 +187,29 @@ const TodoDashboard = () => {
           )}
         </div>
 
-        {/* Low Priority Column */}
-        <div className="bg-green-50 border border-green-200 rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold text-green-800 mb-4">Low Priority</h3>
+        {/* Low Priority */}
+        <div className="bg-green-100 border-l-4 border-green-500 rounded-lg shadow p-4">
+          <h3 className="text-lg font-bold text-green-700 mb-3">Low Priority</h3>
           {filterByPriority('low').length === 0 ? (
-            <p className="text-sm text-gray-500">No tasks for today</p>
+            <p className="text-base text-gray-600">No tasks for today.</p>
           ) : (
             filterByPriority('low').map(task => (
               <div
                 key={task.id}
-                className="p-3 mb-3 bg-white rounded shadow flex justify-between items-center transition transform hover:scale-105"
+                className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1"
               >
-                <div>
-                  <p className="font-medium text-gray-800">{task.title}</p>
-                  <p className="text-xs text-gray-500">{task.shortDescription}</p>
-                </div>
-                <div className="flex space-x-2">
+                <p className="font-semibold text-gray-800 text-base">{task.title}</p>
+                <p className="text-xs text-gray-500">{task.shortDescription}</p>
+                <div className="mt-2 flex justify-end space-x-2">
                   <Link
                     to={`/todo/${task.id}/done`}
-                    className="bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700 transition"
+                    className="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 transition"
                   >
                     Done
                   </Link>
                   <Link
                     to={`/todo/${task.id}`}
-                    className="bg-blue-600 text-white text-xs px-2 py-1 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600 transition"
                   >
                     Show
                   </Link>
@@ -229,35 +221,32 @@ const TodoDashboard = () => {
       </section>
 
       {/* My Todos Section with Filters and Pagination */}
-      <section className="bg-gray-50 border border-gray-200 rounded-lg shadow p-6 animate__animated animate__fadeInUp">
+      <section className="bg-white border border-gray-300 rounded-lg shadow-xl p-6 animate__animated animate__fadeInUp">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 space-y-2 sm:space-y-0">
-          <h2 className="text-xl font-semibold text-gray-800">My Todos</h2>
-          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-x-4">
-            <span className="text-sm text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-800">My Todos</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <span className="text-base text-gray-700">
               Total: {allTasks.length} | Completed: {completedCount} | Pending: {pendingCount}
             </span>
-            {/* Specific Date Filter */}
             <input
               type="date"
               value={selectedDate}
               onChange={handleDateChange}
-              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+              className="border border-gray-300 rounded px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {/* Month Filter */}
             <select
               value={selectedMonth}
               onChange={handleMonthChange}
-              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+              className="border border-gray-300 rounded px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {months.map(month => (
                 <option key={month} value={month}>{month}</option>
               ))}
             </select>
-            {/* Year Filter */}
             <select
               value={selectedYear}
               onChange={handleYearChange}
-              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+              className="border border-gray-300 rounded px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {years.map(year => (
                 <option key={year} value={year}>{year}</option>
@@ -265,36 +254,36 @@ const TodoDashboard = () => {
             </select>
           </div>
         </div>
-        <div className="divide-y divide-gray-200">
+        <div className="divide-y divide-gray-300">
           {filteredTodos.length === 0 ? (
-            <p className="py-4 text-gray-500">No tasks found for the selected date or filter</p>
+            <p className="py-4 text-gray-500 text-base">No tasks found for the selected filters.</p>
           ) : (
             currentTasks.map((task, index) => (
               <div
                 key={task.id}
                 className={`py-4 flex flex-col md:flex-row justify-between items-start md:items-center ${
-                  index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-50'
-                } transition duration-300 hover:bg-gray-200`}
+                  index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100'
+                } transition duration-300 hover:bg-gray-200 rounded`}
               >
                 <div className="mb-2 md:mb-0">
-                  <p className="font-medium text-gray-800">{task.title}</p>
-                  <p className="text-sm text-gray-600">{task.shortDescription}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-semibold text-gray-800 text-lg">{task.title}</p>
+                  <p className="text-base text-gray-600">{task.shortDescription}</p>
+                  <p className="text-sm text-gray-500">
                     Added: {task.dateAdded} | Due: {task.dueDate}
                   </p>
                 </div>
-                <div className="flex space-x-2">
-                  <button className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition">
+                <div className="flex space-x-3">
+                  <button className="bg-red-600 text-white px-4 py-2 rounded text-base hover:bg-red-700 transition">
                     Delete
                   </button>
                   {!task.completed && (
-                    <button className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 transition">
+                    <button className="bg-yellow-500 text-white px-4 py-2 rounded text-base hover:bg-yellow-600 transition">
                       Edit
                     </button>
                   )}
                   <Link
                     to={`/todo/${task.id}`}
-                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white px-4 py-2 rounded text-base hover:bg-blue-700 transition"
                   >
                     Show
                   </Link>
@@ -304,7 +293,7 @@ const TodoDashboard = () => {
           )}
         </div>
         {filteredTodos.length > tasksPerPage && (
-          <div className="flex justify-between items-center mt-4">
+          <div className="flex justify-between items-center mt-6">
             <button
               onClick={goToPrevPage}
               disabled={currentPage === 1}
@@ -314,7 +303,7 @@ const TodoDashboard = () => {
             >
               Previous
             </button>
-            <span className="text-sm text-gray-600">
+            <span className="text-base text-gray-700">
               Page {currentPage} of {totalPages}
             </span>
             <button
@@ -334,3 +323,4 @@ const TodoDashboard = () => {
 };
 
 export default TodoDashboard;
+

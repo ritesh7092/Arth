@@ -7,6 +7,7 @@ import FinanceDashboard from '../pages/FinanceDashboard';
 import Footer from '../components/Footer';
 import MainLayout from '../components/MainLayout'; // adjust the path as needed
 import DetailedReport from '../pages/DetailedReport';
+import AddFinance from '../pages/AddFinance';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,6 +36,14 @@ function App() {
           element={
             <MainLayout heading="Finance Dashboard">
               <FinanceDashboard />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/finance/add"
+          element={
+            <MainLayout heading="Add Finance">
+              <AddFinance/>
             </MainLayout>
           }
         />
