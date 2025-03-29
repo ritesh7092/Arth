@@ -57,7 +57,7 @@ const NavbarWithSidebar = ({ heading }) => {
             </Link>
           </li>
           <li className="px-4 py-2 hover:bg-gray-700">
-            <Link to="/dashboard" onClick={closeSidebar} className="flex items-center">
+            <Link to="/todo/dashboard" onClick={closeSidebar} className="flex items-center">
               <FaTasks className="mr-2" /> Todo Dashboard
             </Link>
           </li>

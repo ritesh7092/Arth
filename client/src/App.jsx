@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import TodoDashboard from '../pages/TodoDashboard';
+import FinanceDashboard from '../pages/FinanceDashboard';
 import Footer from '../components/Footer';
 import MainLayout from '../components/MainLayout'; // adjust the path as needed
+import DetailedReport from '../pages/DetailedReport';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -27,7 +29,7 @@ function App() {
           }
         />
         {/* Example: You can add other routes similarly */}
-        {/* 
+        
         <Route
           path="/finance/dashboard"
           element={
@@ -36,7 +38,15 @@ function App() {
             </MainLayout>
           }
         />
-        */}
+        <Route
+          path="/finance/report"
+          element={
+            <MainLayout heading="Detailed Report">
+              <DetailedReport/>
+            </MainLayout>
+          }
+        />
+       
       </Routes>
       <Footer />
     </BrowserRouter>
