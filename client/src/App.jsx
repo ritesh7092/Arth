@@ -1,0 +1,114 @@
+// App.jsx
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './Home';
+import TodoDashboard from '../pages/TodoDashboard';
+import Footer from '../components/Footer';
+import MainLayout from '../components/MainLayout'; // adjust the path as needed
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogout = () => {
+    // remove token, call logout API, etc.
+    setIsAuthenticated(false);
+  };
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/todo/dashboard"
+          element={
+            <MainLayout heading="Todo Dashboard">
+              <TodoDashboard />
+            </MainLayout>
+          }
+        />
+        {/* Example: You can add other routes similarly */}
+        {/* 
+        <Route
+          path="/finance/dashboard"
+          element={
+            <MainLayout heading="Finance Dashboard">
+              <FinanceDashboard />
+            </MainLayout>
+          }
+        />
+        */}
+      </Routes>
+      <Footer />
+    </BrowserRouter>
+  );
+}
+
+export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState } from 'react';
+// import { BrowserRouter, Routes, Route } from 'react-router-dom';
+// import Home from './Home';
+// import TodoDashboard from '../pages/TodoDashboard';
+// import Footer from '../components/Footer';
+
+// function App() {
+//   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+//   const handleLogout = () => {
+//     // remove token, call logout API, etc.
+//     setIsAuthenticated(false);
+//   };
+
+//   return (
+//     <BrowserRouter>
+//       <Routes>
+//         <Route
+//           path="/"
+//           element={
+//             <Home />
+//           }
+//         />
+//         <Route path="/todo/dashboard" element={<TodoDashboard />} />
+//         {/* <Route path="/finance/dashboard" element={<FinanceDashboard />} />
+//         <Route path="/profile" element={<Profile />} /> */}
+
+//         {/* <Route
+//           path="/"
+//           element={
+//             <Home isAuthenticated={isAuthenticated} handleLogout={handleLogout} />
+//           }
+//         /> */}
+//         {/* <Route path="/todo/dashboard" element={<TodoDashboard />} />
+//         <Route path="/finance/dashboard" element={<FinanceDashboard />} />
+//         <Route path="/profile" element={<Profile />} />
+//         <Route
+//           path="/login"
+//           element={<Login onLogin={() => setIsAuthenticated(true)} />}
+//         />
+//         <Route path="/register" element={<Register />} /> */}
+//       </Routes>
+//       <Footer/>
+//     </BrowserRouter>
+//   );
+// }
+
+// export default App;
