@@ -113,7 +113,7 @@ const TodoDashboard = () => {
             <p className="text-lg text-gray-300 mt-2">Keep your goals on track with precision.</p>
           </div>
           <Link 
-            to="/todo/add" 
+            to="/addtask" 
             className="mt-6 sm:mt-0 bg-green-500 text-white px-8 py-3 rounded-full shadow-lg hover:bg-green-600 transition duration-300"
           >
             + Add Task
@@ -130,10 +130,7 @@ const TodoDashboard = () => {
             <p className="text-base text-gray-600">No tasks for today.</p>
           ) : (
             filterByPriority('high').map(task => (
-              <div
-                key={task.id}
-                className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1"
-              >
+              <div key={task.id} className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1">
                 <p className="font-semibold text-gray-800 text-base">{task.title}</p>
                 <p className="text-xs text-gray-500">{task.shortDescription}</p>
                 <div className="mt-2 flex justify-end space-x-2">
@@ -142,6 +139,13 @@ const TodoDashboard = () => {
                     className="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 transition"
                   >
                     Done
+                  </Link>
+                  {/* Edit button now routes to an edit page */}
+                  <Link
+                    to={`/todo/edit/${task.id}`}
+                    className="bg-yellow-500 text-white text-xs px-2 py-1 rounded hover:bg-yellow-600 transition"
+                  >
+                    Edit
                   </Link>
                   <Link
                     to={`/todo/${task.id}`}
@@ -162,10 +166,7 @@ const TodoDashboard = () => {
             <p className="text-base text-gray-600">No tasks for today.</p>
           ) : (
             filterByPriority('medium').map(task => (
-              <div
-                key={task.id}
-                className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1"
-              >
+              <div key={task.id} className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1">
                 <p className="font-semibold text-gray-800 text-base">{task.title}</p>
                 <p className="text-xs text-gray-500">{task.shortDescription}</p>
                 <div className="mt-2 flex justify-end space-x-2">
@@ -174,6 +175,12 @@ const TodoDashboard = () => {
                     className="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 transition"
                   >
                     Done
+                  </Link>
+                  <Link
+                    to={`/todo/edit/${task.id}`}
+                    className="bg-yellow-500 text-white text-xs px-2 py-1 rounded hover:bg-yellow-600 transition"
+                  >
+                    Edit
                   </Link>
                   <Link
                     to={`/todo/${task.id}`}
@@ -194,10 +201,7 @@ const TodoDashboard = () => {
             <p className="text-base text-gray-600">No tasks for today.</p>
           ) : (
             filterByPriority('low').map(task => (
-              <div
-                key={task.id}
-                className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1"
-              >
+              <div key={task.id} className="p-3 mb-3 bg-white rounded shadow hover:shadow-lg transition transform hover:-translate-y-1">
                 <p className="font-semibold text-gray-800 text-base">{task.title}</p>
                 <p className="text-xs text-gray-500">{task.shortDescription}</p>
                 <div className="mt-2 flex justify-end space-x-2">
@@ -206,6 +210,12 @@ const TodoDashboard = () => {
                     className="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600 transition"
                   >
                     Done
+                  </Link>
+                  <Link
+                    to={`/todo/edit/${task.id}`}
+                    className="bg-yellow-500 text-white text-xs px-2 py-1 rounded hover:bg-yellow-600 transition"
+                  >
+                    Edit
                   </Link>
                   <Link
                     to={`/todo/${task.id}`}
@@ -277,9 +287,12 @@ const TodoDashboard = () => {
                     Delete
                   </button>
                   {!task.completed && (
-                    <button className="bg-yellow-500 text-white px-4 py-2 rounded text-base hover:bg-yellow-600 transition">
+                    <Link
+                      to={`/todo/edit/${task.id}`}
+                      className="bg-yellow-500 text-white px-4 py-2 rounded text-base hover:bg-yellow-600 transition"
+                    >
                       Edit
-                    </button>
+                    </Link>
                   )}
                   <Link
                     to={`/todo/${task.id}`}
@@ -323,4 +336,3 @@ const TodoDashboard = () => {
 };
 
 export default TodoDashboard;
-

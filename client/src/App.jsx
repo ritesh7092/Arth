@@ -8,6 +8,9 @@ import Footer from '../components/Footer';
 import MainLayout from '../components/MainLayout'; // adjust the path as needed
 import DetailedReport from '../pages/DetailedReport';
 import AddFinance from '../pages/AddFinance';
+import EditFinance from '../pages/EditFinancePage';
+import AddTodo from '../pages/AddTodo';
+import EditTodo from '../pages/EditTodo';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,6 +42,7 @@ function App() {
             </MainLayout>
           }
         />
+        
         <Route
           path="/finance/add"
           element={
@@ -47,6 +51,36 @@ function App() {
             </MainLayout>
           }
         />
+
+        <Route
+          path="/addtask"
+          element={
+            <MainLayout heading="Add Todo">
+              <AddTodo/>
+            </MainLayout>
+          }
+        />
+
+         {/* Dynamic route for editing a finance record */}
+         <Route
+          path="/finance/edit/:id"
+          element={
+            <MainLayout heading="Edit Finance">
+              <EditFinance/>
+            </MainLayout>
+          }
+        />
+
+         {/* Dynamic route for editing a finance record */}
+         <Route
+          path="/todo/edit/:id"
+          element={
+            <MainLayout heading="Edit TODO">
+              <EditTodo/>
+            </MainLayout>
+          }
+        />
+
         <Route
           path="/finance/report"
           element={
