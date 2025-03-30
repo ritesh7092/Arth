@@ -44,14 +44,14 @@ function App() {
             </MainLayout>
           }
         />
-        {/* <Route
+        <Route
           path='/about'
           element={
             <MainLayout heading="">
              <AboutPage/>
             </MainLayout>
           }
-        /> */}
+        />
         <Route
           path='/profile'
           element={

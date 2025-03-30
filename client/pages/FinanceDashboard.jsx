@@ -86,6 +86,28 @@ const FinanceDashboard = () => {
       counterparty: 'Friend',
       loanStatus: 'Pending',
     },
+    {
+      id: 8,
+      transactionDate: '2025-02-15',
+      description: 'Monthly Savings',
+      category: 'Savings',
+      transactionType: 'Credit',
+      amount: 2000,
+      paymentMethod: 'Bank Transfer',
+      counterparty: 'Self',
+      loanStatus: 'N/A',
+    },
+    {
+      id: 9,
+      transactionDate: '2025-01-20',
+      description: 'Lent money to friend',
+      category: 'Lent',
+      transactionType: 'Debit',
+      amount: 5000,
+      paymentMethod: 'Cash',
+      counterparty: 'Friend',
+      loanStatus: 'Pending',
+    },
     // Add additional transactions as needed...
   ]);
   const [filteredTransactions, setFilteredTransactions] = useState(transactions);

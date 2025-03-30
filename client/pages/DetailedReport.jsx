@@ -17,9 +17,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Le
 const DetailedReport = () => {
   // Sample transactions data – replace with your actual data source or API call
   const [transactions, setTransactions] = useState([
-    { id: 1, transactionDate: "2025-03-01", category: "Salary", transactionType: "Credit", amount: 50000 },
-    { id: 2, transactionDate: "2025-03-05", category: "Food", transactionType: "Debit", amount: 3000 },
-    { id: 3, transactionDate: "2025-03-05", category: "Rent", transactionType: "Debit", amount: 15000 },
+    { id: 1, transactionDate: "2025-02-01", category: "Salary", transactionType: "Credit", amount: 50000 },
+    { id: 2, transactionDate: "2025-01-05", category: "Food", transactionType: "Debit", amount: 3000 },
+    { id: 3, transactionDate: "2025-02-05", category: "Rent", transactionType: "Debit", amount: 15000 },
     { id: 4, transactionDate: "2025-03-10", category: "Loan", transactionType: "Debit", amount: 10000 },
     { id: 5, transactionDate: "2025-03-12", category: "Borrow", transactionType: "Credit", amount: 5000 },
     { id: 6, transactionDate: "2025-03-15", category: "Savings", transactionType: "Credit", amount: 2000 },
