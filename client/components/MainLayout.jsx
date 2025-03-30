@@ -6,7 +6,7 @@ const MainLayout = ({ heading, children }) => {
   return (
     <>
       <NavbarWithSidebar heading={heading} />
-      <div className="p-4">
+      <div className="">
         {children}
       </div>
     </>
