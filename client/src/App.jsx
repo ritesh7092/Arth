@@ -11,6 +11,9 @@ import AddFinance from '../pages/AddFinance';
 import EditFinance from '../pages/EditFinancePage';
 import AddTodo from '../pages/AddTodo';
 import EditTodo from '../pages/EditTodo';
+import LoginPage from '../pages/Login';
+import SignupPage from '../pages/Signup';
+import UserProfilePage from '../pages/UserProfilePage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,6 +27,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path='/login' element={<LoginPage />}/>
+        <Route 
+        path='/signup'
+        element={
+            <SignupPage/>
+        }
+        />
         <Route
           path="/todo/dashboard"
           element={
@@ -32,8 +42,15 @@ function App() {
             </MainLayout>
           }
         />
-        {/* Example: You can add other routes similarly */}
-        
+        <Route
+          path='/profile'
+          element={
+            <MainLayout heading="Your Profile">
+              <UserProfilePage/>
+            </MainLayout>
+          }
+        />
+
         <Route
           path="/finance/dashboard"
           element={
