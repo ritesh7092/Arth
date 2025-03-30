@@ -49,7 +49,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link to="/register" className="nav-link">
+                    <Link to="/signup" className="nav-link">
                       Register
                     </Link>
                   </li>
@@ -132,7 +132,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
             Join our platform to streamline your tasks and finances with cutting-edge technology.
           </p>
           {!isAuthenticated && (
-            <Link to="/register" className="btn btn-outline-light btn-lg mt-3">
+            <Link to="/signup" className="btn btn-outline-light btn-lg mt-3">
               Register Now
             </Link>
           )}
@@ -140,7 +140,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
       </section>
 
       
-      
+
 
       {/* Scroll-to-top Button */}
       <button className="scroll-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
