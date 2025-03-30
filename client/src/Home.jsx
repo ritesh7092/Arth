@@ -1,19 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import homebg from './assets/bg-theme.png'; // Ensure this path is correct
 
 // Bootstrap & Font Awesome (ensure these packages are installed)
 import 'bootstrap/dist/css/bootstrap.min.css';
 // import 'font-awesome/css/font-awesome.min.css';
 
-// Custom CSS (adjust path if needed)
+// Custom CSS
 import './landing.css';
 
-/**
- * Home component renders the landing page.
- * @param {Object} props
- * @param {boolean} props.isAuthenticated - Whether the user is logged in.
- * @param {Function} props.handleLogout - Function to handle user logout.
- */
 const Home = ({ isAuthenticated, handleLogout }) => {
   return (
     <div className="wrapper">
@@ -24,7 +19,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
             Arth
           </Link>
           <button
-            className="navbar-toggler text-white"
+            className="navbar-toggler"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarNav"
@@ -37,32 +32,15 @@ const Home = ({ isAuthenticated, handleLogout }) => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
               {isAuthenticated ? (
-                <>
-                  {/* <li className="nav-item">
-                    <Link to="/todo/dashboard" className="nav-link">
-                      Todo Dashboard
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/finance/dashboard" className="nav-link">
-                      Finance Dashboard
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/profile" className="nav-link">
-                      Profile
-                    </Link>
-                  </li> */}
-                  <li className="nav-item">
-                    <button
-                      type="button"
-                      className="nav-link btn btn-link text-decoration-none"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </>
+                <li className="nav-item">
+                  <button
+                    type="button"
+                    className="nav-link btn btn-link"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </li>
               ) : (
                 <>
                   <li className="nav-item">
@@ -83,69 +61,91 @@ const Home = ({ isAuthenticated, handleLogout }) => {
       </nav>
 
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: `url(${homebg})` }}>
         <div className="hero-overlay"></div>
-        <div className="hero-content">
-          <h1>Welcome to Arth</h1>
-          <p>Your intelligent platform for Task and Finance Management</p>
-          <Link to="/todo/dashboard" className="btn btn-primary me-2">
-            Explore Tasks
-          </Link>
-          <Link to="/finance/dashboard" className="btn btn-primary">
-            Explore Finance
-          </Link>
+        <div className="container hero-content text-center">
+          <h1 className="display-4">Welcome to Arth</h1>
+          <p className="lead">
+            Your personal finance and task management platform for a smarter lifestyle.
+          </p>
+          <p className="mb-4">
+            Manage your tasks and finances effortlessly. Join us today and take control of your life!
+          </p>
+          <div className="d-flex flex-wrap justify-content-center gap-3">
+            <Link to="/login" className="btn btn-primary btn-lg">
+              Get Started
+            </Link>
+            <Link to="/about" className="btn btn-outline-light btn-lg">
+              Learn More
+            </Link>
+            <Link to="/todo/dashboard" className="btn btn-secondary btn-lg">
+              Explore Tasks
+            </Link>
+            <Link to="/finance/dashboard" className="btn btn-secondary btn-lg">
+              Explore Finance
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="features">
+      <section className="features py-5">
         <div className="container">
-          <h2>Our Key Features</h2>
-          <div className="row justify-content-center">
-            <div className="col-md-4 feature-item">
-              <i className="fa fa-tasks"></i>
-              <h3>Task Management</h3>
-              <p>
-                Organize your tasks with ease and boost your productivity with our
-                dynamic dashboard.
-              </p>
+          <h2 className="section-title text-center mb-5">Our Key Features</h2>
+          <div className="row g-4">
+            <div className="col-md-4">
+              <div className="feature-item p-4 text-center">
+                <i className="fa fa-tasks mb-3"></i>
+                <h3>Task Management</h3>
+                <p>
+                  Organize your tasks with ease and boost your productivity using our dynamic dashboard.
+                </p>
+              </div>
             </div>
-            <div className="col-md-4 feature-item">
-              <i className="fa fa-chart-line"></i>
-              <h3>Finance Tracking</h3>
-              <p>
-                Monitor your expenses and incomes, manage budgets, and get financial
-                insights.
-              </p>
+            <div className="col-md-4">
+              <div className="feature-item p-4 text-center">
+                <i className="fa fa-chart-line mb-3"></i>
+                <h3>Finance Tracking</h3>
+                <p>
+                  Monitor your expenses and incomes, manage budgets, and get deep financial insights.
+                </p>
+              </div>
             </div>
-            <div className="col-md-4 feature-item">
-              <i className="fa fa-robot"></i>
-              <h3>Intelligent Assistance</h3>
-              <p>
-                Stay ahead with our smart assistant that provides tips and insights
-                tailored for you.
-              </p>
+            <div className="col-md-4">
+              <div className="feature-item p-4 text-center">
+                <i className="fa fa-robot mb-3"></i>
+                <h3>Intelligent Assistance</h3>
+                <p>
+                  Stay ahead with our smart assistant providing personalized tips and insights.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Call to Action Section */}
-      <section className="cta">
-        <div className="container">
+      {/* Call To Action Section */}
+      <section className="cta py-5">
+        <div className="container text-center">
           <h2>Get Started with Arth Today!</h2>
           <p>
             Join our platform to streamline your tasks and finances with cutting-edge technology.
           </p>
-          {/* Optionally display a register button if not authenticated */}
           {!isAuthenticated && (
-            <Link to="/register" className="btn">
+            <Link to="/register" className="btn btn-outline-light btn-lg mt-3">
               Register Now
             </Link>
           )}
         </div>
       </section>
 
+      
+      
+
+      {/* Scroll-to-top Button */}
+      <button className="scroll-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <i className="fa fa-arrow-up"></i>
+      </button>
     </div>
   );
 };
