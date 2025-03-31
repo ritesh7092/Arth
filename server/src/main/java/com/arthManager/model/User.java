@@ -23,9 +23,18 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     @Column(nullable = false, unique = false)
     private String email;
+
+    private String role = "ROLE_USER";
 
     private String highestQualification;
 
