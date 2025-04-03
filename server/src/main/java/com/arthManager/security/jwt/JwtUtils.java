@@ -1,4 +1,4 @@
-package com.arthManager.security;
+package com.arthManager.security.jwt;
 
 import com.arthManager.service.UserDetailsImpl;
 import io.jsonwebtoken.JwtException;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
-import java.security.Security;
 import java.util.Date;
 import java.util.stream.Collectors;
 

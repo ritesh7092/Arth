@@ -22,23 +22,22 @@ public class Finance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Date when the transaction occurred
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
 
-    // A brief description of the transaction
+
     @Column(name = "description", nullable = false)
     private String description;
 
-    // The monetary amount of the transaction; using BigDecimal for precision
+    // The monetary amount
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
-    // Category (e.g., Food, Transportation, Utilities) for organizing transactions
+    // (e.g., Food, Transportation, Utilities)
     @Column(name = "category", nullable = false)
     private String category;
 
-    // Transaction type to distinguish income, expense, borrow, or loan transactions
+    //  to distinguish income, expense, borrow, or loan transactions
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType;
