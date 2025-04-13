@@ -16,6 +16,7 @@ import SignupPage from '../pages/Signup';
 import UserProfilePage from '../pages/UserProfilePage';
 import EditUserProfilePage from '../pages/EditProfilePage';
 import AboutPage from '../pages/About';
+import Chatbot from '../pages/Chatbot';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -57,6 +58,14 @@ function App() {
           element={
             <MainLayout heading="Your Profile">
               <UserProfilePage/>
+            </MainLayout>
+          }
+        />
+        <Route
+          path='/chatbot'
+          element={
+            <MainLayout heading="Your Personal AI Assistant">
+              <Chatbot/>
             </MainLayout>
           }
         />
