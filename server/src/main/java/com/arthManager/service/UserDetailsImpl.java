@@ -22,6 +22,10 @@ public class UserDetailsImpl implements UserDetails {
     private String username;
     private String email;
 
+    private String password;
+
+    private Collection<? extends GrantedAuthority> authorities;
+
     public UserDetailsImpl(Long id, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
@@ -29,10 +33,6 @@ public class UserDetailsImpl implements UserDetails {
         this.password = password;
         this.authorities = authorities;
     }
-
-    private String password;
-
-    private Collection<? extends GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
