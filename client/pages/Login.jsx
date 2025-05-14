@@ -23,15 +23,21 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch('http://localhost:8080/api/auth/public/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
+
       const data = await response.json();
+
       if (!response.ok) {
         setBackendError(data.message || 'Login failed. Please try again.');
       } else {
+        // Store the JWT token in localStorage (or sessionStorage)
+        localStorage.setItem('authToken', data.token); // Store JWT token
+
+        // Optionally, redirect user to dashboard after successful login
         navigate('/dashboard');
       }
     } catch (error) {
@@ -109,6 +115,4 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
 
