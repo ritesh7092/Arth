@@ -1,63 +1,41 @@
 package com.arthManager.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.arthManager.dto.LoginRequest;
+import com.arthManager.dto.RegisterRequest;
 import com.arthManager.model.User;
 import com.arthManager.service.UserService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
+@RequestMapping("/api/auth")
+@AllArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private UserService userService;
 
-    @Autowired
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    @PostMapping("/public/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
+        return ResponseEntity.ok(userService.authenticateUser(loginRequest));
     }
 
-    // Handler for registration page
-    @GetMapping("/register")
-    public String showRegistrationPage(Model model) {
-        // Add empty User
-        model.addAttribute("user", new User());
-
-        // Returns the register.html page
-        return "register";
-    }
-
-    @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user, Model model,
-                               RedirectAttributes redirectAttributes) {
-
+    @PostMapping("/public/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest){
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setPassword(registerRequest.getPassword());
+        user.setEmail(registerRequest.getEmail());
+        user.setRole("ROLE_USER");
         try {
-            // Register the user in the service
-            User userReturned = userService.registerUser(user);
-
-            System.out.println("All success ");
-            // If successful, add a success message and redirect to login
-            redirectAttributes.addFlashAttribute("successMessage", "You have been registered. Please login.");
-
-            // Redirect to login
-            return "redirect:/login";
-
-        } catch(Exception e) {
-
-            // if it is due to username already exists
-            if(e.getMessage().equalsIgnoreCase("Username already exists")) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Registration unsuccessful due to existing username. Please try again.");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Registration unsuccessful. Please try again.");
-            }
-
-            model.addAttribute("user", user);
-
-            // Redirect to register
-            return "redirect:/register";
+            userService.registerUser(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+        return ResponseEntity.ok("User registered successfully");
+
     }
 }

@@ -3,6 +3,7 @@ package com.arthManager.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.arthManager.model.Task;
 import com.arthManager.model.User;
@@ -31,7 +32,9 @@ public class TaskService {
         String username = authentication.getName();
 
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
 
         // Set the user who is saving the task
         task.setUser(user);
@@ -48,7 +51,9 @@ public class TaskService {
         String username = authentication.getName();
 
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
 
         // Get current date
         LocalDate currentDate = LocalDate.now();
@@ -70,7 +75,9 @@ public class TaskService {
         String username = authentication.getName();
 
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
 
         return taskRepository.findByUser(user);
     }
@@ -83,7 +90,9 @@ public class TaskService {
         // Get the username
         String username = authentication.getName();
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
 
         // Get the Task with user combined
         Task task = taskRepository.findByUserAndId(user, taskId);
@@ -105,7 +114,9 @@ public class TaskService {
         // Get the username
         String username = authentication.getName();
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
         // Get the Task with user combined
         Task task = taskRepository.findByUserAndId(user, taskId);
         if (task != null && !task.isCompleted()) {
@@ -124,7 +135,9 @@ public class TaskService {
         String username = authentication.getName();
 
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
 
         // Get the Task with user combined
         Task task = taskRepository.findByUserAndId(user, taskId);
@@ -145,7 +158,9 @@ public class TaskService {
         String username = authentication.getName();
 
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
 
         // Get task in database
         Task taskInDb = taskRepository.getById(task.getId());
@@ -187,7 +202,9 @@ public class TaskService {
         String username = authentication.getName();
 
         // Get the user object
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
 
         // Get task in database
         Task taskInDb = taskRepository.getById(task.getId());
