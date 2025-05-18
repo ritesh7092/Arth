@@ -1,11 +1,11 @@
-package com.arthManager.service;
+package com.arthManager.finance.service;
 
-import com.arthManager.model.Finance;
-import com.arthManager.model.User;
-import com.arthManager.model.Finance.LoanStatus;
-import com.arthManager.model.Finance.TransactionType;
-import com.arthManager.repository.FinanceRepository;
-import com.arthManager.repository.UserRepository;
+import com.arthManager.finance.model.Finance;
+import com.arthManager.user.model.User;
+import com.arthManager.finance.model.Finance.LoanStatus;
+import com.arthManager.finance.model.Finance.TransactionType;
+import com.arthManager.finance.repository.FinanceRepository;
+import com.arthManager.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

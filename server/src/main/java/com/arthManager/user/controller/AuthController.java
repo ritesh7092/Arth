@@ -1,9 +1,9 @@
-package com.arthManager.controller;
+package com.arthManager.user.controller;
 
-import com.arthManager.dto.LoginRequest;
-import com.arthManager.dto.RegisterRequest;
-import com.arthManager.model.User;
-import com.arthManager.service.UserService;
+import com.arthManager.user.dto.LoginRequest;
+import com.arthManager.user.dto.RegisterRequest;
+import com.arthManager.user.model.User;
+import com.arthManager.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

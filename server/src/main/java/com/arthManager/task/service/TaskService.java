@@ -1,14 +1,14 @@
-package com.arthManager.service;
+package com.arthManager.task.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import com.arthManager.model.Task;
-import com.arthManager.model.User;
-import com.arthManager.repository.TaskRepository;
-import com.arthManager.repository.UserRepository;
+import com.arthManager.task.model.Task;
+import com.arthManager.user.model.User;
+import com.arthManager.task.repository.TaskRepository;
+import com.arthManager.user.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

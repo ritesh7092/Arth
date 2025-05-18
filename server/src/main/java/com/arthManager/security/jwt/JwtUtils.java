@@ -1,6 +1,6 @@
 package com.arthManager.security.jwt;
 
-import com.arthManager.service.UserDetailsImpl;
+import com.arthManager.user.service.UserDetailsImpl;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

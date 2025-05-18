@@ -1,7 +1,7 @@
-package com.arthManager.service;
+package com.arthManager.user.service;
 
-import com.arthManager.model.User;
-import com.arthManager.repository.UserRepository;
+import com.arthManager.user.model.User;
+import com.arthManager.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

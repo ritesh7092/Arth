@@ -1,7 +1,7 @@
 package com.arthManager.security;
 
 import com.arthManager.security.jwt.JwtAuthenticationFilter;
-import com.arthManager.service.UserDetailsServiceImpl;
+import com.arthManager.user.service.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.arthManager.dto;
+package com.arthManager.user.dto;
 
 import lombok.Data;
 

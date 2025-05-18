@@ -1,8 +1,8 @@
-package com.arthManager.service;
+package com.arthManager.user.service;
 
-import com.arthManager.dto.LoginRequest;
-import com.arthManager.model.User;
-import com.arthManager.repository.UserRepository;
+import com.arthManager.user.dto.LoginRequest;
+import com.arthManager.user.model.User;
+import com.arthManager.user.repository.UserRepository;
 import com.arthManager.security.jwt.JwtAuthenticationResponse;
 import com.arthManager.security.jwt.JwtUtils;
 import lombok.AllArgsConstructor;

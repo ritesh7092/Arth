@@ -1,8 +1,8 @@
-package com.arthManager.repository;
+package com.arthManager.finance.repository;
 
-import com.arthManager.model.User;
+import com.arthManager.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.arthManager.model.Finance;
+import com.arthManager.finance.model.Finance;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;

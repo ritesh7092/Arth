@@ -1,5 +1,6 @@
-package com.arthManager.model;
+package com.arthManager.task.model;
 
+import com.arthManager.user.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;

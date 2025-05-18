@@ -1,4 +1,4 @@
-package com.arthManager.model;
+package com.arthManager.user.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

@@ -1,8 +1,8 @@
-package com.arthManager.repository;
+package com.arthManager.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.arthManager.model.User;
+import com.arthManager.user.model.User;
 
 import java.util.Optional;
 

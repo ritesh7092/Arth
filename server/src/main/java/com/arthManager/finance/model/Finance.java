@@ -1,5 +1,6 @@
-package com.arthManager.model;
+package com.arthManager.finance.model;
 
+import com.arthManager.user.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

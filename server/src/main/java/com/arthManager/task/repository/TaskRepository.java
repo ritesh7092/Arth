@@ -1,8 +1,8 @@
-package com.arthManager.repository;
+package com.arthManager.task.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.arthManager.model.Task;
-import com.arthManager.model.User;
+import com.arthManager.task.model.Task;
+import com.arthManager.user.model.User;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
