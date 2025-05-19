@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Toaster, toast } from 'react-hot-toast';
+import baseUrl from '../api/api'; 
+
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -7,48 +10,60 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [backendError, setBackendError] = useState('');
   const [loading, setLoading] = useState(false);
+  const reset = () => {
+    setUsername('');
+    setPassword('');
+  };
 
   const validateForm = () => {
     if (!username || !password) {
-      setBackendError('Please fill out all fields.');
+      // setBackendError('Please fill out all fields.');
+      toast.error('Please fill out all fields.');
       return false;
     }
     return true;
   };
 
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setBackendError('');
-    if (!validateForm()) return;
+  e.preventDefault();
+  setBackendError('');
+  if (!validateForm()) return;
 
-    setLoading(true);
-    try {
-      const response = await fetch('http://localhost:8080/api/auth/public/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+  setLoading(true);
+  try {
+    const response = await baseUrl.post('/api/auth/public/login', {
+      username,
+      password,
+    });
 
-      const data = await response.json();
+    const data = response.data;
+    localStorage.setItem('authToken', data.token);
+    // console.log('Login successful:', data);
+    // console.log('User:', data.user);
 
-      if (!response.ok) {
-        setBackendError(data.message || 'Login failed. Please try again.');
-      } else {
-        // Store the JWT token in localStorage (or sessionStorage)
-        localStorage.setItem('authToken', data.token); // Store JWT token
+    reset();
+    toast.success('Login successful!');
+    // setTimeout(() => , 2000); // Optional
+    setTimeout(() => {
+      navigate('/todo/dashboard');
+    }, 2000); // Optional
+  } catch (error) {
+    const message =
+      error.response?.data?.message || 'An unexpected error occurred. Please try again.';
+      console.error('Login error:', error);
+    toast.error(message);
+  }
+  setLoading(false);
+};
 
-        // Optionally, redirect user to dashboard after successful login
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      setBackendError('An unexpected error occurred. Please try again.');
-    }
-    setLoading(false);
-  };
+
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#141E30] to-[#243B55]">
       {/* Header */}
+      <Toaster position="bottom-center" reverseOrder={false} />
       <header className="py-4 bg-gradient-to-r from-[#34495e] to-[#2c3e50] shadow-lg">
         <div className="container mx-auto px-4 flex items-center justify-center">
           <Link to="/" className="cursor-pointer">
@@ -115,4 +130,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

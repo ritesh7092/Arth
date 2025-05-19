@@ -17,6 +17,7 @@ import UserProfilePage from '../pages/UserProfilePage';
 import EditUserProfilePage from '../pages/EditProfilePage';
 import AboutPage from '../pages/About';
 import Chatbot from '../pages/Chatbot';
+// import { Toaster } from 'react-hot-toast';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,6 +30,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        
         <Route path="/" element={<Home />} />
         <Route path='/login' element={<LoginPage />}/>
         <Route 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Toaster, toast } from 'react-hot-toast';
+import baseUrl from '../api/api';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -23,54 +25,99 @@ export default function SignupPage() {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setBackendError('');
-    setSuccessMessage('');
 
-    if (!validateForm()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setBackendError('');
+  setSuccessMessage('');
 
-    setLoading(true);
-    try {
-      const response = await fetch('http://localhost:8080/api/auth/public/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password })
-      });
+  if (!validateForm()) return;
 
-      let data = {};
-      try {
-        data = await response.json();
-      } catch (err) {
-        // do nothing if parsing fails
-      }
+  setLoading(true);
+  try {
+    const response = await baseUrl.post('/api/auth/public/register', {
+      username,
+      email,
+      password,
+    });
 
-      if (!response.ok) {
-        const rawMessage = data.message || 'Signup failed. Please try again.';
+    toast.success('Registration successful! Redirecting to login...');
+    setTimeout(() => {
+      navigate('/login');
+    }, 2000);
+  } catch (error) {
+    const rawMessage =
+      error.response?.data?.message || 'Signup failed. Please try again.';
 
-        // Translate raw SQL or Spring exception into friendly message
-        if (rawMessage.includes('Duplicate entry')) {
-          setBackendError('Username or email already exists.');
-        } else if (rawMessage.includes('DataIntegrityViolationException')) {
-          setBackendError('Invalid or duplicate input. Please check your details.');
-        } else {
-          setBackendError(rawMessage);
-        }
-      } else {
-        setSuccessMessage('Registration successful! Redirecting to login...');
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000); // wait 2 seconds before redirect
-      }
-    } catch (error) {
-      setBackendError('An unexpected error occurred. Please try again.');
+    if (rawMessage.includes('Duplicate entry')) {
+      toast.error('Username or email already exists.');
+    } else if (rawMessage.includes('DataIntegrityViolationException')) {
+      toast.error('Invalid or duplicate input. Please check your details.');
+    } else {
+      toast.error(rawMessage);
     }
-    setLoading(false);
-  };
+
+    console.error('Signup error:', error);
+  }
+  setLoading(false);
+};
+
+
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setBackendError('');
+  //   setSuccessMessage('');
+
+  //   if (!validateForm()) return;
+
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch('http://localhost:8080/api/auth/public/register', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ username, email, password })
+  //     });
+
+  //     let data = {};
+  //     try {
+  //       data = await response.json();
+  //     } catch (err) {
+  //       // do nothing if parsing fails
+  //     }
+
+  //     if (!response.ok) {
+  //       const rawMessage = data.message || 'Signup failed. Please try again.';
+
+  //       // Translate raw SQL or Spring exception into friendly message
+  //       if (rawMessage.includes('Duplicate entry')) {
+  //         // setBackendError('Username or email already exists.');
+  //         toast.error('Username or email already exists.');
+  //       } else if (rawMessage.includes('DataIntegrityViolationException')) {
+  //         // setBackendError('Invalid or duplicate input. Please check your details.');
+  //         toast.error('Invalid or duplicate input. Please check your details.');
+  //       } else {
+  //         setBackendError(rawMessage);
+  //       }
+  //     } else {
+  //       toast.success('Registration successful! Redirecting to login...');
+  //       // setSuccessMessage('Registration successful! Redirecting to login...');
+  //       setTimeout(() => {
+  //         navigate('/login');
+  //       }, 2000); // wait 2 seconds before redirect
+  //     }
+  //   } catch (error) {
+  //     console.error('Error during signup:', error);
+  //     // setBackendError('An unexpected error occurred. Please try again.');
+  //     toast.error('An unexpected error occurred. Please try again.');
+  //   }
+  //   setLoading(false);
+  // };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#141E30] to-[#243B55]">
       {/* Header */}
+      <Toaster position="bottom-center" reverseOrder={false} />
       <header className="py-4 bg-gradient-to-r from-[#34495e] to-[#2c3e50] shadow-lg">
         <div className="container mx-auto px-4 flex items-center justify-center">
           <Link to="/" className="cursor-pointer">

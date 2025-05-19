@@ -40,7 +40,7 @@ const AboutPage = () => {
           </div>
           <div className="mt-12 text-center">
             <h2 className="text-2xl font-semibold text-gray-800">Technologies Used</h2>
-            <p className="mt-4 text-gray-700">React, TailwindCSS, Spring Boot</p>
+            <p className="mt-4 text-gray-700">React, TailwindCSS, Spring Boot and Mysql</p>
           </div>
           <div className="mt-12 text-center">
             <Link
