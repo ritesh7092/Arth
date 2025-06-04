@@ -10,19 +10,10 @@ import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-
-    List<Task> findByUserAndDueDate(User user, LocalDate dueDate);
-
-    // Find tasks by user, due date, and completion status
-    List<Task> findByUserAndDueDateAndCompleted(User user, LocalDate dueDate, boolean completed);
-
-    Task findByUserAndId(User user, Long id);
-
-    List<Task> findByUser(User user);
-    Task getById(Long id);
-
-
-    int countByCompleted(boolean completed);
+    List<Task> findByUserAndDueDateBetween(User user, LocalDate startDate, LocalDate endDate);
+    List<Task> findByUserAndDueDateBefore(User user, LocalDate date);
+    List<Task> findByUserAndDueDateAfter(User user, LocalDate date);
+    List<Task> findByUserAndCompleted(User user, boolean completed);
 
 }
 
