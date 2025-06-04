@@ -1,0 +1,98 @@
+/* print.css */
+@media print {
+  /* -------------------------------------------------
+     1. HIDE NON-PRINT ELEMENTS (buttons, icons, navbars)
+  ------------------------------------------------- */
+  .no-print,
+  button,
+  input[type="month"],
+  input[type="number"] {
+    display: none !important;
+  }
+
+  /* If you have any header/footer outside of React, hide them too */
+  header, .footer, nav {
+    display: none !important;
+  }
+
+  /* -------------------------------------------------
+     2. FORCE CONTAINERS TO EXPAND / FULL WIDTH
+  ------------------------------------------------- */
+  .container,
+  .mx-auto {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Remove any padding/margins that could clip */
+  .px-4, .px-6, .py-8, .py-6, .mb-8, .mb-6 {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* -------------------------------------------------
+     3. CHART CONTAINERS: ALLOW FULL EXPANSION AND PAGE BREAKS
+  ------------------------------------------------- */
+  /* Remove any fixed height so the chart will auto‐size */
+  .h-64 {
+    height: auto !important;
+  }
+
+  /* Prevent a chart from being split across pages, 
+     but force a page-break after each chart section */
+  .chart-container {
+    page-break-inside: avoid !important;
+    page-break-after: always !important;
+  }
+
+  /* -------------------------------------------------
+     4. TABLE FORMATTING: KEEP HEADER & ALLOW PAGE BREAKS
+  ------------------------------------------------- */
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  table {
+    page-break-inside: auto !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  thead {
+    display: table-header-group !important;
+    background-color: #444444 !important; /* Dark header in print */
+  }
+  tbody {
+    display: table-row-group !important;
+  }
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+  th, td {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+    word-wrap: break-word !important;
+    border: 1px solid #999 !important;
+  }
+
+  /* -------------------------------------------------
+     5. BACKGROUND & COLORS: ENSURE CONTRAST IN PRINT
+  ------------------------------------------------- */
+  /* Force light backgrounds to be pure white */
+  .bg-gray-100, .bg-white, .bg-gray-50 {
+    background-color: #ffffff !important;
+  }
+
+  /* Force dark/teal backgrounds to become dark gray for print */
+  .bg-gray-800, .bg-teal-600, .bg-teal-700 {
+    background-color: #444444 !important;
+  }
+
+  /* Text colors: keep them black or dark gray */
+  .text-gray-800, .text-gray-900, .text-gray-700, .text-blue-600, .text-teal-600 {
+    color: #000000 !important;
+  }
+}
+
