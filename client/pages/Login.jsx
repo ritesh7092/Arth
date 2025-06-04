@@ -1,15 +1,16 @@
+// LoginPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
-import baseUrl from '../api/api'; 
-
+import { FaUserAlt, FaLock, FaArrowRight } from 'react-icons/fa';
+import baseUrl from '../api/api';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [backendError, setBackendError] = useState('');
   const [loading, setLoading] = useState(false);
+
   const reset = () => {
     setUsername('');
     setPassword('');
@@ -17,58 +18,47 @@ export default function LoginPage() {
 
   const validateForm = () => {
     if (!username || !password) {
-      // setBackendError('Please fill out all fields.');
       toast.error('Please fill out all fields.');
       return false;
     }
     return true;
   };
 
-
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setBackendError('');
-  if (!validateForm()) return;
+    e.preventDefault();
+    if (!validateForm()) return;
 
-  setLoading(true);
-  try {
-    const response = await baseUrl.post('/api/auth/public/login', {
-      username,
-      password,
-    });
-
-    const data = response.data;
-    localStorage.setItem('authToken', data.token);
-    // console.log('Login successful:', data);
-    // console.log('User:', data.user);
-
-    reset();
-    toast.success('Login successful!');
-    // setTimeout(() => , 2000); // Optional
-    setTimeout(() => {
-      navigate('/todo/dashboard');
-    }, 2000); // Optional
-  } catch (error) {
-    const message =
-      error.response?.data?.message || 'An unexpected error occurred. Please try again.';
+    setLoading(true);
+    try {
+      const response = await baseUrl.post('/api/auth/public/login', { username, password });
+      const data = response.data;
+      localStorage.setItem('authToken', data.token);
+      reset();
+      toast.success('Login successful!');
+      setTimeout(() => {
+        navigate('/todo/dashboard');
+      }, 1500);
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        'An unexpected error occurred. Please try again.';
       console.error('Login error:', error);
-    toast.error(message);
-  }
-  setLoading(false);
-};
-
-
-  
+      toast.error(message);
+    }
+    setLoading(false);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#141E30] to-[#243B55]">
-      {/* Header */}
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0a192f] to-[#020c1b]">
+      {/* Toast Notifications */}
       <Toaster position="bottom-center" reverseOrder={false} />
-      <header className="py-4 bg-gradient-to-r from-[#34495e] to-[#2c3e50] shadow-lg">
-        <div className="container mx-auto px-4 flex items-center justify-center">
-          <Link to="/" className="cursor-pointer">
+
+      {/* Header */}
+      <header className="py-6 bg-gradient-to-r from-[#1f2a40] to-[#16202e] shadow-xl">
+        <div className="container mx-auto px-4 flex justify-center">
+          <Link to="/" className="transform hover:scale-105 transition-transform">
             <h1
-              className="text-3xl font-bold text-white transition-transform transform hover:scale-110"
+              className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#4facfe] to-[#00f2fe]"
               style={{ fontFamily: '"Brush Script MT", cursive' }}
             >
               Arth
@@ -78,50 +68,59 @@ export default function LoginPage() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-md p-8 rounded-xl shadow-2xl border border-gray-700 bg-gray-800 transform transition-all duration-300 hover:scale-105">
-          <h2 className="text-2xl font-bold text-center text-white mb-6">Login</h2>
-          {backendError && (
-            <p className="mb-4 text-center text-red-500">{backendError}</p>
-          )}
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="username" className="block text-gray-300 mb-2">
-                Username
-              </label>
+      <div className="flex-grow flex items-center justify-center relative overflow-hidden px-4">
+        {/* Decorative Blobs */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-[#3b82f680] rounded-full filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#9333ea80] rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+        {/* Glassmorphic Card */}
+        <div className="relative z-10 w-full max-w-md bg-[rgba(255,255,255,0.05)] backdrop-blur-lg border border-gray-700 rounded-2xl shadow-2xl p-8 transform transition-all duration-300 hover:scale-105">
+          <h2 className="text-3xl font-bold text-white text-center mb-6">Log In</h2>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Username Field */}
+            <div className="relative">
+              <FaUserAlt className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 id="username"
-                placeholder="Enter your username"
+                placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] focus:border-transparent transition-colors"
               />
             </div>
-            <div className="mb-6">
-              <label htmlFor="password" className="block text-gray-300 mb-2">
-                Password
-              </label>
+
+            {/* Password Field */}
+            <div className="relative">
+              <FaLock className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="password"
                 id="password"
-                placeholder="Enter your password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] focus:border-transparent transition-colors"
               />
             </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#1565C0] text-white p-3 rounded hover:bg-[#0D47A1] transition-colors"
+              className="w-full flex items-center justify-center bg-gradient-to-r from-[#4facfe] to-[#00f2fe] hover:from-[#3b82f6] hover:to-[#0ea5e9] text-white font-semibold py-3 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Logging in...' : 'Login'}
+              {!loading && <FaArrowRight className="ml-2 animate-bounce" />}
             </button>
           </form>
-          <p className="mt-4 text-center text-sm text-gray-300">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-[#f1c40f] hover:underline transition-colors">
+
+          {/* Sign Up Link */}
+          <p className="mt-6 text-center text-gray-300 text-sm">
+            Don’t have an account?{' '}
+            <Link
+              to="/signup"
+              className="text-[#4facfe] hover:text-[#00f2fe] underline transition-colors"
+            >
               Sign Up
             </Link>
           </p>
@@ -130,3 +129,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

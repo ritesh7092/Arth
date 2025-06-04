@@ -1,6 +1,8 @@
+// SignupPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
+import { FaUserAlt, FaEnvelope, FaLock, FaCheckCircle } from 'react-icons/fa';
 import baseUrl from '../api/api';
 
 export default function SignupPage() {
@@ -9,70 +11,59 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [backendError, setBackendError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
     if (!username || !email || !password) {
-      setBackendError('Please fill out all required fields.');
+      toast.error('Please fill out all required fields.');
       return false;
     }
     if (!termsAccepted) {
-      setBackendError('You must accept the Terms and Conditions.');
+      toast.error('You must accept the Terms and Conditions.');
       return false;
     }
     return true;
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setBackendError('');
-  setSuccessMessage('');
-
-  if (!validateForm()) return;
-
-  setLoading(true);
-  try {
-    const response = await baseUrl.post('/api/auth/public/register', {
-      username,
-      email,
-      password,
-    });
-
-    toast.success('Registration successful! Redirecting to login...');
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
-  } catch (error) {
-    const rawMessage =
-      error.response?.data?.message || 'Signup failed. Please try again.';
-
-    if (rawMessage.includes('Duplicate entry')) {
-      toast.error('Username or email already exists.');
-    } else if (rawMessage.includes('DataIntegrityViolationException')) {
-      toast.error('Invalid or duplicate input. Please check your details.');
-    } else {
-      toast.error(rawMessage);
+    setLoading(true);
+    try {
+      await baseUrl.post('/api/auth/public/register', {
+        username,
+        email,
+        password,
+      });
+      toast.success('Registration successful! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 1800);
+    } catch (error) {
+      const rawMessage =
+        error.response?.data?.message || 'Signup failed. Please try again.';
+      if (rawMessage.includes('Duplicate entry')) {
+        toast.error('Username or email already exists.');
+      } else if (rawMessage.includes('DataIntegrityViolationException')) {
+        toast.error('Invalid or duplicate input. Please check your details.');
+      } else {
+        toast.error(rawMessage);
+      }
+      console.error('Signup error:', error);
     }
-
-    console.error('Signup error:', error);
-  }
-  setLoading(false);
-};
-
-
+    setLoading(false);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#141E30] to-[#243B55]">
-      {/* Header */}
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0a192f] to-[#020c1b]">
+      {/* Toast Notifications */}
       <Toaster position="bottom-center" reverseOrder={false} />
-      <header className="py-4 bg-gradient-to-r from-[#34495e] to-[#2c3e50] shadow-lg">
-        <div className="container mx-auto px-4 flex items-center justify-center">
-          <Link to="/" className="cursor-pointer">
+
+      {/* Header */}
+      <header className="py-6 bg-gradient-to-r from-[#1f2a40] to-[#16202e] shadow-xl">
+        <div className="container mx-auto px-4 flex justify-center">
+          <Link to="/" className="transform hover:scale-105 transition-transform">
             <h1
-              className="text-3xl font-bold text-white transition-transform transform hover:scale-110"
+              className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#4facfe] to-[#00f2fe]"
               style={{ fontFamily: '"Brush Script MT", cursive' }}
             >
               Arth
@@ -82,83 +73,86 @@ const handleSubmit = async (e) => {
       </header>
 
       {/* Main Content */}
-      <div className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-md p-8 rounded-xl shadow-2xl border border-gray-700 bg-gray-800 transform transition-all duration-300 hover:scale-105">
-          <h2 className="text-2xl font-bold text-center text-white mb-6">Sign Up</h2>
+      <div className="flex-grow flex items-center justify-center relative overflow-hidden px-4">
+        {/* Decorative Blobs */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-[#3b82f680] rounded-full filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#9333ea80] rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
-          {backendError && (
-            <p className="mb-4 text-center text-red-500">{backendError}</p>
-          )}
-          {successMessage && (
-            <p className="mb-4 text-center text-green-400">{successMessage}</p>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="username" className="block text-gray-300 mb-2">
-                Username
-              </label>
+        {/* Glassmorphic Card */}
+        <div className="relative z-10 w-full max-w-md bg-[rgba(255,255,255,0.05)] backdrop-blur-lg border border-gray-700 rounded-2xl shadow-2xl p-8 transform transition-all duration-300 hover:scale-105">
+          <h2 className="text-3xl font-bold text-white text-center mb-6">Sign Up</h2>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Username Field */}
+            <div className="relative">
+              <FaUserAlt className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 id="username"
-                placeholder="Choose a username"
+                placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white"
+                className="w-full pl-10 pr-4 py-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] focus:border-transparent transition-colors"
               />
             </div>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-300 mb-2">
-                Email
-              </label>
+
+            {/* Email Field */}
+            <div className="relative">
+              <FaEnvelope className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="email"
                 id="email"
-                placeholder="Enter your email"
+                placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white"
+                className="w-full pl-10 pr-4 py-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] focus:border-transparent transition-colors"
               />
             </div>
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-gray-300 mb-2">
-                Password
-              </label>
+
+            {/* Password Field */}
+            <div className="relative">
+              <FaLock className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="password"
                 id="password"
-                placeholder="Create a password"
+                placeholder="Create a Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white"
+                className="w-full pl-10 pr-4 py-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] focus:border-transparent transition-colors"
               />
             </div>
-            <div className="mb-6 flex items-center gap-2">
+
+            {/* Terms Checkbox */}
+            <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 id="termsAccepted"
-                className="h-4 w-4 text-[#1565C0] focus:ring-[#1565C0] border-gray-600 rounded"
                 checked={termsAccepted}
                 onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="h-5 w-5 text-[#4facfe] focus:ring-[#4facfe] border-gray-600 rounded"
               />
-              <label htmlFor="termsAccepted" className="text-gray-300 text-sm">
-                I accept the Terms and Conditions
+              <label htmlFor="termsAccepted" className="text-gray-300 text-sm flex items-center">
+                <FaCheckCircle className="mr-2 text-gray-400" />
+                I accept the{' '}
+                <Link to="/terms" className="text-[#4facfe] hover:text-[#00f2fe] underline ml-1">
+                  Terms &amp; Conditions
+                </Link>
               </label>
             </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#1565C0] text-white p-3 rounded hover:bg-[#0D47A1] transition-colors"
+              className="w-full flex items-center justify-center bg-gradient-to-r from-[#4facfe] to-[#00f2fe] hover:from-[#3b82f6] hover:to-[#0ea5e9] text-white font-semibold py-3 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing up...' : 'Sign Up'}
             </button>
           </form>
-          <p className="mt-4 text-center text-sm text-gray-300">
+
+          {/* Existing Account Link */}
+          <p className="mt-6 text-center text-gray-300 text-sm">
             Already have an account?{' '}
-            <Link
-              to="/login"
-              className="text-[#f1c40f] hover:underline transition-colors"
-            >
+            <Link to="/login" className="text-[#4facfe] hover:text-[#00f2fe] underline">
               Login
             </Link>
           </p>

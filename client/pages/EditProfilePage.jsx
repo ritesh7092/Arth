@@ -1,8 +1,10 @@
+// EditUserProfilePage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaUserCircle, FaGraduationCap, FaHeart, FaSave, FaCamera } from 'react-icons/fa';
 
 export default function EditUserProfilePage() {
-  // In production, load the user profile from an API
+  // In production, load the user profile from your API
   const initialData = {
     username: "John Doe",
     email: "johndoe@example.com",
@@ -23,43 +25,51 @@ export default function EditUserProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    // Validate required fields (further validation may be added)
     if (!formData.username || !formData.email || !formData.highestQualification || !formData.hobbies) {
       setError('Please fill out all required fields.');
       return;
     }
     try {
-      // Simulate API call to update the profile.
-      // const response = await fetch('/api/update-profile', { ... });
-      // if (!response.ok) {
-      //   const data = await response.json();
-      //   setError(data.message || 'Profile update failed.');
-      //   return;
-      // }
-      // On success, redirect back to the profile page
+      // Simulate API call to update profile...
+      // await api.updateProfile(formData);
       navigate('/profile');
-    } catch (err) {
+    } catch {
       setError('An error occurred while updating your profile.');
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#141E30] to-[#243B55] p-6">
-      {/* Content Container */}
-      <div className="flex items-center justify-center flex-grow">
-        <div className="w-full max-w-2xl bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700">
-          <h2 className="text-3xl font-bold text-white text-center mb-8">Edit Profile</h2>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0a192f] to-[#020c1b]">
+      {/* Decorative Blobs */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-[#3b82f680] rounded-full filter blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#9333ea80] rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+      {/* Main Content */}
+      <main className="flex-grow flex items-center justify-center px-4 py-10 relative">
+        <div className="relative z-10 w-full max-w-2xl bg-[rgba(255,255,255,0.05)] backdrop-blur-lg border border-gray-700 rounded-2xl shadow-2xl p-8 transform transition-all duration-300 hover:scale-105">
+          <h2 className="text-3xl font-bold text-white text-center mb-6">Edit Profile</h2>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Avatar Upload */}
             <div className="flex flex-col items-center">
-              <img
-                src={formData.avatar}
-                alt="User Avatar"
-                className="w-28 h-28 rounded-full object-cover border-4 border-[#5D9CEC] mb-4"
-              />
-              {/* Optionally, add image upload functionality here */}
+              <div className="relative">
+                <img
+                  src={formData.avatar}
+                  alt="User Avatar"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-[#4facfe]"
+                />
+                <button
+                  type="button"
+                  className="absolute bottom-0 right-0 bg-[#4facfe] p-2 rounded-full shadow-lg hover:bg-[#3b82f6] transition-colors"
+                >
+                  <FaCamera className="text-white" />
+                </button>
+              </div>
+              <p className="mt-2 text-gray-300">Click camera to change avatar</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Form Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-white">
               <div>
                 <label className="block text-gray-300 mb-2">Username</label>
                 <input
@@ -67,7 +77,8 @@ export default function EditUserProfilePage() {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white transition-colors"
+                  className="w-full p-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] transition-colors"
+                  placeholder="Enter username"
                 />
               </div>
               <div>
@@ -77,7 +88,8 @@ export default function EditUserProfilePage() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white transition-colors"
+                  className="w-full p-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] transition-colors"
+                  placeholder="Enter email"
                 />
               </div>
               <div>
@@ -87,7 +99,8 @@ export default function EditUserProfilePage() {
                   name="highestQualification"
                   value={formData.highestQualification}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white transition-colors"
+                  className="w-full p-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] transition-colors"
+                  placeholder="e.g. Bachelor's Degree"
                 />
               </div>
               <div>
@@ -97,22 +110,25 @@ export default function EditUserProfilePage() {
                   name="hobbies"
                   value={formData.hobbies}
                   onChange={handleChange}
-                  placeholder="Comma separated"
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-[#1565C0] text-white transition-colors"
+                  className="w-full p-3 bg-[#1f2937] border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4facfe] transition-colors"
+                  placeholder="Comma-separated"
                 />
               </div>
             </div>
+
+            {/* Submit Button */}
             <div className="text-center">
               <button
                 type="submit"
-                className="bg-[#1565C0] hover:bg-[#0D47A1] text-white py-3 px-8 rounded-lg transition-colors"
+                className="inline-flex items-center bg-gradient-to-r from-[#4facfe] to-[#00f2fe] hover:from-[#3b82f6] hover:to-[#0ea5e9] text-white font-semibold py-3 px-7 rounded-xl shadow-xl transition-all transform hover:scale-105"
               >
+                <FaSave className="mr-2 text-lg" />
                 Save Changes
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
