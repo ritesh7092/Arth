@@ -38,7 +38,7 @@ const AddTodo = () => {
 
     // *** Pull the JWT out of localStorage using the same key your login saved ***
     const token = localStorage.getItem('authToken');
-    console.log('Token:', token);
+    // console.log('Token:', token);
 
     if (!token) {
       setFlashMessage({ type: 'error', message: 'You must be logged in to create a task.' });
