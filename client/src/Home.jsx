@@ -1,82 +1,85 @@
-// Home.jsx
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import homebg from './assets/bg-theme.png'; // Adjust path as needed
+import React, { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import homebg from "./assets/bg-theme.png"; // Adjust path as needed
 
 // Bootstrap & Font Awesome
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'font-awesome/css/font-awesome.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "font-awesome/css/font-awesome.min.css";
 
 // Custom CSS
-import './landing.css';
+import "./landing.css";
 
 const Home = ({ isAuthenticated, handleLogout }) => {
-  // Toggle scroll‐to‐top button visibility
+  const featureRef = useRef(null);
+  const whyRef = useRef(null);
+
+  // Toggle scroll-to-top button & “reveal on scroll” animations
   useEffect(() => {
     const onScroll = () => {
       if (window.pageYOffset > 200) {
-        document.body.classList.add('scrolled');
+        document.body.classList.add("scrolled");
       } else {
-        document.body.classList.remove('scrolled');
+        document.body.classList.remove("scrolled");
       }
+
+      // Reveal-on-scroll for Features & Why sections
+      [featureRef, whyRef].forEach((refObj) => {
+        if (!refObj.current) return;
+        const rect = refObj.current.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100) {
+          refObj.current.classList.add("reveal");
+        }
+      });
     };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+
+    window.addEventListener("scroll", onScroll);
+    onScroll(); // trigger on mount
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <div className="home-wrapper">
       {/* =====================
-          1. NAVBAR
+          1. NAVBAR (No Hamburger)
          ===================== */}
       <nav className="navbar navbar-expand-lg navbar-custom fixed-top">
-        <div className="container px-4">
+        <div className="container px-4 d-flex align-items-center justify-content-between">
+          {/* Brand */}
           <Link to="/" className="navbar-brand d-flex align-items-center">
             <span className="text-gradient-logo">Arth</span>
             <small className="ms-2 d-none d-md-inline text-tagline">
               Finance · Tasks · AI
             </small>
           </Link>
-          <button
-            className="navbar-toggler border-0"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto align-items-center">
-              {!isAuthenticated && (
-                <>
-                  <li className="nav-item mx-1">
-                    <Link to="/login" className="nav-link btn-link-custom">
-                      Login
-                    </Link>
-                  </li>
-                  <li className="nav-item mx-1">
-                    <Link to="/signup" className="nav-link btn-link-custom">
-                      Register
-                    </Link>
-                  </li>
-                </>
-              )}
-              {isAuthenticated && (
+
+          {/* Always-visible nav links (no collapse) */}
+          <ul className="navbar-nav ms-auto d-flex align-items-center">
+            {!isAuthenticated ? (
+              <>
                 <li className="nav-item mx-1">
-                  <button
-                    type="button"
-                    className="nav-link btn btn-link btn-link-custom"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
+                  <Link to="/login" className="nav-link btn-link-custom">
+                    Login
+                  </Link>
                 </li>
-              )}
-            </ul>
-          </div>
+                <li className="nav-item mx-1">
+                  <Link to="/signup" className="nav-link btn-link-custom">
+                    Register
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <li className="nav-item mx-1">
+                <button
+                  type="button"
+                  className="nav-link btn btn-link btn-link-custom d-flex align-items-center"
+                  onClick={handleLogout}
+                >
+                  <i className="fa fa-sign-out me-1" aria-hidden="true"></i>
+                  <span>Logout</span>
+                </button>
+              </li>
+            )}
+          </ul>
         </div>
       </nav>
 
@@ -93,13 +96,15 @@ const Home = ({ isAuthenticated, handleLogout }) => {
             Welcome to <span className="text-gradient-logo">Arth</span>
           </h1>
           <p className="lead hero-subtitle mb-3">
-            All-in-one platform for <u>Finance</u>, <u>Task Management</u>, &amp; <u>AI Insights</u>
+            All-in-one platform for <u>Finance</u>, <u>Task Management</u>, &amp;{" "}
+            <u>AI Insights</u>
           </p>
           <p className="mb-4 hero-description">
-            Streamline your workflow—manage tasks, track budgets, and get AI-driven advice. Empower your productivity and financial health.
+            Streamline your workflow—manage tasks, track budgets, and get AI-driven
+            advice. Empower your productivity and financial health.
           </p>
           <div className="d-flex flex-wrap justify-content-center gap-2 gap-md-3">
-            <Link to="/login" className="btn btn-lg cta-btn-primary">
+            <Link to="/dashboard" className="btn btn-lg cta-btn-primary">
               Get Started
             </Link>
             <Link to="/about" className="btn btn-lg cta-btn-outline">
@@ -124,74 +129,137 @@ const Home = ({ isAuthenticated, handleLogout }) => {
       </section>
 
       {/* =====================
-          3. FEATURES SECTION
-         ===================== */}
-      <section className="features-section py-5">
-        <div className="container px-4">
-          <h2 className="section-title text-center mb-5">Our Key Features</h2>
-          <div className="row g-4 justify-content-center">
-            {/* TASK MANAGEMENT */}
-            <div className="col-12 col-md-4">
-              <div className="feature-card-advanced position-relative p-4">
-                {/* Overlapping Icon Circle */}
-                <div className="icon-circle bg-primary-shadow d-flex align-items-center justify-content-center">
-                  <i className="fa fa-tasks fa-2x icon-primary"></i>
-                </div>
-                <h3 className="feature-title-advanced mt-4">Task Management</h3>
-                <p className="feature-text-advanced">
-                  Organize tasks with Kanban boards, set priorities, and track progress in real time.
-                </p>
-                <small className="text-muted feature-note-advanced">
-                  (Drag &amp; drop, due-date reminders, collaborative editing)
-                </small>
-              </div>
-            </div>
-
-            {/* FINANCE TRACKING */}
-            <div className="col-12 col-md-4">
-              <div className="feature-card-advanced position-relative p-4">
-                <div className="icon-circle bg-secondary-shadow d-flex align-items-center justify-content-center">
-                  <i className="fa fa-chart-line fa-2x icon-secondary"></i>
-                </div>
-                <h3 className="feature-title-advanced mt-4">Finance Tracking</h3>
-                <p className="feature-text-advanced">
-                  Real-time dashboards, budget alerts, and multi-currency support for global users.
-                </p>
-                <small className="text-muted feature-note-advanced">
-                  (Charts, recurring transactions, exportable reports)
-                </small>
-              </div>
-            </div>
-
-            {/* AI ASSISTANCE */}
-            <div className="col-12 col-md-4">
-              <div className="feature-card-advanced position-relative p-4">
-                <div className="icon-circle bg-tertiary-shadow d-flex align-items-center justify-content-center">
-                  <i className="fa fa-robot fa-2x icon-tertiary"></i>
-                </div>
-                <h3 className="feature-title-advanced mt-4">AI Assistance</h3>
-                <p className="feature-text-advanced">
-                  Personalized recommendations based on your habits—powered by in-house AI.
-                </p>
-                <small className="text-muted feature-note-advanced">
-                  (Chatbot, predictive insights, tailored tips)
-                </small>
-              </div>
-            </div>
+    3. FEATURES SECTION
+   ===================== */}
+<section className="features-section py-5" ref={featureRef}>
+  <div className="container px-4">
+    <h2 className="section-title text-center mb-5">Our Key Features</h2>
+    <div className="row g-4 justify-content-center">
+      {/* TASK MANAGEMENT */}
+      <div className="col-12 col-md-4">
+        <div className="feature-card-advanced position-relative p-4">
+          <div className="icon-circle bg-primary-shadow d-flex align-items-center justify-content-center">
+            <i className="fa fa-tasks fa-2x icon-primary" aria-hidden="true"></i>
           </div>
+          <h3 className="feature-title-advanced mt-4">Task Management</h3>
+          <p className="feature-text-advanced">
+            Organize tasks with Kanban boards, set priorities, and track
+            progress in real time.
+          </p>
+          <small className="text-muted feature-note-advanced">
+            (Drag &amp; drop, due-date reminders)
+          </small>
         </div>
-      </section>
+      </div>
+
+      {/* FINANCE TRACKING */}
+      <div className="col-12 col-md-4">
+        <div className="feature-card-advanced position-relative p-4">
+          <div className="icon-circle bg-secondary-shadow d-flex align-items-center justify-content-center">
+            {/* FA 4 uses "fa-money" for a money icon */}
+            <i className="fa fa-money fa-2x icon-secondary" aria-hidden="true"></i>
+          </div>
+          <h3 className="feature-title-advanced mt-4">Finance Tracking</h3>
+          <p className="feature-text-advanced">
+            Track your spending, set budgets, and view simple charts to stay
+            on top of your finances.
+          </p>
+          <small className="text-muted feature-note-advanced">
+            (Dashboard, recurring transactions)
+          </small>
+        </div>
+      </div>
+
+      {/* AI ASSISTANCE */}
+      <div className="col-12 col-md-4">
+        <div className="feature-card-advanced position-relative p-4">
+          <div className="icon-circle bg-tertiary-shadow d-flex align-items-center justify-content-center">
+            {/* FA 4 uses "fa-comments" or "fa-commenting" for chat-like icons */}
+            <i className="fa fa-comments fa-2x icon-tertiary" aria-hidden="true"></i>
+          </div>
+          <h3 className="feature-title-advanced mt-4">AI Assistance</h3>
+          <p className="feature-text-advanced">
+            Chat with an AI-powered assistant to get personalized tips and
+            quick answers about tasks or budget queries.
+          </p>
+          <small className="text-muted feature-note-advanced">
+            (Smart suggestions, future enhancements)
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+     {/* =====================
+    4. WHY ARTH SECTION
+   ===================== */}
+<section className="why-section py-5" ref={whyRef}>
+  <div className="container px-4">
+    <h2 className="section-title text-center mb-5">Why Choose Arth?</h2>
+    <div className="row g-4 justify-content-center text-center">
+      {/* SECURE AUTHENTICATION */}
+      <div className="col-12 col-md-3">
+        <div className="why-card p-4">
+          <i className="fa fa-lock fa-3x mb-3 why-icon" aria-hidden="true"></i>
+          <h4 className="why-title">Secure Authentication</h4>
+          <p className="why-text">
+            Built on Spring Security with JWT, ensuring your account and data remain protected at every step.
+          </p>
+        </div>
+      </div>
+
+      {/* AI CHATBOT (COMING SOON) */}
+      <div className="col-12 col-md-3">
+        <div className="why-card p-4">
+          <i className="fa fa-comments fa-3x mb-3 why-icon" aria-hidden="true"></i>
+          <h4 className="why-title">AI Chatbot</h4>
+          <p className="why-text">
+            Get intelligent, AI-driven insights and assistance—currently in development to help you manage tasks and finances with ease.
+          </p>
+        </div>
+      </div>
+
+      {/* USER-CENTRIC DESIGN */}
+      <div className="col-12 col-md-3">
+        <div className="why-card p-4">
+          <i className="fa fa-user fa-3x mb-3 why-icon" aria-hidden="true"></i>
+          <h4 className="why-title">User-Centric Design</h4>
+          <p className="why-text">
+            Simple interfaces tailored for individuals—focus on your personal productivity and financial health, no teamwork required.
+          </p>
+        </div>
+      </div>
+
+      {/* FAST PERFORMANCE */}
+      <div className="col-12 col-md-3">
+        <div className="why-card p-4">
+          <i className="fa fa-rocket fa-3x mb-3 why-icon" aria-hidden="true"></i>
+          <h4 className="why-title">Fast Performance</h4>
+          <p className="why-text">
+            Lightweight, optimized pages ensure swift load times so you can manage tasks and track budgets without delay.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* =====================
-          4. CTA SECTION (Emerald Gradient + Slanted Edge)
+          5. CTA SECTION
          ===================== */}
       <section className="cta-section-advanced position-relative text-white py-5">
         <div className="cta-gradient-overlay-advanced"></div>
         <div className="cta-pattern-overlay"></div>
         <div className="container px-4 position-relative text-center">
-          <h2 className="cta-title-advanced fw-bold mb-3">Ready to Elevate Your Workflow?</h2>
+          <h2 className="cta-title-advanced fw-bold mb-3">
+            Ready to Elevate Your Workflow?
+          </h2>
           <p className="cta-text-advanced mb-5">
-            Join now and unify your tasks, finances, and AI insights—designed for global teams and individuals.
+            Join now and unify your tasks, finances, and AI insights—designed for
+            global teams and individuals.
           </p>
           {!isAuthenticated && (
             <Link to="/signup" className="btn btn-lg cta-btn-box">
@@ -204,17 +272,18 @@ const Home = ({ isAuthenticated, handleLogout }) => {
       </section>
 
       {/* =====================
-          5. SCROLL‐TO‐TOP BUTTON
+          6. SCROLL-TO-TOP BUTTON
          ===================== */}
       <button
         className="scroll-to-top"
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Scroll to top"
       >
-        <i className="fa fa-arrow-up"></i>
+        <i className="fa fa-arrow-up" aria-hidden="true"></i>
       </button>
     </div>
   );
 };
 
 export default Home;
+
