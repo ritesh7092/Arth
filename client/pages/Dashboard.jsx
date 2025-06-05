@@ -68,7 +68,6 @@ export default function Dashboard() {
         {/*   Mobile Sidebar Drawer  */}
         {/* ========================= */}
         <div
-          // We removed `aria-hidden`; instead, we toggle `inert` via useEffect + ref
           ref={sidebarRef}
           className={`fixed inset-0 z-40 md:hidden transition-transform duration-300 ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -86,6 +85,7 @@ export default function Dashboard() {
                 <Link
                   to="/"
                   className="ml-2 text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-gray-100 truncate"
+                  onClick={() => setSidebarOpen(false)}
                 >
                   MyArth
                 </Link>
@@ -117,12 +117,28 @@ export default function Dashboard() {
 
             <nav className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 space-y-6">
               <ul className="space-y-4">
+                {/* Dashboard/Profile */}
+                <li>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center px-3 py-2 sm:px-4 sm:py-2.5 rounded-md transition-colors duration-200 ${
+                      currentPath === "/dashboard"
+                        ? "bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white shadow-lg"
+                        : "text-gray-200 hover:bg-gray-800 hover:text-gray-100"
+                    }`}
+                  >
+                    <FaUserCircle className="mr-2 sm:mr-3 text-lg text-teal-300" />
+                    <span className="text-sm sm:text-base">Dashboard/Profile</span>
+                  </Link>
+                </li>
+
                 {/* Edit Profile */}
                 <li>
                   <Link
                     to="/edit-profile"
-                    className="flex items-center px-3 py-2 sm:px-4 sm:py-2.5 rounded-md text-gray-200 hover:bg-gray-800 hover:text-gray-100 transition-colors duration-200"
                     onClick={() => setSidebarOpen(false)}
+                    className="flex items-center px-3 py-2 sm:px-4 sm:py-2.5 rounded-md text-gray-200 hover:bg-gray-800 hover:text-gray-100 transition-colors duration-200"
                   >
                     <FaEdit className="mr-2 sm:mr-3 text-lg text-teal-300" />
                     <span className="text-sm sm:text-base">Edit Profile</span>
@@ -151,13 +167,13 @@ export default function Dashboard() {
                     <ul className="mt-2 ml-6 sm:ml-8 space-y-2">
                       <li>
                         <Link
-                          to="/finance"
+                          to="/finance/dashboard"
+                          onClick={() => setSidebarOpen(false)}
                           className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
-                            currentPath === "/finance"
+                            currentPath === "/finance/dashboard"
                               ? "bg-gray-700 text-gray-100"
                               : "text-gray-200 hover:bg-gray-800"
                           }`}
-                          onClick={() => setSidebarOpen(false)}
                         >
                           Dashboard
                         </Link>
@@ -165,12 +181,12 @@ export default function Dashboard() {
                       <li>
                         <Link
                           to="/finance/add"
+                          onClick={() => setSidebarOpen(false)}
                           className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
                             currentPath === "/finance/add"
                               ? "bg-gray-700 text-gray-100"
                               : "text-gray-200 hover:bg-gray-800"
                           }`}
-                          onClick={() => setSidebarOpen(false)}
                         >
                           Add Finance
                         </Link>
@@ -178,12 +194,12 @@ export default function Dashboard() {
                       <li>
                         <Link
                           to="/finance/report"
+                          onClick={() => setSidebarOpen(false)}
                           className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
                             currentPath === "/finance/report"
                               ? "bg-gray-700 text-gray-100"
                               : "text-gray-200 hover:bg-gray-800"
                           }`}
-                          onClick={() => setSidebarOpen(false)}
                         >
                           Reports
                         </Link>
@@ -214,26 +230,26 @@ export default function Dashboard() {
                     <ul className="mt-2 ml-6 sm:ml-8 space-y-2">
                       <li>
                         <Link
-                          to="/tasks"
+                          to="/todo/dashboard"
+                          onClick={() => setSidebarOpen(false)}
                           className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
-                            currentPath === "/tasks"
+                            currentPath === "/todo/dashboard"
                               ? "bg-gray-700 text-gray-100"
                               : "text-gray-200 hover:bg-gray-800"
                           }`}
-                          onClick={() => setSidebarOpen(false)}
                         >
                           Dashboard
                         </Link>
                       </li>
                       <li>
                         <Link
-                          to="/tasks/add"
+                          to="/addtask"
+                          onClick={() => setSidebarOpen(false)}
                           className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
-                            currentPath === "/tasks/add"
+                            currentPath === "/addtask"
                               ? "bg-gray-700 text-gray-100"
                               : "text-gray-200 hover:bg-gray-800"
                           }`}
-                          onClick={() => setSidebarOpen(false)}
                         >
                           Add Task
                         </Link>
@@ -246,12 +262,12 @@ export default function Dashboard() {
                 <li>
                   <Link
                     to="/chatbot"
+                    onClick={() => setSidebarOpen(false)}
                     className={`flex items-center px-3 py-2 sm:px-4 sm:py-2.5 rounded-md ${
                       currentPath === "/chatbot"
                         ? "bg-gray-800 text-gray-100"
                         : "text-gray-200 hover:bg-gray-800"
                     } transition-colors duration-200`}
-                    onClick={() => setSidebarOpen(false)}
                   >
                     <FaRobot className="mr-2 sm:mr-3 text-lg text-teal-300" />
                     <span className="text-sm sm:text-base">Chatbot</span>
@@ -264,16 +280,16 @@ export default function Dashboard() {
             <div className="px-4 py-4 sm:px-6 sm:py-6 border-t border-gray-800 bg-gray-800">
               <Link
                 to="/settings"
-                className="flex items-center px-3 py-2 sm:px-4 sm:py-2.5 rounded-md text-gray-300 hover:text-gray-100 hover:bg-gray-700 transition-colors duration-200"
                 onClick={() => setSidebarOpen(false)}
+                className="flex items-center px-3 py-2 sm:px-4 sm:py-2.5 rounded-md text-gray-300 hover:text-gray-100 hover:bg-gray-700 transition-colors duration-200"
               >
                 <FaCog className="mr-2 sm:mr-3 text-lg text-teal-300" />
                 <span className="text-sm sm:text-base">Settings</span>
               </Link>
               <Link
                 to="/logout"
-                className="mt-3 w-full inline-flex justify-center items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-md shadow transition-transform duration-200 hover:scale-105 text-sm sm:text-base"
                 onClick={() => setSidebarOpen(false)}
+                className="mt-3 w-full inline-flex justify-center items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-md shadow transition-transform duration-200 hover:scale-105 text-sm sm:text-base"
               >
                 <FaSignOutAlt className="mr-2 text-lg" /> Logout
               </Link>
@@ -313,6 +329,22 @@ export default function Dashboard() {
 
           <nav className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 space-y-6">
             <ul className="space-y-4">
+              {/* Dashboard/Profile */}
+              <li>
+                <Link
+                  to="/dashboard"
+                  className={`flex items-center px-3 py-2 sm:px-4 sm:py-2.5 rounded-md transition-colors duration-200 ${
+                    currentPath === "/dashboard"
+                      ? "bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white shadow-lg"
+                      : "text-gray-200 hover:bg-gray-800 hover:text-gray-100"
+                  }`}
+                >
+                  <FaUserCircle className="mr-2 sm:mr-3 text-lg text-teal-300" />
+                  <span className="text-sm sm:text-base">Dashboard/Profile</span>
+                </Link>
+              </li>
+
+              {/* Edit Profile */}
               <li>
                 <Link
                   to="/edit-profile"
@@ -323,6 +355,7 @@ export default function Dashboard() {
                 </Link>
               </li>
 
+              {/* Finance Group */}
               <li>
                 <button
                   onClick={() => setFinanceOpen((prev) => !prev)}
@@ -344,9 +377,9 @@ export default function Dashboard() {
                   <ul className="mt-2 ml-6 sm:ml-8 space-y-2">
                     <li>
                       <Link
-                        to="/finance"
+                        to="/finance/dashboard"
                         className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
-                          currentPath === "/finance"
+                          currentPath === "/finance/dashboard"
                             ? "bg-gray-700 text-gray-100"
                             : "text-gray-200 hover:bg-gray-800"
                         }`}
@@ -382,6 +415,7 @@ export default function Dashboard() {
                 )}
               </li>
 
+              {/* Tasks Group */}
               <li>
                 <button
                   onClick={() => setTasksOpen((prev) => !prev)}
@@ -403,9 +437,9 @@ export default function Dashboard() {
                   <ul className="mt-2 ml-6 sm:ml-8 space-y-2">
                     <li>
                       <Link
-                        to="/tasks"
+                        to="/todo/dashboard"
                         className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
-                          currentPath === "/tasks"
+                          currentPath === "/todo/dashboard"
                             ? "bg-gray-700 text-gray-100"
                             : "text-gray-200 hover:bg-gray-800"
                         }`}
@@ -415,9 +449,9 @@ export default function Dashboard() {
                     </li>
                     <li>
                       <Link
-                        to="/tasks/add"
+                        to="/addtask"
                         className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs sm:text-sm ${
-                          currentPath === "/tasks/add"
+                          currentPath === "/addtask"
                             ? "bg-gray-700 text-gray-100"
                             : "text-gray-200 hover:bg-gray-800"
                         }`}
@@ -429,6 +463,7 @@ export default function Dashboard() {
                 )}
               </li>
 
+              {/* Chatbot Link */}
               <li>
                 <Link
                   to="/chatbot"
@@ -572,14 +607,14 @@ export default function Dashboard() {
 
               {/* Dashboard Buttons */}
               <div className="flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start sm:space-x-4 md:space-x-6 lg:space-x-8 space-y-3 sm:space-y-0">
-                <Link to="/finance" className="w-full sm:w-auto">
+                <Link to="/finance/dashboard" className="w-full sm:w-auto">
                   <button className="w-full inline-flex justify-center items-center bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-600 hover:to-teal-600 text-gray-100 font-semibold py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-8 rounded-lg shadow-2xl transition-transform duration-200 hover:scale-105 text-sm sm:text-base md:text-lg lg:text-xl">
                     {/* Icon‐text gap enlarged: mr-2 (base) / sm:mr-3 */}
                     <FaChartLine className="mr-2 sm:mr-3" />
                     Finance Dashboard
                   </button>
                 </Link>
-                <Link to="/tasks" className="w-full sm:w-auto">
+                <Link to="/todo/dashboard" className="w-full sm:w-auto">
                   <button className="w-full inline-flex justify-center items-center bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 text-gray-100 font-semibold py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-8 rounded-lg shadow-2xl transition-transform duration-200 hover:scale-105 text-sm sm:text-base md:text-lg lg:text-xl">
                     {/* Icon‐text gap enlarged: mr-2 (base) / sm:mr-3 */}
                     <FaTasks className="mr-2 sm:mr-3" />
