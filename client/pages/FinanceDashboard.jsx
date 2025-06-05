@@ -175,11 +175,12 @@ const FinanceDashboard = () => {
           </div>
         </section>
 
+       
         {/* =============================
             3. FILTERS & REPORT BUTTON
            ============================= */}
         <section className="bg-white rounded-2xl shadow-lg p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
             <div>
               <label htmlFor="filterMonth" className="block text-xs font-medium text-gray-600">
                 Filter by Month
@@ -230,6 +231,14 @@ const FinanceDashboard = () => {
                 className="w-full text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg transition-colors"
               >
                 Detailed Reports
+              </Link>
+            </div>
+            <div className="flex items-end">
+              <Link
+                to="/finance/add"
+                className="w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition-colors"
+              >
+                Add Transaction
               </Link>
             </div>
           </div>
