@@ -36,7 +36,7 @@ export default function LoginPage() {
       reset();
       toast.success('Login successful!');
       setTimeout(() => {
-        navigate('/todo/dashboard');
+        navigate('/dashboard');
       }, 1500);
     } catch (error) {
       const message =
