@@ -69,8 +69,8 @@ public class Finance {
 
     // Optional field for loan/borrow transactions: tracks if the transaction is still pending or completed.
     @Enumerated(EnumType.STRING)
-    @Column(name = "loan_status")
-    private LoanStatus loanStatus;
+    @Column(name = "due_status")
+    private DueStatus dueStatus;
 
 
     // Automatically set timestamps when creating/updating a record
@@ -93,7 +93,7 @@ public class Finance {
     }
 
     // Enum for loan/borrow status.
-    public enum LoanStatus {
+    public enum DueStatus {
         PENDING,
         COMPLETED
     }

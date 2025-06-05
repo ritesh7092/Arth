@@ -12,16 +12,16 @@ import java.util.List;
 public interface FinanceRepository extends JpaRepository<Finance, Long> {
 
 
-    List<Finance> findByUser(User user);
+//    List<Finance> findByUser(User user);
+//
+//    Finance findByUserAndId(User user, Long financeId);
+//
+//    List<Finance> findByUserAndTransactionDate(User user, LocalDate date);
+//
+//    List<Finance> findByUserAndCategory(User user, String category);
+//
+//    List<Finance> findByUserAndTransactionType(User user, Finance.TransactionType type);
 
-    Finance findByUserAndId(User user, Long financeId);
-
-    List<Finance> findByUserAndTransactionDate(User user, LocalDate date);
-
-    List<Finance> findByUserAndCategory(User user, String category);
-
-    List<Finance> findByUserAndTransactionType(User user, Finance.TransactionType type);
-
-    List<Finance> findByUserAndLoanStatus(User user, Finance.LoanStatus status);
+//    List<Finance> findByUserAndDueStatus(User user, Finance.DueStatus status);
 
 }

@@ -1,6 +1,7 @@
-// AddFinance.jsx
+// src/components/AddFinance.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import baseUrl from '../api/api';
 
 const AddFinance = () => {
   const [serverTime, setServerTime] = useState(new Date().toLocaleString());
@@ -12,10 +13,11 @@ const AddFinance = () => {
     transactionType: '',
     paymentMethod: '',
     counterparty: '',
-    loanStatus: ''
+    dueStatus: ''
   });
   const [flashMessage, setFlashMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   // Update server time every second
   useEffect(() => {
@@ -32,52 +34,105 @@ const AddFinance = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFlashMessage(null);
 
-    // HTML5 form validation; if invalid, browser will show errors.
+    // Let browser enforce HTML5 required checks
     if (!e.target.checkValidity()) {
       e.target.reportValidity();
       return;
     }
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setFlashMessage({
+        type: 'error',
+        message: 'You must be logged in to create a finance record.'
+      });
+      setTimeout(() => setFlashMessage(null), 3000);
+      return;
+    }
+
+    // Build payload by omitting any empty‐string fields
+    const payload = {};
+    Object.entries(financeData).forEach(([key, value]) => {
+      if (value !== '') {
+        payload[key] = value;
+      }
+    });
+
     setSubmitting(true);
     try {
-      // Simulate API call delay; replace with actual API submission logic.
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Simulated backend error: e.g., amount must be positive.
-      if (parseFloat(financeData.amount) <= 0) {
-        throw new Error('Amount must be greater than zero.');
-      }
-      setFlashMessage({ type: 'success', message: 'Finance record saved successfully.' });
-      setFinanceData({ transactionDate: '', amount: '', description: '', category: '', transactionType: '', paymentMethod: '', counterparty: '', loanStatus: '' });
+      await baseUrl.post(
+        '/api/finance/create',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      setFlashMessage({
+        type: 'success',
+        message: 'Finance record saved successfully.'
+      });
+
+      // Reset form
+      setFinanceData({
+        transactionDate: '',
+        amount: '',
+        description: '',
+        category: '',
+        transactionType: '',
+        paymentMethod: '',
+        counterparty: '',
+        dueStatus: ''
+      });
+
+      setTimeout(() => {
+        setFlashMessage(null);
+        navigate('/finance/dashboard');
+      }, 2000);
     } catch (error) {
-      setFlashMessage({ type: 'error', message: error.message || 'An error occurred while saving the record.' });
+      console.error('AXIOS ERROR', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        'An unexpected error occurred. Please try again.';
+      setFlashMessage({ type: 'error', message: errorMessage });
+      setTimeout(() => setFlashMessage(null), 3000);
     } finally {
       setSubmitting(false);
-      setTimeout(() => setFlashMessage(null), 3000);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Main Content (Navbar and Footer are provided globally) */}
       <main className="container mx-auto py-8 px-6 flex-grow">
         {flashMessage && (
           <div
-            className={`mb-6 p-4 rounded-md text-center ${
+            className={`mb-6 p-4 rounded-md text-center shadow-lg ${
               flashMessage.type === 'error'
                 ? 'bg-red-200 text-red-800'
                 : 'bg-green-200 text-green-800'
-            } shadow-lg`}
+            }`}
           >
             {flashMessage.message}
           </div>
         )}
 
-        <section className="bg-white p-8 rounded-xl shadow-2xl">
-          <h4 className="text-3xl font-bold text-indigo-700 mb-8 text-center">Add New Finance Record</h4>
+        <section className="bg-white p-8 rounded-xl shadow-2xl transform transition duration-500 hover:scale-105">
+          <h4 className="text-3xl font-bold text-indigo-700 mb-8 text-center">
+            Add New Finance Record
+          </h4>
           <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+            {/* Required: transactionDate, amount, description */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Transaction Date</label>
+                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">
+                  Transaction Date
+                </label>
                 <input
                   type="date"
                   id="transactionDate"
@@ -89,7 +144,9 @@ const AddFinance = () => {
                 />
               </div>
               <div>
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount (₹)</label>
+                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
+                  Amount (₹)
+                </label>
                 <input
                   type="number"
                   id="amount"
@@ -104,7 +161,9 @@ const AddFinance = () => {
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
               <textarea
                 id="description"
                 name="description"
@@ -116,9 +175,12 @@ const AddFinance = () => {
               ></textarea>
             </div>
 
+            {/* Now both Category and Transaction Type are required */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                  Category
+                </label>
                 <select
                   id="category"
                   name="category"
@@ -132,10 +194,14 @@ const AddFinance = () => {
                   <option value="Food">Food</option>
                   <option value="Rent">Rent</option>
                   <option value="Loan">Loan</option>
-                  {/* Additional categories can be added here */}                </select>
+                  <option value="Other">Other</option>
+                </select>
               </div>
+
               <div>
-                <label htmlFor="transactionType" className="block text-sm font-medium text-gray-700">Transaction Type</label>
+                <label htmlFor="transactionType" className="block text-sm font-medium text-gray-700">
+                  Transaction Type
+                </label>
                 <select
                   id="transactionType"
                   name="transactionType"
@@ -151,8 +217,11 @@ const AddFinance = () => {
                   <option value="LOAN">Loan</option>
                 </select>
               </div>
+
               <div>
-                <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700">Payment Method</label>
+                <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700">
+                  Payment Method
+                </label>
                 <input
                   type="text"
                   id="paymentMethod"
@@ -164,9 +233,12 @@ const AddFinance = () => {
               </div>
             </div>
 
+            {/* Optional: counterparty, dueStatus */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label htmlFor="counterparty" className="block text-sm font-medium text-gray-700">Counterparty</label>
+                <label htmlFor="counterparty" className="block text-sm font-medium text-gray-700">
+                  Counterparty
+                </label>
                 <input
                   type="text"
                   id="counterparty"
@@ -177,11 +249,13 @@ const AddFinance = () => {
                 />
               </div>
               <div>
-                <label htmlFor="loanStatus" className="block text-sm font-medium text-gray-700">Loan Status</label>
+                <label htmlFor="dueStatus" className="block text-sm font-medium text-gray-700">
+                  Due Status
+                </label>
                 <select
-                  id="loanStatus"
-                  name="loanStatus"
-                  value={financeData.loanStatus}
+                  id="dueStatus"
+                  name="dueStatus"
+                  value={financeData.dueStatus}
                   onChange={handleChange}
                   className="mt-2 w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                 >
@@ -192,7 +266,11 @@ const AddFinance = () => {
               </div>
             </div>
 
-            <button type="submit" disabled={submitting} className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+            >
               {submitting ? 'Saving...' : 'Save Finance Record'}
             </button>
           </form>

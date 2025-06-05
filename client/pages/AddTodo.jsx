@@ -47,7 +47,7 @@ const AddTodo = () => {
     }
 
     baseUrl.post(
-      '/api/tasks/public/create',
+      '/api/tasks/create',
       todoData,
       {
         headers: {

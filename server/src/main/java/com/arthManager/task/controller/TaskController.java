@@ -20,7 +20,7 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @PostMapping("/public/create")
+    @PostMapping("/create")
 //    @PreAuthorize("hasRole('USER')")
 //    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> createTask(@RequestBody AddTask addTask) {
