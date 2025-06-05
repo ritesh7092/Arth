@@ -61,6 +61,11 @@ export default function Dashboard() {
     }
   }, [sidebarOpen]);
 
+   const handleLogout = () => {
+  localStorage.removeItem('authToken'); // or clear() if you want to remove all
+  window.location.href = '/'; // or use navigate("/") if using react-router
+};
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 font-sans text-gray-100 overflow-x-hidden">
       <div className="flex flex-1">
@@ -287,8 +292,8 @@ export default function Dashboard() {
                 <span className="text-sm sm:text-base">Settings</span>
               </Link>
               <Link
-                to="/logout"
-                onClick={() => setSidebarOpen(false)}
+                to="/"
+                onClick = {handleLogout}
                 className="mt-3 w-full inline-flex justify-center items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-md shadow transition-transform duration-200 hover:scale-105 text-sm sm:text-base"
               >
                 <FaSignOutAlt className="mr-2 text-lg" /> Logout
@@ -490,7 +495,8 @@ export default function Dashboard() {
               <span className="text-sm sm:text-base">Settings</span>
             </Link>
             <Link
-              to="/logout"
+              to="/"
+              onClick={handleLogout}
               className="mt-3 w-full inline-flex justify-center items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-md shadow transition-transform duration-200 hover:scale-105 text-sm sm:text-base"
             >
               <FaSignOutAlt className="mr-2 text-lg" /> Logout

@@ -35,6 +35,11 @@ export default function NavbarWithSidebar({ heading }) {
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
   const closeSidebar = () => setSidebarOpen(false);
+  const handleLogout = () => {
+  localStorage.removeItem('authToken'); // or clear() if you want to remove all
+  window.location.href = '/'; // or use navigate("/") if using react-router
+};
+
 
   const isActive = (path) => currentPath === path;
 
@@ -243,8 +248,8 @@ export default function NavbarWithSidebar({ heading }) {
             </li>
             <li>
               <Link
-                to="/logout"
-                onClick={closeSidebar}
+                to="/"
+                onClick={handleLogout}
                 className="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-[#334155] hover:text-white transition-colors duration-200"
               >
                 <FaSignOutAlt className="mr-3 text-lg text-[#ef4444]" />
@@ -297,7 +302,8 @@ export default function NavbarWithSidebar({ heading }) {
               <FaUserCircle className="text-2xl text-[#f9c74f]" />
             </Link>
             <Link
-              to="/logout"
+              to="/"
+              onClick={handleLogout}
               className="text-gray-300 hover:text-white transition-colors"
               title="Logout"
             >
