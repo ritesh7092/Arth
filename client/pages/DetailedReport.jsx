@@ -24,6 +24,8 @@ const DetailedReport = () => {
     { id: 5, transactionDate: "2025-03-12", description: "Money Borrowed", category: "Borrow", transactionType: "Credit", amount: 5000, paymentMethod: "Cash", counterparty: "Friend" },
     { id: 6, transactionDate: "2025-03-15", description: "Monthly Savings", category: "Savings", transactionType: "Credit", amount: 2000, paymentMethod: "Bank Transfer", counterparty: "Self" },
     { id: 7, transactionDate: "2025-03-20", description: "Lent to Friend", category: "Lent", transactionType: "Debit", amount: 5000, paymentMethod: "Cash", counterparty: "Friend" },
+    { id: 6, transactionDate: "2025-03-15", description: "Monthly Savings", category: "Savings", transactionType: "Credit", amount: 2000, paymentMethod: "Bank Transfer", counterparty: "Self" },
+    { id: 7, transactionDate: "2025-03-20", description: "Lent to Friend", category: "Lent", transactionType: "Debit", amount: 5000, paymentMethod: "Cash", counterparty: "Friend" },
   ]);
 
   const [filterYear, setFilterYear] = useState("2025");

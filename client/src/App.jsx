@@ -13,10 +13,11 @@ import AddTodo from '../pages/AddTodo';
 import EditTodo from '../pages/EditTodo';
 import LoginPage from '../pages/Login';
 import SignupPage from '../pages/Signup';
-import UserProfilePage from '../pages/UserProfilePage';
+import UserProfilePage from '../pages/Dashboard';
 import EditUserProfilePage from '../pages/EditProfilePage';
 import AboutPage from '../pages/About';
 import Chatbot from '../pages/Chatbot';
+import Dashboard from '../pages/Dashboard';
 // import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -56,13 +57,20 @@ function App() {
           }
         />
         <Route
-          path='/profile'
+          path='/dashboard'
           element={
-            <MainLayout heading="Your Profile">
-              <UserProfilePage/>
-            </MainLayout>
+            <Dashboard/>
           }
         />
+        {/* <Route
+          path='/profile'
+          element={
+            // <MainLayout heading="Your Profile">
+            //   <UserProfilePage/>
+            // </MainLayout>
+             <UserProfilePage/>
+          }
+        /> */}
         <Route
           path='/chatbot'
           element={

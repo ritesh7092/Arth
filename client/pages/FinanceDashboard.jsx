@@ -96,8 +96,8 @@ const FinanceDashboard = () => {
         )}
 
         <header className="text-center space-y-2">
-          <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">Finance Dashboard</h1>
-          <p className="text-sm text-gray-500">Server Time: {serverTime}</p>
+          {/* <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">Finance Dashboard</h1>
+          <p className="text-sm text-gray-500">Server Time: {serverTime}</p> */}
         </header>
 
         {/* =========================

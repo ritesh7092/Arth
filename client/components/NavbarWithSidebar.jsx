@@ -1,6 +1,6 @@
 // NavbarWithSidebar.jsx
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   FaBars,
   FaTimes,
@@ -10,15 +10,21 @@ import {
   FaPlus,
   FaComments,
   FaFileAlt,
-  FaUserEdit,
+  FaUserCircle,
+  FaEdit,
   FaSignOutAlt,
-} from 'react-icons/fa';
+  FaChevronDown,
+  FaChevronRight,
+} from "react-icons/fa";
 
-const NavbarWithSidebar = ({ heading }) => {
-  // Simulated server date/time; replace with actual server time if available.
+export default function NavbarWithSidebar({ heading }) {
   const [serverDate, setServerDate] = useState(new Date());
-  // State to control sidebar open/close
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [financeOpen, setFinanceOpen] = useState(false);
+  const [tasksOpen, setTasksOpen] = useState(false);
+
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -30,110 +36,188 @@ const NavbarWithSidebar = ({ heading }) => {
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
   const closeSidebar = () => setSidebarOpen(false);
 
+  const isActive = (path) => currentPath === path;
+
   return (
     <>
-      {/* Sidebar Overlay */}
+      {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
-          sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        className={`fixed inset-0 bg-black bg-opacity-60 z-40 transition-opacity duration-300 ${
+          sidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={closeSidebar}
-      ></div>
+      />
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-screen w-64 bg-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out shadow-lg ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 left-0 h-screen w-72 bg-gradient-to-b from-[#1e293b] to-[#0f172a] text-gray-100 z-50 transform transition-transform duration-300 ease-in-out shadow-xl ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700">
-          <h3
-            className="text-2xl font-bold"
-            style={{ fontFamily: '"Brush Script MT", cursive' }}
-          >
-            Arth
-          </h3>
+        {/* Header / Branding */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-700">
+          <Link to="/" onClick={closeSidebar} className="flex items-center">
+            <h3
+              className="text-2xl font-bold text-white"
+              style={{ fontFamily: '"Brush Script MT", cursive' }}
+            >
+              Arth
+            </h3>
+          </Link>
           <button
             onClick={closeSidebar}
-            className="text-2xl text-gray-300 hover:text-white focus:outline-none transition-colors"
+            className="text-xl text-gray-400 hover:text-white focus:outline-none transition-colors"
             aria-label="Close sidebar"
           >
             <FaTimes />
           </button>
         </div>
 
-        {/* Sidebar Link Groups */}
-        <nav className="mt-6">
+        {/* Navigation */}
+        <nav className="mt-6 px-2 overflow-y-auto h-[calc(100vh-80px)] scrollbar-thin scrollbar-thumb-gray-600">
           <ul className="space-y-2">
+            {/* Home */}
             <li>
               <Link
                 to="/"
                 onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${
+                  isActive("/")
+                    ? "bg-gradient-to-r from-[#4facfe] to-[#0066ff] text-white shadow-lg"
+                    : "text-gray-300 hover:bg-[#334155] hover:text-white"
+                }`}
               >
-                <FaHome className="mr-3 text-lg text-blue-400" />
-                <span className="text-lg font-medium">Home</span>
+                <FaHome className="mr-3 text-lg text-[#4facfe]" />
+                <span className="font-medium text-base">Home</span>
               </Link>
             </li>
+
+            {/* Finance Section */}
             <li>
-              <Link
-                to="/finance/dashboard"
-                onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
+              <button
+                onClick={() => setFinanceOpen((prev) => !prev)}
+                className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors duration-200 ${
+                  financeOpen
+                    ? "bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] text-white shadow-lg"
+                    : "text-gray-300 hover:bg-[#334155] hover:text-white"
+                }`}
               >
-                <FaChartLine className="mr-3 text-lg text-green-400" />
-                <span className="text-lg font-medium">Finance Dashboard</span>
-              </Link>
+                <FaChartLine className="mr-3 text-lg text-[#a78bfa]" />
+                <span className="flex-grow font-medium text-base">Finance</span>
+                {financeOpen ? (
+                  <FaChevronDown className="text-sm opacity-70" />
+                ) : (
+                  <FaChevronRight className="text-sm opacity-50" />
+                )}
+              </button>
+              {financeOpen && (
+                <ul className="mt-1 ml-8 space-y-1">
+                  <li>
+                    <Link
+                      to="/finance/dashboard"
+                      onClick={closeSidebar}
+                      className={`flex items-center px-3 py-2 rounded-md transition-colors duration-150 ${
+                        isActive("/finance/dashboard")
+                          ? "bg-[#1e3a8a] text-white"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                      }`}
+                    >
+                      <span className="text-sm">Dashboard</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/finance/add"
+                      onClick={closeSidebar}
+                      className={`flex items-center px-3 py-2 rounded-md transition-colors duration-150 ${
+                        isActive("/finance/add")
+                          ? "bg-[#1e3a8a] text-white"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                      }`}
+                    >
+                      <span className="text-sm">Add Finance</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/finance/report"
+                      onClick={closeSidebar}
+                      className={`flex items-center px-3 py-2 rounded-md transition-colors duration-150 ${
+                        isActive("/finance/report")
+                          ? "bg-[#1e3a8a] text-white"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                      }`}
+                    >
+                      <span className="text-sm">Reports</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
+
+            {/* Tasks Section */}
             <li>
-              <Link
-                to="/todo/dashboard"
-                onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
+              <button
+                onClick={() => setTasksOpen((prev) => !prev)}
+                className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors duration-200 ${
+                  tasksOpen
+                    ? "bg-gradient-to-r from-[#f472b6] to-[#ec4899] text-white shadow-lg"
+                    : "text-gray-300 hover:bg-[#334155] hover:text-white"
+                }`}
               >
-                <FaTasks className="mr-3 text-lg text-yellow-400" />
-                <span className="text-lg font-medium">Todo Dashboard</span>
-              </Link>
+                <FaTasks className="mr-3 text-lg text-[#f9a8d4]" />
+                <span className="flex-grow font-medium text-base">Tasks</span>
+                {tasksOpen ? (
+                  <FaChevronDown className="text-sm opacity-70" />
+                ) : (
+                  <FaChevronRight className="text-sm opacity-50" />
+                )}
+              </button>
+              {tasksOpen && (
+                <ul className="mt-1 ml-8 space-y-1">
+                  <li>
+                    <Link
+                      to="/todo/dashboard"
+                      onClick={closeSidebar}
+                      className={`flex items-center px-3 py-2 rounded-md transition-colors duration-150 ${
+                        isActive("/todo/dashboard")
+                          ? "bg-[#831843] text-white"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                      }`}
+                    >
+                      <span className="text-sm">Todo Dashboard</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/addtask"
+                      onClick={closeSidebar}
+                      className={`flex items-center px-3 py-2 rounded-md transition-colors duration-150 ${
+                        isActive("/addtask")
+                          ? "bg-[#831843] text-white"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                      }`}
+                    >
+                      <span className="text-sm">Add Todo</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </li>
-            <li>
-              <Link
-                to="/finance/add"
-                onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
-              >
-                <FaPlus className="mr-3 text-lg text-green-400" />
-                <span className="text-lg font-medium">Add Finance</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/addtask"
-                onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
-              >
-                <FaPlus className="mr-3 text-lg text-yellow-400" />
-                <span className="text-lg font-medium">Add Todo</span>
-              </Link>
-            </li>
+
+            {/* AI Assistant */}
             <li>
               <Link
                 to="/chatbot"
                 onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${
+                  isActive("/chatbot")
+                    ? "bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg"
+                    : "text-gray-300 hover:bg-[#334155] hover:text-white"
+                }`}
               >
-                <FaComments className="mr-3 text-lg text-indigo-400" />
-                <span className="text-lg font-medium">Arth (AI Assistant)</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/finance/report"
-                onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
-              >
-                <FaFileAlt className="mr-3 text-lg text-purple-400" />
-                <span className="text-lg font-medium">Finance Reports</span>
+                <FaComments className="mr-3 text-lg text-[#34d399]" />
+                <span className="font-medium text-base">AI Assistant</span>
               </Link>
             </li>
           </ul>
@@ -145,78 +229,92 @@ const NavbarWithSidebar = ({ heading }) => {
           <ul className="mt-4 space-y-2">
             <li>
               <Link
-                to="/profile"
+                to="/dashboard"
                 onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${
+                  isActive("/dashboard")
+                    ? "bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white shadow-lg"
+                    : "text-gray-300 hover:bg-[#334155] hover:text-white"
+                }`}
               >
-                <FaUserEdit className="mr-3 text-lg text-pink-400" />
-                <span className="text-lg font-medium">Profile</span>
+                <FaUserCircle className="mr-3 text-lg text-[#f9c74f]" />
+                <span className="font-medium text-base">Dashboard/Profile</span>
               </Link>
             </li>
             <li>
               <Link
                 to="/logout"
                 onClick={closeSidebar}
-                className="flex items-center px-6 py-3 hover:bg-gray-700 transition-colors rounded-r-lg"
+                className="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-[#334155] hover:text-white transition-colors duration-200"
               >
-                <FaSignOutAlt className="mr-3 text-lg text-red-400" />
-                <span className="text-lg font-medium">Logout</span>
+                <FaSignOutAlt className="mr-3 text-lg text-[#ef4444]" />
+                <span className="font-medium text-base">Logout</span>
               </Link>
             </li>
           </ul>
         </nav>
       </aside>
 
-      {/* Navbar */}
-      <header className="w-full bg-gradient-to-r from-slate-800 to-gray-800 text-white shadow-md fixed top-0 z-30">
-        <div className="max-w-full mx-auto px-6 py-3 flex items-center justify-between">
-          {/* Left: Menu Icon & Branding */}
+      {/* Top Navbar */}
+      <header className="w-full bg-gradient-to-r from-[#020617] to-[#0f172a] border-b border-gray-700 text-gray-100 fixed top-0 z-30 shadow-lg">
+        <div className="max-w-screen-xl mx-auto px-6 py-3 flex items-center justify-between">
+          {/* Left: Toggle & Branding */}
           <div className="flex items-center">
             <button
               onClick={toggleSidebar}
-              className="text-2xl text-gray-200 hover:text-white focus:outline-none transition-colors"
+              className="text-2xl text-gray-300 hover:text-white focus:outline-none transition-colors"
               aria-label="Toggle menu"
             >
               {sidebarOpen ? <FaTimes /> : <FaBars />}
             </button>
-            <div className="ml-4">
-              <Link
-                to="/"
-                className="text-3xl font-bold leading-none"
+            <Link to="/" className="ml-4">
+              <h2
+                className="text-3xl font-bold text-white"
                 style={{ fontFamily: '"Brush Script MT", cursive' }}
               >
                 Arth
-              </Link>
-              <p className="text-xs text-gray-300 italic mt-0.5">
-                Keep Your Finance & Goals On Track
+              </h2>
+              <p className="text-xs text-gray-400 italic -mt-1">
+                Advance. Secure. Global.
               </p>
-            </div>
+            </Link>
           </div>
 
-          {/* Center: Dynamic Heading (hidden on small screens) */}
+          {/* Center: Page Heading */}
           <div className="hidden lg:flex flex-grow justify-center px-4">
-            <h1 className="text-xl font-semibold tracking-wide">{heading}</h1>
+            <h1 className="text-xl font-semibold tracking-wide text-white">
+              {heading}
+            </h1>
           </div>
 
-          {/* Right: Profile, Logout, & Server Time */}
+          {/* Right: Profile, Logout, Server Time */}
           <div className="flex items-center space-x-4">
             <Link
-              to="/profile"
-              className="text-gray-200 hover:text-white transition-colors"
+              to="/dashboard"
+              className="text-gray-300 hover:text-white transition-colors"
               title="Profile"
             >
-              <FaUserEdit className="text-2xl" />
+              <FaUserCircle className="text-2xl text-[#f9c74f]" />
             </Link>
             <Link
               to="/logout"
-              className="text-gray-200 hover:text-white transition-colors"
+              className="text-gray-300 hover:text-white transition-colors"
               title="Logout"
             >
-              <FaSignOutAlt className="text-2xl" />
+              <FaSignOutAlt className="text-2xl text-[#ef4444]" />
             </Link>
-            <div className="text-xs text-gray-300 whitespace-nowrap hidden md:inline-block">
+            <div className="text-xs text-gray-400 whitespace-nowrap hidden md:inline-block">
               <time dateTime={serverDate.toISOString()}>
-                {serverDate.toLocaleDateString()} {serverDate.toLocaleTimeString()}
+                {serverDate.toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}{" "}
+                {serverDate.toLocaleTimeString(undefined, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
               </time>
             </div>
           </div>
@@ -224,7 +322,5 @@ const NavbarWithSidebar = ({ heading }) => {
       </header>
     </>
   );
-};
-
-export default NavbarWithSidebar;
+}
 
