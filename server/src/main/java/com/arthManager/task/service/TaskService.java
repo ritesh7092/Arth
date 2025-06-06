@@ -1,17 +1,24 @@
 package com.arthManager.task.service;
 
 import com.arthManager.task.dto.AddTask;
+import com.arthManager.task.dto.TaskDto;
 import com.arthManager.task.model.Task;
 import com.arthManager.task.repository.TaskRepository;
 import com.arthManager.user.model.User;
 import com.arthManager.user.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 @Service
 public class TaskService{
@@ -21,21 +28,27 @@ public class TaskService{
     @Autowired
     private UserRepository userRepository;
 
-    // Method to save a new task
-    public Task saveTask(Task task){
-        // Get the current authenticated user
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+    @Autowired
+    private ModelMapper modelMapper;
 
-        User user = userRepository.findByUsername(username).orElseThrow(
-                () -> new UsernameNotFoundException("User not found with username: " + username)
-        );
-
-        // Set the user who is saving the task
-        task.setUser(user);
-        task.setCompleted(false); // By default, a new task is not completed
-        task.setDateAdded(LocalDate.now()); // Set the current date as the dateAdded
-        return taskRepository.save(task);
+    public Page<TaskDto> getAllTasks(String dateString, String monthString, Integer year, int page, int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("dateAdded").descending());
+        if(dateString != null && !dateString.isEmpty()){
+            LocalDate date = LocalDate.parse(dateString);
+            Page<Task> entityPage = taskRepository.findByDateAdded(date, pageable);
+            return entityPage.map(e -> modelMapper.map(e,TaskDto.class));
+        }
+        else if(monthString != null && year != null && !"All".equals(monthString)){
+            int monthIndex = Month.valueOf(monthString.toUpperCase()).getValue();
+            LocalDate startDate = LocalDate.of(year, monthIndex, 1);
+            LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+            Page<Task> entityPage = taskRepository.findByDateAddedBetween(startDate, endDate, pageable);
+            return entityPage.map(e -> modelMapper.map(e, TaskDto.class));
+        }
+        else {
+            Page<Task> entityPage = taskRepository.findAll(pageable);
+            return entityPage.map(e -> modelMapper.map(e, TaskDto.class));
+        }
     }
 
     public Task createTask(AddTask addTask){

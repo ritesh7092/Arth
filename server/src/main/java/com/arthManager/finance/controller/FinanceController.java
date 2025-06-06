@@ -23,6 +23,7 @@ public class FinanceController {
 //        this.financeService = financeService;
 //    }
 
+
     @PostMapping("/create")
     public ResponseEntity<?> createFinanceRecord(@RequestBody AddFinance addFinance) {
         try{
@@ -33,4 +34,9 @@ public class FinanceController {
             return ResponseEntity.status(500).body("Error creating finance record: " + e.getMessage());
         }
     }
+
+
+
+    // Add more endpoints as needed for retrieving, updating, and deleting finance records
+
 }

@@ -1,5 +1,7 @@
 package com.arthManager.task.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.arthManager.task.model.Task;
 import com.arthManager.user.model.User;
@@ -15,6 +17,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserAndDueDateAfter(User user, LocalDate date);
     List<Task> findByUserAndCompleted(User user, boolean completed);
 
+    Page<Task> findByDateAdded(LocalDate date, Pageable pageable);
+
+    Page<Task> findByDateAddedBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }
 
 
