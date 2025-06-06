@@ -51,6 +51,17 @@ public class TaskController {
     }
 
     // Add more endpoints as needed for retrieving, updating, and deleting tasks
-
+     @GetMapping("/{id}")
+    public ResponseEntity<TaskDto> getTaskById(@PathVariable("id") Long id) {
+        try {
+            TaskDto taskDto = taskService.getTaskById(id);
+            if (taskDto == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(taskDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
 }
