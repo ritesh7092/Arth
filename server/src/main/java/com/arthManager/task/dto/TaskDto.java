@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class TaskDto {
     private Long id;
     private String title;
-    private String shortDescription;
+    private String description;
     private String priority;      // "high", "medium", or "low"
     private LocalDate dateAdded;
     private LocalDate dueDate;

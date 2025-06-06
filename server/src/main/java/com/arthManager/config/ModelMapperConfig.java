@@ -8,7 +8,16 @@ import org.springframework.context.annotation.Configuration;
 public class ModelMapperConfig {
     @Bean
     public ModelMapper modelMapper() {
-        return new ModelMapper();
+        ModelMapper mapper = new ModelMapper();
+        // Instruct ModelMapper to skip any null-valued source property
+        mapper.getConfiguration()
+                .setPropertyCondition(context -> context.getSource() != null);
+        return mapper;
     }
+
+//    @Bean
+//    public ModelMapper modelMapper() {
+//        return new ModelMapper();
+//    }
 }
 

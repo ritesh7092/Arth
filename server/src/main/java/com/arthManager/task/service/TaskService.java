@@ -90,4 +90,18 @@ public class TaskService{
         return modelMapper.map(task, TaskDto.class);
     }
 
+    public TaskDto updateTask(Long id, TaskDto updatedTask) {
+        User user = getAuthenticatedUser();
+        if(user == null){
+            throw new UsernameNotFoundException("User not found");
+        }
+        Task existingTask = taskRepository
+                .findByUserAndId(user, id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
+        modelMapper.map(updatedTask, existingTask);
+        Task saved = taskRepository.save(existingTask);
+
+        return modelMapper.map(saved, TaskDto.class);
+    }
 }
