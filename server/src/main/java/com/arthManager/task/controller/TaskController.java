@@ -78,4 +78,28 @@ public class TaskController {
         }
     }
 
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<TaskDto> completeTask(@PathVariable("id") Long id) {
+        try {
+            TaskDto completedTask = taskService.completeTask(id);
+            if (completedTask == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(completedTask);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTask(@PathVariable("id") Long id){
+        try {
+            taskService.deleteTask(id);
+            return ResponseEntity.ok("Task deleted succesfully");
+        }
+        catch (Exception e){
+            return ResponseEntity.status(500).body("Error deleting task: " + e.getMessage());
+        }
+    }
+
 }

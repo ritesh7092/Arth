@@ -104,4 +104,30 @@ public class TaskService{
 
         return modelMapper.map(saved, TaskDto.class);
     }
+
+    public TaskDto completeTask(Long id) {
+        User user = getAuthenticatedUser();
+        if(user == null){
+            throw new UsernameNotFoundException("User not found");
+        }
+        Task task = taskRepository.findByUserAndId(user, id).orElseThrow(
+                () -> new RuntimeException("Task not found with id: " + id)
+        );
+        task.setCompleted(true);
+        Task savedTask = taskRepository.save(task);
+        return modelMapper.map(savedTask, TaskDto.class);
+    }
+
+    public void deleteTask(Long id){
+        User user = getAuthenticatedUser();
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        Task task = taskRepository.findByUserAndId(user, id).orElseThrow(
+                () -> new RuntimeException("Task not found with id: " + id)
+        );
+        taskRepository.delete(task);
+    }
+
+
 }
