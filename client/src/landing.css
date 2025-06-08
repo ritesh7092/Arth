@@ -1,548 +1,646 @@
-/* -----------------------------------------------------
-   0. BASE STYLES & APP WRAPPER
------------------------------------------------------ */
-.home-wrapper {
-  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f8f9fa; /* Light gray page background */
-  color: #111827; /* Dark charcoal text */
-  overflow-x: hidden;
+/* Basic Resets & Font */
+body {
+    font-family: 'Poppins', sans-serif; /* A modern, clean font */
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* -----------------------------------------------------
-   1. NAVBAR (Fixed, Dark Gradient, No Collapse)
------------------------------------------------------ */
+/* --- Theme Variables (Light Mode Default) --- */
+.light-theme {
+    --primary-color: #6a0dad; /* A vibrant purple */
+    --secondary-color: #3f51b5; /* A deep blue */
+    --tertiary-color: #00bcd4; /* A bright cyan */
+    --accent-color: #ff9800; /* Orange for highlights */
+
+    --bg-light: #ffffff; /* Main background for cards/sections */
+    --bg-dark: #f8f9fa; /* Slightly darker background for sections */
+    --text-color: #343a40; /* Dark text */
+    --text-light: #6c757d; /* Lighter text for secondary info */
+    --border-color: #e9ecef; /* Light borders */
+    --shadow-color: rgba(0, 0, 0, 0.08); /* Soft shadows */
+    --gradient-start: #7928CA;
+    --gradient-end: #FF0080;
+    --hero-overlay-color: rgba(0, 0, 0, 0.4);
+    --wave-fill-color: #f8f9fa; /* Matches light theme section background */
+    --cta-bg-start: #3f51b5; /* Darker blue for CTA gradient */
+    --cta-bg-end: #6a0dad; /* Purple for CTA gradient */
+    --cta-text-color: #ffffff;
+    --navbar-bg: rgba(255, 255, 255, 0.9); /* Semi-transparent white navbar */
+    --navbar-text: #343a40;
+    --navbar-shadow: rgba(0, 0, 0, 0.05);
+    --link-hover-color: var(--primary-color);
+    --scroll-to-top-bg: var(--primary-color);
+}
+
+/* --- Theme Variables (Dark Mode) --- */
+.dark-theme {
+    --primary-color: #BB86FC; /* Light purple */
+    --secondary-color: #03DAC6; /* Teal */
+    --tertiary-color: #A7FFEB; /* Lighter cyan */
+    --accent-color: #FFCC80; /* Lighter orange */
+
+    --bg-light: #1f1f1f; /* Dark background for cards/sections */
+    --bg-dark: #121212; /* Main dark background */
+    --text-color: #e0e0e0; /* Light text */
+    --text-light: #a0a0a0; /* Lighter text for secondary info */
+    --border-color: #333333; /* Darker borders */
+    --shadow-color: rgba(0, 0, 0, 0.3); /* More pronounced shadows */
+    --gradient-start: #BB86FC;
+    --gradient-end: #03DAC6;
+    --hero-overlay-color: rgba(0, 0, 0, 0.6);
+    --wave-fill-color: var(--bg-dark); /* Matches dark theme section background */
+    --cta-bg-start: #1a237e; /* Even darker blue for CTA gradient */
+    --cta-bg-end: #4527a0; /* Darker purple for CTA gradient */
+    --cta-text-color: #e0e0e0;
+    --navbar-bg: rgba(18, 18, 18, 0.9); /* Semi-transparent dark navbar */
+    --navbar-text: #e0e0e0;
+    --navbar-shadow: rgba(0, 0, 0, 0.2);
+    --link-hover-color: var(--secondary-color);
+    --scroll-to-top-bg: var(--secondary-color);
+}
+
+/* Apply base theme colors */
+.home-wrapper {
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* =====================
+    1. NAVBAR
+   ===================== */
 .navbar-custom {
-  background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
-  min-height: 56px;
-  padding: 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+    background-color: var(--navbar-bg);
+    box-shadow: 0 2px 10px var(--navbar-shadow);
 }
 
 .navbar-custom .navbar-brand {
-  font-size: 1.625rem; /* 26px */
-  line-height: 1;
-  display: flex;
-  align-items: center;
-}
-
-.text-gradient-logo {
-  background: linear-gradient(45deg, #6366f1, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.text-tagline {
-  font-size: 0.875rem; /* 14px */
-  color: #94a3b8; /* Light steel gray */
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
 .navbar-custom .nav-link {
-  font-size: 0.9375rem; /* 15px */
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #e2e8f0; /* Light gray */
-  padding: 0.5rem 0.75rem;
-  transition: color 0.2s, background-color 0.2s;
+    font-weight: 500;
+    color: var(--navbar-text);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
 }
 
-.navbar-custom .nav-link:hover,
-.navbar-custom .btn-link-custom:hover {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 0.25rem;
+.navbar-custom .nav-link.btn-link-custom:hover {
+    color: var(--link-hover-color);
+    background-color: rgba(var(--primary-color-rgb), 0.1); /* Use RGB for transparent hover */
 }
 
-/* -----------------------------------------------------
-   2. HERO SECTION (80vh, Dark Overlay, Dense CTAs)
------------------------------------------------------ */
+.text-gradient-logo {
+    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    transition: all 0.3s ease;
+}
+
+.text-tagline {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-light);
+}
+
+.theme-toggle-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navbar-text);
+    padding: 0.5rem;
+    border-radius: 50%;
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--link-hover-color);
+}
+
+/* =====================
+    2. HERO SECTION
+   ===================== */
 .hero-section {
-  position: relative;
-  min-height: 80vh;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 56px; /* Push below fixed navbar */
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    overflow: hidden; /* Ensure wave stays within bounds */
 }
 
 .hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(17, 24, 39, 0.75); /* Slate-900 at 75% opacity */
-  z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--hero-overlay-color);
+    z-index: 1;
 }
 
 .hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 720px;
-  animation: fadeInUp 1s ease both;
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+    animation: fadeInScale 1s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .hero-title {
-  font-size: 3rem; /* 48px */
-  line-height: 1.1;
-  margin-bottom: 1rem;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1px;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem; /* 20px */
-  margin-bottom: 0.75rem; /* 12px */
-  color: #e5e7eb; /* Gray-200 */
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.9);
 }
+.hero-subtitle u {
+    text-decoration-color: var(--accent-color);
+    text-decoration-thickness: 2px;
+}
+
 
 .hero-description {
-  font-size: 1rem; /* 16px */
-  margin-bottom: 1.5rem; /* 24px */
-  color: #d1d5db; /* Gray-300 */
-  line-height: 1.5;
+    font-size: 1.15rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* CTA BUTTON STYLES */
 .cta-btn-primary,
-.cta-btn-secondary,
-.cta-btn-outline {
-  padding: 0.625rem 1.25rem; /* 10px vertical, 20px horizontal */
-  font-size: 0.9375rem; /* 15px */
-  font-weight: 600;
-  border-radius: 0.375rem; /* 6px */
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Indigo Primary */
-.cta-btn-primary {
-  background: #6366f1; /* Indigo-500 */
-  color: #ffffff;
-  border: none;
-  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.4);
-}
-
-.cta-btn-primary:hover,
-.cta-btn-primary:focus {
-  background: #4f46e5; /* Indigo-600 */
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-  transform: translateY(-2px);
-}
-
-/* Dark Slate Secondary */
+.cta-btn-outline,
 .cta-btn-secondary {
-  background: #0f172a; /* Slate-900 */
-  color: #e5e7eb; /* Gray-200 */
-  border: none;
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.4);
+    padding: 0.85rem 2.2rem;
+    border-radius: 3rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    border: 2px solid;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.cta-btn-secondary:hover,
-.cta-btn-secondary:focus {
-  background: #111827; /* Slate-800 */
-  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.4);
-  transform: translateY(-2px);
+.cta-btn-primary {
+    background-image: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+    border-color: transparent;
+    color: #fff;
+}
+.cta-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    color: #fff; /* Keep text white on hover */
 }
 
-/* White Outline */
 .cta-btn-outline {
-  background: transparent;
-  color: #ffffff;
-  border: 2px solid #ffffff;
-  box-shadow: none;
+    background-color: transparent;
+    border-color: #fff;
+    color: #fff;
+}
+.cta-btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-.cta-btn-outline:hover,
-.cta-btn-outline:focus {
-  background: #ffffff;
-  color: #1e293b; /* Slate-800 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.cta-btn-secondary {
+    background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent white */
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+.cta-btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* SVG Wave at bottom of Hero */
+
+/* Hero wave effect */
 .hero-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  overflow: hidden;
-  line-height: 0;
-  z-index: 2;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px; /* Adjust height of wave */
+    z-index: 3;
 }
 
 .hero-wave svg {
-  display: block;
-  width: 100%;
-  height: 80px;
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
-/* -----------------------------------------------------
-   3. FEATURES SECTION (Advanced Cards + Reveal)
------------------------------------------------------ */
-.features-section {
-  background-color: #f3f4f6; /* Slightly off-white */
-  padding-top: 4rem; /* 64px */
-  padding-bottom: 4rem; /* 64px */
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+.hero-wave path {
+    fill: var(--wave-fill-color); /* Fill with section background color */
+    transition: fill 0.3s ease;
 }
 
-.features-section.reveal {
-  opacity: 1;
-  transform: translateY(0);
+
+/* =====================
+    3. FEATURES SECTION
+   ===================== */
+.features-section,
+.why-section {
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .section-title {
-  font-size: 2.25rem; /* 36px */
-  font-weight: 700;
-  color: #0f172a; /* Slate-900 */
-  position: relative;
-  display: inline-block;
-  margin-bottom: 3.5rem; /* 56px */
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
 }
 
 .section-title::after {
-  content: '';
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(90deg, #6366f1, #3b82f6); /* Indigo → Blue underline */
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -14px;
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: var(--primary-color); /* Underline */
+    border-radius: 2px;
 }
 
-/* Advanced Card Base */
-.feature-card-advanced {
-  background-color: #ffffff;
-  border-radius: 1rem; /* 16px */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  padding-top: 3.5rem; /* Extra top padding for icon overlap */
-  padding-bottom: 2rem; /* 32px */
-  padding-left: 1.5rem; /* 24px */
-  padding-right: 1.5rem; /* 24px */
-  text-align: center;
-  position: relative;
-}
-
-.feature-card-advanced:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* Icon Circle Overlap */
-.icon-circle {
-  position: absolute;
-  top: -32px; /* Pull upward half of circle */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 64px; /* 4rem */
-  height: 64px; /* 4rem */
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bg-primary-shadow {
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
-}
-
-.bg-secondary-shadow {
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
-}
-
-.bg-tertiary-shadow {
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
-}
-
-/* Icon Colors */
-.icon-primary {
-  color: #6366f1; /* Indigo-500 */
-}
-
-.icon-secondary {
-  color: #10b981; /* Emerald-500 */
-}
-
-.icon-tertiary {
-  color: #f59e0b; /* Amber-500 */
-}
-
-/* Feature Title/Text */
-.feature-title-advanced {
-  font-size: 1.5rem; /* 24px */
-  font-weight: 600;
-  color: #111827; /* Dark charcoal */
-  margin-top: 1.5rem; /* 24px spacing under icon */
-  margin-bottom: 0.75rem; /* 12px */
-}
-
-.feature-text-advanced {
-  font-size: 1rem; /* 16px */
-  color: #475569; /* Slate-600 */
-  line-height: 1.5;
-  margin-bottom: 0.75rem; /* 12px */
-}
-
-.feature-note-advanced {
-  font-size: 0.875rem; /* 14px */
-  color: #6b7280; /* Gray-500 */
-}
-
-/* -----------------------------------------------------
-   4. WHY ARTH SECTION (Reveal + Cards)
------------------------------------------------------ */
-.why-section {
-  background-color: #ffffff;
-  padding-top: 4rem; /* 64px */
-  padding-bottom: 4rem; /* 64px */
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
-}
-
-.why-section.reveal {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+.feature-card-advanced,
 .why-card {
-  background-color: #f9fafb;
-  border-radius: 1rem; /* 16px */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 100%;
+    background-color: var(--bg-light);
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    height: 100%; /* Ensure cards have same height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
+.feature-card-advanced:hover,
 .why-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* More pronounced hover shadow */
 }
 
-.why-icon {
-  color: #10b981; /* Teal-500 */
-  padding: 1rem;
-  background-color: #e6fffa;
-  border-radius: 50%;
-  transition: background 0.3s ease;
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem auto;
+    transition: background-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.why-card:hover .why-icon {
-  background-color: #d1fae5;
+.icon-circle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-image: linear-gradient(45deg, var(--start-color), var(--end-color));
+    opacity: 0.8;
+    z-index: 0;
 }
 
-.why-title {
-  font-size: 1.5rem; /* 24px */
-  font-weight: 600;
-  color: #111827; /* Dark charcoal */
-  margin-top: 1rem; /* 16px */
-  margin-bottom: 0.75rem; /* 12px */
+.icon-circle i {
+    color: #fff;
+    position: relative;
+    z-index: 1;
 }
 
-.why-text {
-  font-size: 1rem; /* 16px */
-  color: #475569; /* Slate-600 */
-  line-height: 1.5;
+/* Specific icon circle colors */
+.bg-primary-shadow {
+    --start-color: #6a0dad; /* Primary for Task */
+    --end-color: #a727d9;
+}
+.bg-secondary-shadow {
+    --start-color: #3f51b5; /* Secondary for Finance */
+    --end-color: #6173c9;
+}
+.bg-tertiary-shadow {
+    --start-color: #00bcd4; /* Tertiary for AI */
+    --end-color: #4dd0e1;
 }
 
-/* -----------------------------------------------------
-   5. CTA SECTION (Advanced Emerald Gradient + Slanted Edge)
------------------------------------------------------ */
-.cta-section-advanced {
-  position: relative;
-  overflow: hidden;
-  padding-top: 4rem; /* 64px */
-  padding-bottom: 4rem; /* 64px */
-  color: #ffffff;
-  text-align: center;
-  background: transparent;
-}
 
-.cta-gradient-overlay-advanced {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 150%;
-  height: 150%;
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.9) 0%,
-    rgba(14, 165, 233, 0.9) 100%
-  );
-  transform: translate(-25%, -25%) rotate(5deg);
-  z-index: 1;
-}
-
-.cta-pattern-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url(
-    "data:image/svg+xml,%3csvg width='40' height='40' viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M0 0h10v10H0z' fill='%23ffffff' fill-opacity='0.03'/%3e%3c/svg%3e"
-  );
-  z-index: 2;
-}
-
-.cta-section-advanced .container {
-  position: relative;
-  z-index: 3;
-}
-
-.cta-title-advanced {
-  font-size: 2.5rem; /* 40px */
-  font-weight: 700;
-  margin-bottom: 1rem; /* 16px */
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
-
-.cta-text-advanced {
-  font-size: 1.125rem; /* 18px */
-  margin-bottom: 2rem; /* 32px */
-  color: #e5e7eb; /* Gray-200 */
-  line-height: 1.6;
-}
-
-/* Embossed "Register Now" Button */
-.cta-btn-box {
-  background: #ffffff;
-  color: #0f172a; /* Slate-900 */
-  padding: 0.875rem 2rem; /* 14px × 32px */
-  font-size: 1rem; /* 16px */
-  font-weight: 700;
-  border-radius: 0.5rem; /* 8px */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.cta-btn-box:hover,
-.cta-btn-box:focus {
-  background: #0958f6; /* Slightly darker */
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Slanted Bottom Edge */
-.cta-slant-edge {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 80px;
-  background-color: #f8f9fa; /* Matches next section’s background */
-  transform: skewY(-2deg);
-  transform-origin: top left;
-  z-index: 2;
-}
-
-/* -----------------------------------------------------
-   6. SCROLL-TO-TOP BUTTON
------------------------------------------------------ */
-.scroll-to-top {
-  position: fixed;
-  bottom: 1.5rem; /* 24px */
-  right: 1.5rem; /* 24px */
-  background-color: #10b981; /* Emerald-500 */
-  color: #ffffff;
-  width: 2.75rem; /* 44px */
-  height: 2.75rem; /* 44px */
-  border-radius: 50%;
-  font-size: 1.25rem; /* 20px */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  z-index: 100;
-  opacity: 0;
-  visibility: hidden;
-}
-
-.scroll-to-top:hover {
-  background-color: #0f766e; /* Teal-700 */
-  transform: translateY(-2px);
-}
-
-/* Show when body has .scrolled */
-body.scrolled .scroll-to-top {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* -----------------------------------------------------
-   7. RESPONSIVE TWEAKS
------------------------------------------------------ */
-/* Hero text on small screens */
-@media (max-width: 767.98px) {
-  .hero-title {
-    font-size: 2.25rem; /* 36px */
-  }
-  .hero-subtitle {
-    font-size: 1.125rem; /* 18px */
-  }
-  .hero-description {
-    font-size: 0.9375rem; /* 15px */
-  }
-}
-
-/* CTA text on extra small screens */
-@media (max-width: 575.98px) {
-  .cta-title-advanced {
-    font-size: 2rem; /* 32px */
-  }
-  .cta-text-advanced {
-    font-size: 0.9375rem; /* 15px */
-  }
-}
-
-/* -----------------------------------------------------
-   8. ACCESSIBILITY & CONTRAST
------------------------------------------------------ */
-a:focus,
-button:focus {
-  outline: 3px solid #6366f1; /* Indigo-500 focus ring */
-  outline-offset: 2px;
-}
-
-.hero-title,
-.section-title,
-.cta-title-advanced {
-  color: #ffffff;
-}
-
-.features-section .section-title,
-.why-section .section-title {
-  color: #0f172a; /* Slate-900 */
+.feature-title-advanced {
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
 }
 
 .feature-text-advanced,
-.hero-description,
 .why-text {
-  color: #475569; /* Slate-600 */
+    font-size: 1rem;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+.feature-note-advanced {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    opacity: 0.8;
+}
+
+/* =====================
+    4. WHY ARTH SECTION
+   ===================== */
+.why-section {
+    background-color: var(--bg-dark); /* Same as features section */
+}
+
+.why-card {
+    padding: 2rem;
+}
+
+.why-icon {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+.why-card:hover .why-icon {
+    color: var(--accent-color); /* Change color on hover for why icons */
+}
+
+.why-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+
+/* =====================
+    5. CTA SECTION
+   ===================== */
+.cta-section-advanced {
+    background-image: linear-gradient(135deg, var(--cta-bg-start), var(--cta-bg-end));
+    color: var(--cta-text-color);
+    text-align: center;
+    padding: 5rem 0 7rem; /* More padding at bottom for slant */
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+    box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.2);
+    transition: background-image 0.3s ease, color 0.3s ease;
+}
+
+.cta-gradient-overlay-advanced {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.cta-pattern-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="80" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"/><circle cx="100" cy="100" r="40" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.05"/></svg>');
+    background-size: 100px;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.cta-title-advanced {
+    font-size: 2.8rem;
+    letter-spacing: -0.5px;
+}
+
+.cta-text-advanced {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 0 auto 2.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.cta-btn-box {
+    background-color: var(--accent-color);
+    color: var(--cta-text-color);
+    padding: 1rem 3rem;
+    border-radius: 0.75rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.cta-btn-box:hover {
+    background-color: darken(var(--accent-color), 10%); /* Requires a CSS preprocessor like SASS or JS for dynamic darkening */
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    color: var(--cta-text-color);
+}
+
+/* Slanted bottom edge for CTA */
+.cta-slant-edge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; /* Height of the slanted part */
+    background: var(--bg-dark); /* Match background of the next section */
+    transform: skewY(-2deg); /* Adjust angle for slant */
+    transform-origin: bottom right;
+    z-index: 2;
+    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+/* =====================
+    6. SCROLL-TO-TOP BUTTON
+   ===================== */
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--scroll-to-top-bg);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.scroll-to-top:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+body.scrolled .scroll-to-top {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =====================
+    Animations (Reveal on Scroll)
+   ===================== */
+.features-section,
+.why-section {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.features-section.reveal,
+.why-section.reveal {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Adding a slight delay to feature cards for a staggered effect */
+.feature-card-advanced {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.features-section.reveal .feature-card-advanced:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.features-section.reveal .feature-card-advanced:nth-child(2) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
+.features-section.reveal .feature-card-advanced:nth-child(3) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+
+/* Staggered animation for why cards too */
+.why-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.why-section.reveal .why-card:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.why-section.reveal .why-card:nth-child(2) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
+.why-section.reveal .why-card:nth-child(3) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+.why-section.reveal .why-card:nth-child(4) { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
+
+
+/* Helper for getting RGB values from hex for rgba() */
+/* This part needs a CSS preprocessor (like SASS) or JavaScript to work directly.
+   For plain CSS, you'd need to manually define the RGB values for your primary color, e.g.:
+   --primary-color-rgb: 106, 13, 173; (for #6a0dad)
+*/
+/* Manual RGB for light theme */
+.light-theme {
+    --primary-color-rgb: 106, 13, 173; /* RGB for #6a0dad */
+}
+/* Manual RGB for dark theme */
+.dark-theme {
+    --primary-color-rgb: 187, 134, 252; /* RGB for #BB86FC */
+}
+
+
+/* Media Queries for Responsiveness */
+@media (max-width: 991.98px) {
+    .hero-title {
+        font-size: 2.8rem;
+    }
+    .hero-subtitle {
+        font-size: 1.3rem;
+    }
+    .hero-description {
+        font-size: 1rem;
+    }
+    .cta-btn-primary, .cta-btn-outline, .cta-btn-secondary {
+        padding: 0.75rem 1.8rem;
+        font-size: 1rem;
+    }
+    .cta-title-advanced {
+        font-size: 2.2rem;
+    }
+    .cta-text-advanced {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .navbar-custom .navbar-brand {
+        font-size: 1.5rem;
+    }
+    .navbar-custom .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+    .hero-section {
+        min-height: 500px;
+    }
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    .hero-description {
+        font-size: 0.9rem;
+    }
+    .section-title {
+        font-size: 2rem;
+    }
+    .feature-card-advanced, .why-card {
+        padding: 2rem;
+    }
+    .cta-btn-box {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+    .cta-slant-edge {
+        height: 40px;
+    }
 }

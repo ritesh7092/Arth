@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import homebg from "./assets/bg-theme.png"; // Adjust path as needed
 
@@ -6,12 +6,21 @@ import homebg from "./assets/bg-theme.png"; // Adjust path as needed
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
 
+// Lucide React for modern icons (optional, but good for theme toggle)
+import { Moon, Sun } from 'lucide-react'; // Make sure you have lucide-react installed
+
 // Custom CSS
 import "./landing.css";
 
 const Home = ({ isAuthenticated, handleLogout }) => {
   const featureRef = useRef(null);
   const whyRef = useRef(null);
+  const [isDarkMode, setIsDarkMode] = useState(false); // State for theme
+
+  // Function to toggle theme
+  const toggleTheme = () => {
+    setIsDarkMode(prevMode => !prevMode);
+  };
 
   // Toggle scroll-to-top button & “reveal on scroll” animations
   useEffect(() => {
@@ -26,8 +35,11 @@ const Home = ({ isAuthenticated, handleLogout }) => {
       [featureRef, whyRef].forEach((refObj) => {
         if (!refObj.current) return;
         const rect = refObj.current.getBoundingClientRect();
-        if (rect.top < window.innerHeight - 100) {
+        // Add reveal class when 80% of element is visible
+        if (rect.top < window.innerHeight - (rect.height * 0.2)) {
           refObj.current.classList.add("reveal");
+        } else {
+            refObj.current.classList.remove("reveal"); // Optionally remove on scroll back up
         }
       });
     };
@@ -38,10 +50,11 @@ const Home = ({ isAuthenticated, handleLogout }) => {
   }, []);
 
   return (
-    <div className="home-wrapper">
+    // Apply 'dark-theme' class based on state
+    <div className={`home-wrapper ${isDarkMode ? 'dark-theme' : 'light-theme'}`}>
       {/* =====================
           1. NAVBAR (No Hamburger)
-         ===================== */}
+          ===================== */}
       <nav className="navbar navbar-expand-lg navbar-custom fixed-top">
         <div className="container px-4 d-flex align-items-center justify-content-between">
           {/* Brand */}
@@ -54,6 +67,22 @@ const Home = ({ isAuthenticated, handleLogout }) => {
 
           {/* Always-visible nav links (no collapse) */}
           <ul className="navbar-nav ms-auto d-flex align-items-center">
+            {/* Theme Toggle Button */}
+            <li className="nav-item mx-1">
+              <button
+                type="button"
+                className="nav-link btn-link-custom theme-toggle-btn"
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+              >
+                {isDarkMode ? (
+                  <Sun className="w-5 h-5" /> // Lucide Sun icon
+                ) : (
+                  <Moon className="w-5 h-5" /> // Lucide Moon icon
+                )}
+              </button>
+            </li>
+
             {!isAuthenticated ? (
               <>
                 <li className="nav-item mx-1">
@@ -85,7 +114,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
 
       {/* =====================
           2. HERO SECTION
-         ===================== */}
+          ===================== */}
       <section
         className="hero-section d-flex align-items-center justify-content-center"
         style={{ backgroundImage: `url(${homebg})` }}
@@ -122,7 +151,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
           <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
             <path
               d="M0,40 C360,120 1080,0 1440,80 L1440,120 L0,120 Z"
-              fill="#f8f9fa"
+              fill="var(--section-bg-color)" // Use CSS variable here
             ></path>
           </svg>
         </div>
@@ -130,7 +159,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
 
       {/* =====================
     3. FEATURES SECTION
-   ===================== */}
+    ===================== */}
 <section className="features-section py-5" ref={featureRef}>
   <div className="container px-4">
     <h2 className="section-title text-center mb-5">Our Key Features</h2>
@@ -156,7 +185,6 @@ const Home = ({ isAuthenticated, handleLogout }) => {
       <div className="col-12 col-md-4">
         <div className="feature-card-advanced position-relative p-4">
           <div className="icon-circle bg-secondary-shadow d-flex align-items-center justify-content-center">
-            {/* FA 4 uses "fa-money" for a money icon */}
             <i className="fa fa-money fa-2x icon-secondary" aria-hidden="true"></i>
           </div>
           <h3 className="feature-title-advanced mt-4">Finance Tracking</h3>
@@ -174,7 +202,6 @@ const Home = ({ isAuthenticated, handleLogout }) => {
       <div className="col-12 col-md-4">
         <div className="feature-card-advanced position-relative p-4">
           <div className="icon-circle bg-tertiary-shadow d-flex align-items-center justify-content-center">
-            {/* FA 4 uses "fa-comments" or "fa-commenting" for chat-like icons */}
             <i className="fa fa-comments fa-2x icon-tertiary" aria-hidden="true"></i>
           </div>
           <h3 className="feature-title-advanced mt-4">AI Assistance</h3>
@@ -192,9 +219,9 @@ const Home = ({ isAuthenticated, handleLogout }) => {
 </section>
 
 
-     {/* =====================
+      {/* =====================
     4. WHY ARTH SECTION
-   ===================== */}
+    ===================== */}
 <section className="why-section py-5" ref={whyRef}>
   <div className="container px-4">
     <h2 className="section-title text-center mb-5">Why Choose Arth?</h2>
@@ -249,7 +276,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
 
       {/* =====================
           5. CTA SECTION
-         ===================== */}
+          ===================== */}
       <section className="cta-section-advanced position-relative text-white py-5">
         <div className="cta-gradient-overlay-advanced"></div>
         <div className="cta-pattern-overlay"></div>
@@ -259,7 +286,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
           </h2>
           <p className="cta-text-advanced mb-5">
             Join now and unify your tasks, finances, and AI insights—designed for
-            global teams and individuals.
+            individuals.
           </p>
           {!isAuthenticated && (
             <Link to="/signup" className="btn btn-lg cta-btn-box">
@@ -273,7 +300,7 @@ const Home = ({ isAuthenticated, handleLogout }) => {
 
       {/* =====================
           6. SCROLL-TO-TOP BUTTON
-         ===================== */}
+          ===================== */}
       <button
         className="scroll-to-top"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -286,4 +313,3 @@ const Home = ({ isAuthenticated, handleLogout }) => {
 };
 
 export default Home;
-
