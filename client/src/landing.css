@@ -32,6 +32,10 @@ body {
     --navbar-shadow: rgba(0, 0, 0, 0.05);
     --link-hover-color: var(--primary-color);
     --scroll-to-top-bg: var(--primary-color);
+
+    /* Manual RGB for rgba() transparency */
+    --primary-color-rgb: 106, 13, 173; /* RGB for #6a0dad */
+    --accent-color-rgb: 255, 152, 0; /* RGB for #ff9800 */
 }
 
 /* --- Theme Variables (Dark Mode) --- */
@@ -59,6 +63,10 @@ body {
     --navbar-shadow: rgba(0, 0, 0, 0.2);
     --link-hover-color: var(--secondary-color);
     --scroll-to-top-bg: var(--secondary-color);
+
+    /* Manual RGB for rgba() transparency */
+    --primary-color-rgb: 187, 134, 252; /* RGB for #BB86FC */
+    --accent-color-rgb: 255, 204, 128; /* RGB for #FFCC80 */
 }
 
 /* Apply base theme colors */
@@ -76,6 +84,7 @@ body {
     transition: all 0.3s ease;
     background-color: var(--navbar-bg);
     box-shadow: 0 2px 10px var(--navbar-shadow);
+    z-index: 1020; /* Ensure navbar is above other content */
 }
 
 .navbar-custom .navbar-brand {
@@ -102,7 +111,7 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    color: transparent;
+    color: transparent; /* Fallback */
     transition: all 0.3s ease;
 }
 
@@ -122,6 +131,7 @@ body {
     color: var(--navbar-text);
     padding: 0.5rem;
     border-radius: 50%;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .theme-toggle-btn:hover {
@@ -129,18 +139,29 @@ body {
     color: var(--link-hover-color);
 }
 
+/* Scrolled state for Navbar */
+body.scrolled .navbar-custom {
+    box-shadow: 0 4px 15px var(--navbar-shadow);
+    background-color: var(--navbar-bg); /* Retain original bg, only change shadow */
+}
+
+
 /* =====================
     2. HERO SECTION
    ===================== */
 .hero-section {
     position: relative;
     height: 100vh;
-    min-height: 600px;
+    min-height: 600px; /* Ensures minimum height on small screens */
     background-size: cover;
     background-position: center;
     color: #fff;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     overflow: hidden; /* Ensure wave stays within bounds */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 56px; /* Account for fixed navbar height */
 }
 
 .hero-overlay {
@@ -158,6 +179,7 @@ body {
     z-index: 2;
     max-width: 900px;
     animation: fadeInScale 1s ease-out;
+    padding: 2rem 1rem; /* Added horizontal padding */
 }
 
 @keyframes fadeInScale {
@@ -187,13 +209,13 @@ body {
     text-decoration-thickness: 2px;
 }
 
-
 .hero-description {
     font-size: 1.15rem;
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
     color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
 }
 
 .cta-btn-primary,
@@ -213,11 +235,13 @@ body {
     background-image: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
     border-color: transparent;
     color: #fff;
+    text-shadow: none; /* Remove text shadow for gradient text */
 }
 .cta-btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     color: #fff; /* Keep text white on hover */
+    background-image: linear-gradient(45deg, var(--gradient-end), var(--gradient-start)); /* Reverse gradient on hover */
 }
 
 .cta-btn-outline {
@@ -245,7 +269,6 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
-
 
 /* Hero wave effect */
 .hero-wave {
@@ -277,15 +300,17 @@ body {
     background-color: var(--bg-dark);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 6rem 0; /* Consistent vertical padding */
 }
 
 .section-title {
     font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem; /* More space below title */
     position: relative;
     display: inline-block;
     padding-bottom: 10px;
+    color: var(--text-color); /* Ensure title color adheres to theme */
 }
 
 .section-title::after {
@@ -311,7 +336,8 @@ body {
     height: 100%; /* Ensure cards have same height */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start; /* Align content to top */
+    position: relative; /* For icon positioning */
 }
 
 .feature-card-advanced:hover,
@@ -319,18 +345,28 @@ body {
     transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* More pronounced hover shadow */
 }
+.dark-theme .feature-card-advanced:hover,
+.dark-theme .why-card:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
 
 .icon-circle {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    margin: 0 auto 1.5rem auto;
+    /* margin: 0 auto 1.5rem auto; */ /* Removed this to use absolute positioning below */
     transition: background-color 0.3s ease;
-    position: relative;
+    position: absolute; /* Changed to absolute */
+    top: -40px; /* Half of height to sit on top edge */
+    left: 50%;
+    transform: translateX(-50%);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1; /* Ensure icon is above card */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .icon-circle::before {
@@ -342,7 +378,7 @@ body {
     height: 100%;
     border-radius: 50%;
     background-image: linear-gradient(45deg, var(--start-color), var(--end-color));
-    opacity: 0.8;
+    opacity: 0.9; /* Slightly more opaque */
     z-index: 0;
 }
 
@@ -350,6 +386,7 @@ body {
     color: #fff;
     position: relative;
     z-index: 1;
+    font-size: 2.2rem; /* Make icons a bit larger */
 }
 
 /* Specific icon circle colors */
@@ -366,11 +403,26 @@ body {
     --end-color: #4dd0e1;
 }
 
+/* Dark theme specific icon circle colors */
+.dark-theme .bg-primary-shadow {
+    --start-color: #BB86FC;
+    --end-color: #904ED9;
+}
+.dark-theme .bg-secondary-shadow {
+    --start-color: #03DAC6;
+    --end-color: #00A38B;
+}
+.dark-theme .bg-tertiary-shadow {
+    --start-color: #A7FFEB;
+    --end-color: #64FFDA;
+}
+
 
 .feature-title-advanced {
     font-size: 1.7rem;
     font-weight: 600;
     color: var(--text-color);
+    margin-top: 2.5rem; /* Space from top after icon */
     margin-bottom: 0.75rem;
 }
 
@@ -379,12 +431,14 @@ body {
     font-size: 1rem;
     color: var(--text-light);
     line-height: 1.6;
+    flex-grow: 1; /* Allow text to take space */
 }
 
 .feature-note-advanced {
     font-size: 0.85rem;
     color: var(--text-light);
     opacity: 0.8;
+    margin-top: 1rem;
 }
 
 /* =====================
@@ -392,15 +446,19 @@ body {
    ===================== */
 .why-section {
     background-color: var(--bg-dark); /* Same as features section */
+    padding: 6rem 0; /* Consistent vertical padding */
 }
 
 .why-card {
     padding: 2rem;
+    justify-content: flex-start; /* Align content to top within card */
 }
 
 .why-icon {
     color: var(--primary-color);
     transition: color 0.3s ease;
+    font-size: 2.5rem; /* Slightly smaller than feature icons */
+    margin-bottom: 1rem;
 }
 
 .why-card:hover .why-icon {
@@ -456,6 +514,8 @@ body {
 .cta-title-advanced {
     font-size: 2.8rem;
     letter-spacing: -0.5px;
+    position: relative; /* Ensure it's above overlays */
+    z-index: 2;
 }
 
 .cta-text-advanced {
@@ -463,6 +523,8 @@ body {
     max-width: 800px;
     margin: 0 auto 2.5rem;
     color: rgba(255, 255, 255, 0.9);
+    position: relative; /* Ensure it's above overlays */
+    z-index: 2;
 }
 
 .cta-btn-box {
@@ -475,10 +537,12 @@ body {
     transition: all 0.3s ease;
     border: none;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative; /* Ensure it's above overlays */
+    z-index: 2;
 }
 
 .cta-btn-box:hover {
-    background-color: darken(var(--accent-color), 10%); /* Requires a CSS preprocessor like SASS or JS for dynamic darkening */
+    background-color: rgba(var(--accent-color-rgb), 0.8); /* Use rgba to darken programmatically */
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     color: var(--cta-text-color);
@@ -494,7 +558,7 @@ body {
     background: var(--bg-dark); /* Match background of the next section */
     transform: skewY(-2deg); /* Adjust angle for slant */
     transform-origin: bottom right;
-    z-index: 2;
+    z-index: 3; /* Ensure it covers content below */
     box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease;
 }
@@ -527,7 +591,17 @@ body {
 .scroll-to-top:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    background-color: rgba(var(--scroll-to-top-bg-rgb), 0.8); /* Make hover state more noticeable */
 }
+
+/* Define RGB for scroll to top for rgba hover */
+.light-theme {
+    --scroll-to-top-bg-rgb: 106, 13, 173; /* RGB for #6a0dad */
+}
+.dark-theme {
+    --scroll-to-top-bg-rgb: 3, 218, 198; /* RGB for #03DAC6 */
+}
+
 
 body.scrolled .scroll-to-top {
     opacity: 1;
@@ -537,59 +611,58 @@ body.scrolled .scroll-to-top {
 /* =====================
     Animations (Reveal on Scroll)
    ===================== */
+/* Base reveal animation is handled by JS adding/removing 'reveal' class */
 .features-section,
 .why-section {
-    opacity: 0;
-    transform: translateY(30px);
+    /* No default opacity/transform here, as it's controlled by JS + .reveal */
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
-.features-section.reveal,
-.why-section.reveal {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 /* Adding a slight delay to feature cards for a staggered effect */
-.feature-card-advanced {
+/* Ensure initial hidden state for staggered elements */
+.features-section .col-12 > div, /* Target the actual cards */
+.why-section .col-12 > div {
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
-.features-section.reveal .feature-card-advanced:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
-.features-section.reveal .feature-card-advanced:nth-child(2) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
-.features-section.reveal .feature-card-advanced:nth-child(3) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+.features-section.reveal .col-12:nth-child(1) > div { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.features-section.reveal .col-12:nth-child(2) > div { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
+.features-section.reveal .col-12:nth-child(3) > div { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
 
 /* Staggered animation for why cards too */
-.why-card {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-.why-section.reveal .why-card:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
-.why-section.reveal .why-card:nth-child(2) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
-.why-section.reveal .why-card:nth-child(3) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
-.why-section.reveal .why-card:nth-child(4) { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
-
-
-/* Helper for getting RGB values from hex for rgba() */
-/* This part needs a CSS preprocessor (like SASS) or JavaScript to work directly.
-   For plain CSS, you'd need to manually define the RGB values for your primary color, e.g.:
-   --primary-color-rgb: 106, 13, 173; (for #6a0dad)
-*/
-/* Manual RGB for light theme */
-.light-theme {
-    --primary-color-rgb: 106, 13, 173; /* RGB for #6a0dad */
-}
-/* Manual RGB for dark theme */
-.dark-theme {
-    --primary-color-rgb: 187, 134, 252; /* RGB for #BB86FC */
-}
+.why-section.reveal .col-12:nth-child(1) > div { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.why-section.reveal .col-12:nth-child(2) > div { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
+.why-section.reveal .col-12:nth-child(3) > div { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+.why-section.reveal .col-12:nth-child(4) > div { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
 
 
 /* Media Queries for Responsiveness */
-@media (max-width: 991.98px) {
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .section-title {
+        font-size: 2.8rem; /* Slightly larger titles on very large screens */
+    }
+    .hero-title {
+        font-size: 4rem;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .features-section .row > div,
+    .why-section .row > div {
+        margin-bottom: 0; /* Remove bottom margin for grid on desktop */
+    }
+    .features-section, .why-section, .cta-section-advanced {
+        padding: 8rem 0; /* More generous vertical padding on larger screens */
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
     .hero-title {
         font-size: 2.8rem;
     }
@@ -603,6 +676,18 @@ body.scrolled .scroll-to-top {
         padding: 0.75rem 1.8rem;
         font-size: 1rem;
     }
+    .section-title {
+        font-size: 2.2rem;
+    }
+    .feature-card-advanced, .why-card {
+        padding: 2rem;
+    }
+    .feature-title-advanced {
+        font-size: 1.5rem;
+    }
+    .why-title {
+        font-size: 1.3rem;
+    }
     .cta-title-advanced {
         font-size: 2.2rem;
     }
@@ -611,36 +696,116 @@ body.scrolled .scroll-to-top {
     }
 }
 
+/* Small devices (phones, less than 768px) */
 @media (max-width: 767.98px) {
+    .navbar-custom {
+        padding: 0.75rem 0; /* Slightly less padding on mobile nav */
+    }
     .navbar-custom .navbar-brand {
         font-size: 1.5rem;
     }
-    .navbar-custom .nav-link {
-        padding: 0.5rem 0.75rem;
+    .navbar-custom .text-tagline {
+        display: none !important; /* Ensure it's hidden on small screens */
     }
+    .navbar-custom .nav-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.9rem;
+    }
+
     .hero-section {
         min-height: 500px;
+        padding-top: 56px; /* Adjust for fixed navbar height */
+    }
+    .hero-content {
+        padding: 1.5rem 1rem; /* Adjust padding for mobile hero content */
     }
     .hero-title {
-        font-size: 2.2rem;
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
     }
     .hero-subtitle {
         font-size: 1.1rem;
+        margin-bottom: 1rem;
     }
     .hero-description {
         font-size: 0.9rem;
+        margin-bottom: 1.5rem;
     }
+    .cta-btn-primary, .cta-btn-outline, .cta-btn-secondary {
+        padding: 0.7rem 1.4rem;
+        font-size: 0.9rem;
+        width: 100%; /* Make buttons full width */
+        margin-bottom: 0.5rem; /* Space between stacked buttons */
+    }
+    .d-flex.flex-wrap.justify-content-center.gap-2.gap-md-3 {
+        gap: 0.75rem !important; /* Smaller gap for mobile buttons */
+    }
+
     .section-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
     }
+
+    /* Stack cards on mobile and add vertical spacing */
+    .features-section .col-12,
+    .why-section .col-12 {
+        margin-bottom: 2.5rem; /* Space between stacked cards */
+    }
+    .features-section .col-12:last-child,
+    .why-section .col-12:last-child {
+        margin-bottom: 0; /* No margin after the last card */
+    }
+
     .feature-card-advanced, .why-card {
-        padding: 2rem;
+        padding: 2rem 1.5rem;
+        border-radius: 0.75rem;
+    }
+    .icon-circle {
+        width: 70px; /* Slightly smaller icon circle */
+        height: 70px;
+        top: -35px; /* Adjust top for smaller circle */
+    }
+    .icon-circle i {
+        font-size: 2rem; /* Adjust icon size */
+    }
+    .feature-title-advanced {
+        font-size: 1.4rem;
+        margin-top: 2rem;
+    }
+    .feature-text-advanced, .why-text {
+        font-size: 0.9rem;
+    }
+    .feature-note-advanced {
+        font-size: 0.75rem;
+    }
+    .why-title {
+        font-size: 1.2rem;
+    }
+
+    .cta-section-advanced {
+        padding: 4rem 1rem 6rem; /* Adjust padding for mobile CTA */
+    }
+    .cta-title-advanced {
+        font-size: 1.8rem;
+    }
+    .cta-text-advanced {
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
     }
     .cta-btn-box {
         padding: 0.8rem 2rem;
         font-size: 1rem;
+        width: 100%; /* Full width button */
     }
     .cta-slant-edge {
         height: 40px;
+        transform: skewY(-1.5deg); /* Slightly less aggressive slant */
+    }
+    .scroll-to-top {
+        width: 45px; /* Slightly smaller scroll to top button */
+        height: 45px;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1.3rem;
     }
 }

@@ -1,0 +1,62 @@
+/* In your global CSS file, e.g., index.css */
+html, body {
+  overflow-x: hidden; /* Prevents horizontal scrollbar */
+  margin: 0; /* Ensure no default body margin is adding to scroll */
+  padding: 0; /* Ensure no default body padding is adding to scroll */
+}
+
+/* Optional: If vertical scrollbar flickering is also an issue, but be careful with this */
+body {
+  overflow-y: auto; /* Ensures vertical scrolling is allowed when content exceeds height */
+}
+
+
+
+
+/* Base styles for light theme */
+body {
+  /* Applying Tailwind classes here directly */
+  @apply bg-gray-50 text-gray-900;
+}
+
+/* Dark theme specific styles applied when 'dark' class is on an ancestor */
+.dark body {
+  @apply bg-gray-900 text-gray-50;
+}
+
+/* Add transition to body for smooth theme change (optional but nice) */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* You can also adjust scrollbar styling here for consistency */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #333;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}

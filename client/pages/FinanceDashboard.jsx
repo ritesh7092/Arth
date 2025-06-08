@@ -116,12 +116,23 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
     );
 };
 
+
 const FinanceDashboard = () => {
     // State management
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    // 1. Use state, initialize from localStorage (default to false if not set)
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        const stored = localStorage.getItem('isDarkMode');
+        return stored === null ? false : stored === 'true';
+    });
+
+    // 2. Sync HTML class and localStorage when isDarkMode changes
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', isDarkMode);
+        localStorage.setItem('isDarkMode', isDarkMode);
+    }, [isDarkMode]);
 
     // Filter states
     const [searchQuery, setSearchQuery] = useState('');
@@ -156,6 +167,9 @@ const FinanceDashboard = () => {
         buttonPrimary: isDarkMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-emerald-600 hover:bg-emerald-700',
         buttonSecondary: isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-300 hover:bg-gray-400 text-gray-800',
     };
+
+    // 4. Toggle handler
+    const handleToggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
     // Utility function to get auth token (as in Todo Dashboard)
     const getToken = useCallback(() => {
@@ -342,7 +356,7 @@ const FinanceDashboard = () => {
 
                         <div className="flex items-center space-x-4">
                             <button
-                                onClick={() => setIsDarkMode(!isDarkMode)}
+                                onClick={handleToggleDarkMode}
                                 className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200"
                                 title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                             >
