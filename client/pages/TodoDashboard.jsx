@@ -475,7 +475,7 @@ const TodoDashboard = () => {
   }
 
   return (
-    <div className={`min-h-screen ${themeClasses.bg} transition-all duration-300`}>
+    <div className={`min-h-screen ${themeClasses.bg} transition-all `}>
       {/* Premium Header */}
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600"></div>

@@ -18,6 +18,7 @@ import EditUserProfilePage from '../pages/EditProfilePage';
 import AboutPage from '../pages/About';
 import Chatbot from '../pages/Chatbot';
 import Dashboard from '../pages/Dashboard';
+import { ThemeProvider } from '../src/theme/ThemeProvider'; // adjust the path as needed
 // import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ThemeProvider>
       <Routes>
         
         <Route path="/" element={<Home />} />
@@ -146,6 +148,7 @@ function App() {
        
       </Routes>
       <Footer />
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

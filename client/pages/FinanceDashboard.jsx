@@ -1,627 +1,806 @@
+// src/components/FinanceDashboard.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'animate.css';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import {
-    IndianRupee, // Changed from DollarSign to IndianRupee
-    TrendingUp,
-    TrendingDown,
-    Wallet,
-    CreditCard,
-    PieChart,
-    Search,
-    Moon,
-    Sun,
-    PlusCircle,
-    X,
-    Filter,
-    RefreshCw,
-    AlertCircle,
-    Eye,
-    Edit2,
-    Trash2,
-    BarChart3, // For Detailed Report
-    Info
+  IndianRupee,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  CreditCard,
+  PieChart,
+  Search,
+  Moon,
+  Sun,
+  PlusCircle,
+  X,
+  Filter,
+  AlertCircle,
+  Eye,
+  Edit2,
+  Trash2,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-
-// Assuming baseUrl is configured similarly to your Todo Dashboard
 import baseUrl from '../api/api';
+import { useTheme } from '../src/theme/ThemeProvider';
 
-// --- Mock Data (Replace with real API data later) ---
+// Enhanced Mock Data for Testing
 const mockTransactions = [
-    { id: 't1', description: 'Monthly Salary', type: 'Income', amount: 50000.00, category: 'Salary', date: '2025-06-01' },
-    { id: 't2', description: 'Groceries (SuperMart)', type: 'Expense', amount: 1500.50, category: 'Food', date: '2025-06-02' },
-    { id: 't3', description: 'Apartment Rent', type: 'Expense', amount: 12000.00, category: 'Housing', date: '2025-06-01' },
-    { id: 't4', description: 'Freelance Design Project', type: 'Income', amount: 8000.00, category: 'Freelance', date: '2025-06-05' },
-    { id: 't5', description: 'Dinner with Friends', type: 'Expense', amount: 750.25, category: 'Food', date: '2025-06-03' },
-    { id: 't6', description: 'Electricity Bill', type: 'Expense', amount: 1000.80, category: 'Utilities', date: '2025-06-04' },
-    { id: 't7', description: 'Online Photography Course', type: 'Expense', amount: 2500.00, category: 'Education', date: '2025-06-06' },
-    { id: 't8', description: 'Work Bonus', type: 'Income', amount: 10000.00, category: 'Salary', date: '2025-06-07' },
-    { id: 't9', description: 'Public Transport Pass', type: 'Expense', amount: 500.00, category: 'Transport', date: '2025-06-07' },
-    { id: 't10', description: 'Gym Membership', type: 'Expense', amount: 400.00, category: 'Health', date: '2025-06-08' },
-    { id: 't11', description: 'Weekend Trip Fuel', type: 'Expense', amount: 600.00, category: 'Transport', date: '2025-06-08' },
-    { id: 't12', description: 'Investment Dividend', type: 'Income', amount: 3000.00, category: 'Investments', date: '2025-05-28' },
-    { id: 't13', description: 'Shopping (Clothes)', type: 'Expense', amount: 2000.00, category: 'Shopping', date: '2025-05-29' },
-    { id: 't14', description: 'Phone Bill', type: 'Expense', amount: 450.00, category: 'Utilities', date: '2025-05-30' },
-    { id: 't15', description: 'Coffee Shop Visit', type: 'Expense', amount: 85.00, category: 'Food', date: '2025-06-08' },
+  {
+    id: 1,
+    description: 'Monthly Salary',
+    amount: 75000,
+    type: 'Income',
+    category: 'Salary',
+    date: '2024-12-01',
+  },
+  {
+    id: 2,
+    description: 'Grocery Shopping',
+    amount: 3500,
+    type: 'Expense',
+    category: 'Food',
+    date: '2024-12-02',
+  },
+  {
+    id: 3,
+    description: 'Freelance Project Payment',
+    amount: 25000,
+    type: 'Income',
+    category: 'Freelance',
+    date: '2024-12-03',
+  },
+  {
+    id: 4,
+    description: 'Electricity Bill',
+    amount: 2800,
+    type: 'Expense',
+    category: 'Utilities',
+    date: '2024-12-04',
+  },
+  {
+    id: 5,
+    description: 'Rent Payment',
+    amount: 15000,
+    type: 'Expense',
+    category: 'Housing',
+    date: '2024-12-05',
+  },
+  {
+    id: 6,
+    description: 'Stock Dividend',
+    amount: 5000,
+    type: 'Income',
+    category: 'Investments',
+    date: '2024-12-06',
+  },
+  {
+    id: 7,
+    description: 'Restaurant Dinner',
+    amount: 1200,
+    type: 'Expense',
+    category: 'Food',
+    date: '2024-12-07',
+  },
+  {
+    id: 8,
+    description: 'Bus Pass',
+    amount: 800,
+    type: 'Expense',
+    category: 'Transport',
+    date: '2024-12-08',
+  },
+  {
+    id: 9,
+    description: 'Medical Checkup',
+    amount: 2500,
+    type: 'Expense',
+    category: 'Health',
+    date: '2024-12-09',
+  },
+  {
+    id: 10,
+    description: 'Online Course',
+    amount: 4000,
+    type: 'Expense',
+    category: 'Education',
+    date: '2024-12-10',
+  },
+  {
+    id: 11,
+    description: 'Movie Tickets',
+    amount: 600,
+    type: 'Expense',
+    category: 'Entertainment',
+    date: '2024-12-11',
+  },
+  {
+    id: 12,
+    description: 'Clothing Shopping',
+    amount: 3200,
+    type: 'Expense',
+    category: 'Shopping',
+    date: '2024-12-12',
+  },
+  {
+    id: 13,
+    description: 'Bonus Payment',
+    amount: 10000,
+    type: 'Income',
+    category: 'Salary',
+    date: '2024-12-13',
+  },
+  {
+    id: 14,
+    description: 'Internet Bill',
+    amount: 1500,
+    type: 'Expense',
+    category: 'Utilities',
+    date: '2024-12-14',
+  },
+  {
+    id: 15,
+    description: 'Consulting Work',
+    amount: 15000,
+    type: 'Income',
+    category: 'Freelance',
+    date: '2024-12-15',
+  },
+  {
+    id: 16,
+    description: 'Gym Membership',
+    amount: 2000,
+    type: 'Expense',
+    category: 'Health',
+    date: '2024-12-16',
+  },
+  {
+    id: 17,
+    description: 'Fuel Expenses',
+    amount: 3000,
+    type: 'Expense',
+    category: 'Transport',
+    date: '2024-12-17',
+  },
+  {
+    id: 18,
+    description: 'Mutual Fund SIP',
+    amount: 5000,
+    type: 'Expense',
+    category: 'Investments',
+    date: '2024-12-18',
+  },
+  {
+    id: 19,
+    description: 'Birthday Gift',
+    amount: 1800,
+    type: 'Expense',
+    category: 'Shopping',
+    date: '2024-12-19',
+  },
+  {
+    id: 20,
+    description: 'Side Business Income',
+    amount: 8000,
+    type: 'Income',
+    category: 'Other',
+    date: '2024-12-20',
+  },
 ];
 
-// Helper for Rupee formatting
-const formatRupee = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(amount);
-};
+// Format INR
+const formatRupee = amount =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(amount);
 
-// --- TransactionCard Component ---
+// Enhanced TransactionCard Component
 const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }) => {
-    const isExpense = transaction.type === 'Expense';
-    const amountColor = isExpense ? 'text-red-500' : 'text-green-500';
-    const amountSign = isExpense ? '-' : ''; // Rupee symbol includes negative for expenses
+  const isExpense = transaction.type === 'Expense';
+  const amountColor = isExpense ? 'text-red-500' : 'text-green-500';
 
-    return (
-        <div className={`${themeClasses.cardBg} border ${themeClasses.border} rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow duration-200 animate__animated animate__fadeIn`}>
-            <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0 pr-2">
-                    <p className={`font-semibold ${themeClasses.text} truncate`}>
-                        {transaction.description}
-                    </p>
-                    <p className={`${themeClasses.textSecondary} text-sm mt-1`}>
-                        Category: <span className="font-medium">{transaction.category}</span>
-                    </p>
-                    <p className={`${themeClasses.textSecondary} text-xs mt-1`}>
-                        Date: {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                    </p>
-                </div>
-                <div className="flex flex-col items-end space-y-1 ml-2 flex-shrink-0">
-                    <p className={`font-bold text-lg ${amountColor}`}>
-                        {formatRupee(transaction.amount * (isExpense ? -1 : 1))}
-                    </p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${isExpense ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                        {transaction.type}
-                    </span>
-                    {/* Action Buttons */}
-                    <div className="flex space-x-1 mt-2">
-                        <button
-                            onClick={() => onView(transaction.id)}
-                            className={`p-1 rounded-full ${themeClasses.buttonSecondary} hover:bg-opacity-80 transition-colors`}
-                            title="View Details"
-                        >
-                            <Eye size={16} className={`${themeClasses.text}`} />
-                            {/* <Eye className={`w-4 h-4 ${themeClasses.text}`} /> */}
-
-                        </button>
-                        <button
-                            onClick={() => onEdit(transaction.id)}
-                            className={`p-1 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors`}
-                            title="Edit Transaction"
-                        >
-                             <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => onDelete(transaction.id)}
-                            className={`p-1 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors`}
-                            title="Delete Transaction"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className={`${themeClasses.cardBg} border ${themeClasses.border} rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 animate__animated animate__fadeIn`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+        {/* Transaction Details */}
+        <div className="flex-1 min-w-0">
+          <p className={`font-semibold ${themeClasses.text} truncate text-lg`}>
+            {transaction.description}
+          </p>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <span className={`${themeClasses.textSecondary} text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full`}>
+              {transaction.category}
+            </span>
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              isExpense ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+            }`}>
+              {transaction.type}
+            </span>
+          </div>
+          <p className={`${themeClasses.textSecondary} text-sm mt-2`}>
+            {new Date(transaction.date).toLocaleDateString('en-IN', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              weekday: 'short',
+            })}
+          </p>
         </div>
-    );
+
+        {/* Amount and Actions */}
+        <div className="flex flex-col sm:items-end w-full sm:w-auto">
+          <p className={`font-bold text-xl ${amountColor} mb-3`}>
+            {formatRupee(isExpense ? -transaction.amount : transaction.amount)}
+          </p>
+          
+          {/* Action Buttons */}
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => onView(transaction.id)} 
+              className={`p-2 rounded-full ${themeClasses.buttonSecondary} hover:bg-opacity-80 transition-colors group`} 
+              title="View Details"
+            >
+              <Eye size={16} className={`${themeClasses.text} group-hover:scale-110 transition-transform`} />
+            </button>
+            <button 
+              onClick={() => onEdit(transaction.id)} 
+              className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors group" 
+              title="Edit Transaction"
+            >
+              <Edit2 size={16} className="group-hover:scale-110 transition-transform" />
+            </button>
+            <button 
+              onClick={() => onDelete(transaction.id)} 
+              className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors group" 
+              title="Delete Transaction"
+            >
+              <Trash2 size={16} className="group-hover:scale-110 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
+// Pagination Component
+const Pagination = ({ currentPage, totalPages, onPageChange, themeClasses }) => {
+  const getPageNumbers = () => {
+    const pages = [];
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
 
-const FinanceDashboard = () => {
-    // State management
-    const [transactions, setTransactions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    // 1. Use state, initialize from localStorage (default to false if not set)
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-        const stored = localStorage.getItem('isDarkMode');
-        return stored === null ? false : stored === 'true';
-    });
-
-    // 2. Sync HTML class and localStorage when isDarkMode changes
-    useEffect(() => {
-        document.documentElement.classList.toggle('dark', isDarkMode);
-        localStorage.setItem('isDarkMode', isDarkMode);
-    }, [isDarkMode]);
-
-    // Filter states
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterType, setFilterType] = useState('All');
-    const [filterCategory, setFilterCategory] = useState('All');
-    const [filterStartDate, setFilterStartDate] = useState('');
-    const [filterEndDate, setFilterEndDate] = useState('');
-    const [filterMinAmount, setFilterMinAmount] = useState('');
-    const [filterMaxAmount, setFilterMaxAmount] = useState('');
-    const [showFilters, setShowFilters] = useState(false);
-
-    const navigate = useNavigate();
-
-    // Available categories for filtering
-    const categories = [
-        'All', 'Salary', 'Freelance', 'Investments',
-        'Food', 'Housing', 'Utilities', 'Transport',
-        'Health', 'Education', 'Entertainment', 'Shopping', 'Other'
-    ];
-
-    // --- Theme Classes (Directly from Todo Dashboard logic) ---
-    const themeClasses = {
-        bg: isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50',
-        cardBg: isDarkMode ? 'bg-gray-800' : 'bg-white/80 backdrop-blur-sm',
-        text: isDarkMode ? 'text-white' : 'text-gray-900',
-        textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-600',
-        border: isDarkMode ? 'border-gray-700' : 'border-gray-200/50',
-        inputBorder: isDarkMode ? 'border-gray-600' : 'border-gray-300',
-        hover: isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-white/90',
-        accentBg: isDarkMode ? 'bg-emerald-700' : 'bg-emerald-600',
-        accentText: 'text-white',
-        buttonPrimary: isDarkMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-emerald-600 hover:bg-emerald-700',
-        buttonSecondary: isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-300 hover:bg-gray-400 text-gray-800',
-    };
-
-    // 4. Toggle handler
-    const handleToggleDarkMode = () => setIsDarkMode((prev) => !prev);
-
-    // Utility function to get auth token (as in Todo Dashboard)
-    const getToken = useCallback(() => {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            setError('No authentication token found. Please login again.');
-            setTimeout(() => navigate('/login'), 2000);
-            return null;
-        }
-        return token;
-    }, [navigate]);
-
-    // Fetch transactions (using mock data for now)
-    const fetchTransactions = useCallback(async () => {
-        const token = getToken();
-        if (!token) return;
-
-        setLoading(true);
-        setError(null);
-        try {
-            // In a real application, you would make an API call here:
-            // const response = await baseUrl.get('/api/transactions', { headers: { Authorization: `Bearer ${token}` } });
-            // setTransactions(response.data.content || []); // Assuming paged response
-
-            // Simulate API call delay with mock data
-            await new Promise(resolve => setTimeout(resolve, 700));
-            setTransactions(mockTransactions);
-        } catch (err) {
-            console.error('Error fetching transactions:', err);
-            const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch financial data. Please try again.';
-            setError(errorMessage);
-            if (err.response?.status === 401) {
-                localStorage.removeItem('authToken');
-                setTimeout(() => navigate('/login'), 2000);
-            }
-        } finally {
-            setLoading(false);
-        }
-    }, [getToken, navigate]);
-
-    useEffect(() => {
-        fetchTransactions();
-    }, [fetchTransactions]);
-
-    // Financial calculations
-    const totalIncome = transactions
-        .filter(t => t.type === 'Income')
-        .reduce((sum, t) => sum + t.amount, 0);
-    const totalExpense = transactions
-        .filter(t => t.type === 'Expense')
-        .reduce((sum, t) => sum + t.amount, 0);
-    const netBalance = totalIncome - totalExpense;
-
-    // Filtered Transactions Logic
-    const filteredTransactions = transactions.filter(transaction => {
-        const transactionDate = new Date(transaction.date);
-        const transactionAmount = transaction.amount;
-
-        const matchesSearch = searchQuery === '' ||
-                              transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              transaction.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const matchesType = filterType === 'All' || transaction.type === filterType;
-        const matchesCategory = filterCategory === 'All' || transaction.category === filterCategory;
-
-        const startDateObj = filterStartDate ? new Date(filterStartDate) : null;
-        const endDateObj = filterEndDate ? new Date(filterEndDate) : null;
-
-        const matchesStartDate = !startDateObj || transactionDate >= startDateObj;
-        const matchesEndDate = !endDateObj || transactionDate <= endDateObj;
-
-        const minAmount = filterMinAmount !== '' ? parseFloat(filterMinAmount) : -Infinity;
-        const maxAmount = filterMaxAmount !== '' ? parseFloat(filterMaxAmount) : Infinity;
-        const matchesAmount = transactionAmount >= minAmount && transactionAmount <= maxAmount;
-
-        return matchesSearch && matchesType && matchesCategory && matchesStartDate && matchesEndDate && matchesAmount;
-    }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent date first
-
-    // Clear filters function
-    const clearAllFilters = () => {
-        setSearchQuery('');
-        setFilterType('All');
-        setFilterCategory('All');
-        setFilterStartDate('');
-        setFilterEndDate('');
-        setFilterMinAmount('');
-        setFilterMaxAmount('');
-    };
-
-    // --- Action Handlers for Transactions (now using navigate) ---
-
-    // Handle View Details - redirects to /finance/view/:id
-    const handleViewDetails = useCallback((id) => {
-        navigate(`/finance/view/${id}`);
-    }, [navigate]);
-
-    // Handle Edit - redirects to /finance/edit/:id
-    const handleEdit = useCallback((id) => {
-        navigate(`/finance/edit/${id}`);
-    }, [navigate]);
-
-    // Handle Delete with Confirmation (still using react-confirm-alert)
-    const handleDelete = useCallback((id) => {
-        confirmAlert({
-            customUI: ({ onClose }) => {
-                return (
-                    <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-lg shadow-xl p-6 w-full max-w-sm animate__animated animate__zoomIn`}>
-                        <h1 className={`text-2xl font-bold mb-4 ${themeClasses.text}`}>Confirm Delete</h1>
-                        <p className={`${themeClasses.textSecondary} mb-6`}>Are you sure you want to delete this transaction? This action cannot be undone.</p>
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={onClose}
-                                className={`px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} transition-colors font-medium`}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={() => {
-                                    // In a real app, this would be an API call (DELETE)
-                                    // await baseUrl.delete(`/api/transactions/${id}`, { headers: { Authorization: `Bearer ${getToken()}` } });
-                                    setTransactions(prevTransactions => prevTransactions.filter(t => t.id !== id));
-                                    onClose();
-                                    console.log('Transaction deleted:', id);
-                                }}
-                                className={`px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors font-medium`}
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                );
-            }
-        });
-    }, [setTransactions, themeClasses]); // Include themeClasses in dependency array
-
-    // --- Loading State Display ---
-    if (loading) {
-        return (
-            <div className={`min-h-screen ${themeClasses.bg} flex items-center justify-center`}>
-                <div className="text-center">
-                    <div className="relative">
-                        <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                        <IndianRupee className="w-8 h-8 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-                    </div>
-                    <p className={`${themeClasses.textSecondary} text-lg font-medium`}>Loading your financial overview...</p>
-                </div>
-            </div>
-        );
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
     }
+    return pages;
+  };
 
-    return (
-        <div className={`min-h-screen ${themeClasses.bg} transition-all duration-300 font-sans`}>
-            {/* Header */}
-            <header className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600"></div>
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0">
-                        <div className="flex-1">
-                            <div className="flex items-center space-x-4 mb-4">
-                                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                                    <Wallet className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tight">
-                                        Personal Finance Tracker
-                                    </h1>
-                                    <p className="text-teal-100 text-lg font-medium">Your financial health at a glance</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center space-x-6 text-white/90">
-                                <div className="flex items-center space-x-2">
-                                    <IndianRupee className="w-5 h-5" />
-                                    <span className="font-medium">Net Balance: {formatRupee(netBalance)}</span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <PieChart className="w-5 h-5" />
-                                    <span className="font-medium">
-                                        Transactions: {filteredTransactions.length}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+  if (totalPages <= 1) return null;
 
-                        <div className="flex items-center space-x-4">
-                            <button
-                                onClick={handleToggleDarkMode}
-                                className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200"
-                                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                            >
-                                {isDarkMode ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}
-                            </button>
-                            {/* New: Detailed Report Button */}
-                            {/* <Link
-                                to="/finance/report"
-                                className={`inline-flex items-center ${themeClasses.buttonPrimary}  text-white px-5 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
-                            >
-                                <BarChart3 className="w-5 h-5 mr-2" />
-                                Detailed Report
-                            </Link> */}
-             <Link
-                  to="/finance/report"
-                  className={`
-                      inline-flex items-center
-                      px-5 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5
-                      bg-gradient-to-r from-blue-600 to-purple-600
-                      text-white
-                      transition-all duration-200
-                      focus:outline-none focus:ring-2 focus:ring-blue-400
-                      ${isDarkMode ? 'hover:from-blue-500 hover:to-purple-500' : 'hover:from-blue-700 hover:to-purple-700'}
-                  `}
-              >
-                  <BarChart3 className="w-5 h-5 mr-2" />
-                  Detailed Report
-              </Link>
-                            {/* New Transaction Button (now a Link) */}
-                            {/* <Link
-                                to="/finance/add"
-                                className={`inline-flex items-center ${themeClasses.buttonPrimary} ${themeClasses.accentText} px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5`}
-                            >
-                                <PlusCircle className="w-5 h-5 mr-2" />
-                                New Transaction
-                            </Link> */}
-                        <Link
-                            to="/finance/add"
-                            className={`
-                                inline-flex items-center
-                                px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5
-                                bg-gradient-to-r from-emerald-500 to-green-600
-                                text-white
-                                transition-all duration-200
-                                focus:outline-none focus:ring-2 focus:ring-emerald-400
-                                ${isDarkMode ? 'hover:from-emerald-600 hover:to-green-700' : 'hover:from-emerald-400 hover:to-green-500'}
-                            `}
-                        >
-                            <PlusCircle className="w-5 h-5 mr-2" />
-                            New Transaction
-                        </Link>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="flex items-center justify-center space-x-2 mt-6">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`p-2 rounded-lg ${themeClasses.buttonSecondary} disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+      >
+        <ChevronLeft size={16} />
+      </button>
 
-                <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"></div>
-            </header>
+      {getPageNumbers().map(page => (
+        <button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+            currentPage === page
+              ? 'bg-emerald-600 text-white'
+              : `${themeClasses.buttonSecondary} hover:bg-opacity-80`
+          }`}
+        >
+          {page}
+        </button>
+      ))}
 
-            {/* Error Display */}
-            {error && (
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-xl shadow-lg animate__animated animate__fadeIn">
-                        <div className="flex items-center">
-                            <AlertCircle className="w-5 h-5 text-red-400 mr-3 flex-shrink-0" />
-                            <p className="text-red-700 font-medium">{error}</p>
-                            <button
-                                onClick={() => setError(null)}
-                                className="ml-auto text-red-400 hover:text-red-600 transition-colors"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-                {/* Finance Stats Cards (Rupee Symbol) */}
-                <section>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className={`${themeClasses.textSecondary} text-sm font-medium`}>Total Income (Current Month)</p>
-                                    <p className={`text-3xl font-bold mt-1 text-green-500`}>{formatRupee(totalIncome)}</p>
-                                    <div className="flex items-center mt-2">
-                                        <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                                        <span className="text-green-500 text-sm font-medium">Positive flow</span>
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                                    <IndianRupee className="w-6 h-6 text-white" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className={`${themeClasses.textSecondary} text-sm font-medium`}>Total Expense (Current Month)</p>
-                                    <p className={`text-3xl font-bold mt-1 text-red-500`}>{formatRupee(totalExpense)}</p>
-                                    <div className="flex items-center mt-2">
-                                        <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
-                                        <span className="text-red-500 text-sm font-medium">Outflow</span>
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
-                                    <CreditCard className="w-6 h-6 text-white" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className={`${themeClasses.textSecondary} text-sm font-medium`}>Net Balance (Current Month)</p>
-                                    <p className={`text-3xl font-bold mt-1 ${netBalance >= 0 ? 'text-blue-500' : 'text-orange-500'}`}>{formatRupee(netBalance)}</p>
-                                    <div className="flex items-center mt-2">
-                                        {netBalance >= 0 ? (
-                                            <>
-                                                <TrendingUp className="w-4 h-4 text-blue-500 mr-1" />
-                                                <span className="text-blue-500 text-sm font-medium">Healthy</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <AlertCircle className="w-4 h-4 text-orange-500 mr-1" />
-                                                <span className="text-orange-500 text-sm font-medium">Needs attention</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                                    <Wallet className="w-6 h-6 text-white" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* My Transactions List */}
-                <section className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-6 shadow-lg animate__animated animate__fadeInUp`}>
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                        <h2 className={`text-2xl font-bold ${themeClasses.text} flex items-center`}>
-                            <CreditCard className="w-6 h-6 mr-3" />
-                            Transaction Records ({filteredTransactions.length})
-                        </h2>
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center space-x-2 p-2 rounded-lg ${themeClasses.hover} transition-colors md:hidden ${themeClasses.text}`}
-                        >
-                            <Filter className="w-5 h-5" />
-                            <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
-                        </button>
-                    </div>
-
-                    {/* Filter Section */}
-                    <div className={`${showFilters ? 'block' : 'hidden'} md:block animate__animated animate__fadeIn mb-6`}>
-                        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 p-4 border rounded-xl ${themeClasses.border}`}>
-                            <div className="relative col-span-1 sm:col-span-2 lg:col-span-2">
-                                <Search className={`w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 ${themeClasses.textSecondary}`} />
-                                <input
-                                    type="text"
-                                    placeholder="Search description or category..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className={`w-full border ${themeClasses.inputBorder} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text}`}
-                                />
-                            </div>
-
-                            <select
-                                value={filterType}
-                                onChange={(e) => setFilterType(e.target.value)}
-                                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text}`}
-                            >
-                                <option value="All">All Types</option>
-                                <option value="Income">Income</option>
-                                <option value="Expense">Expense</option>
-                            </select>
-
-                            <select
-                                value={filterCategory}
-                                onChange={(e) => setFilterCategory(e.target.value)}
-                                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text}`}
-                            >
-                                {categories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-
-                            <input
-                                type="date"
-                                value={filterStartDate}
-                                onChange={(e) => setFilterStartDate(e.target.value)}
-                                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text}`}
-                                title="Filter by Start Date"
-                            />
-                            <input
-                                type="date"
-                                value={filterEndDate}
-                                onChange={(e) => setFilterEndDate(e.target.value)}
-                                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text}`}
-                                title="Filter by End Date"
-                            />
-
-                            <input
-                                type="number"
-                                placeholder="Min Amount"
-                                value={filterMinAmount}
-                                onChange={(e) => setFilterMinAmount(e.target.value)}
-                                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text}`}
-                                title="Filter by Minimum Amount"
-                            />
-                            <input
-                                type="number"
-                                placeholder="Max Amount"
-                                value={filterMaxAmount}
-                                onChange={(e) => setFilterMaxAmount(e.target.value)}
-                                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text}`}
-                                title="Filter by Maximum Amount"
-                            />
-
-                            <button
-                                onClick={clearAllFilters}
-                                className={`col-span-1 sm:col-span-2 lg:col-span-6 w-full flex items-center justify-center p-2 rounded-lg ${themeClasses.buttonSecondary} transition-colors font-medium`}
-                            >
-                                <X className="w-4 h-4 mr-2" />
-                                Clear All Filters
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Transactions List */}
-                    <div className="space-y-4">
-                        {filteredTransactions.length === 0 ? (
-                            <div className="text-center py-10">
-                                <Search className={`w-16 h-16 ${themeClasses.textSecondary} mx-auto mb-4 opacity-50`} />
-                                <p className={`${themeClasses.textSecondary} text-lg font-medium`}>No transactions found matching your criteria.</p>
-                                <button
-                                    onClick={clearAllFilters}
-                                    className={`mt-4 px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} transition-colors`}
-                                >
-                                    Reset Filters
-                                </button>
-                            </div>
-                        ) : (
-                            filteredTransactions.map((transaction) => (
-                                <TransactionCard
-                                    key={transaction.id}
-                                    transaction={transaction}
-                                    themeClasses={themeClasses}
-                                    onView={handleViewDetails}
-                                    onEdit={handleEdit}
-                                    onDelete={handleDelete}
-                                />
-                            ))
-                        )}
-                    </div>
-                </section>
-            </main>
-        </div>
-    );
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`p-2 rounded-lg ${themeClasses.buttonSecondary} disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+      >
+        <ChevronRight size={16} />
+      </button>
+    </div>
+  );
 };
 
-export default FinanceDashboard;
+export default function FinanceDashboard() {
+  // THEME: use shared provider
+  const { theme, toggleTheme } = useTheme();
+  const isDarkMode = theme === 'dark';
+
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 10;
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('All');
+  const [filterCategory, setFilterCategory] = useState('All');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  const [filterMinAmount, setFilterMinAmount] = useState('');
+  const [filterMaxAmount, setFilterMaxAmount] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const navigate = useNavigate();
+  const categories = [
+    'All', 'Salary', 'Freelance', 'Investments',
+    'Food', 'Housing', 'Utilities', 'Transport',
+    'Health', 'Education', 'Entertainment', 'Shopping', 'Other'
+  ];
+
+  // Theme-aware Tailwind classes
+  const themeClasses = {
+    bg: isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50',
+    cardBg: isDarkMode ? 'bg-gray-800' : 'bg-white/80 backdrop-blur-sm',
+    text: isDarkMode ? 'text-white' : 'text-gray-900',
+    textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-600',
+    border: isDarkMode ? 'border-gray-700' : 'border-gray-200/50',
+    inputBorder: isDarkMode ? 'border-gray-600' : 'border-gray-300',
+    hover: isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-white/90',
+    buttonPrimary: 'bg-emerald-600 hover:bg-emerald-700 text-white',
+    buttonSecondary: isDarkMode
+      ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+      : 'bg-gray-300 hover:bg-gray-400 text-gray-800',
+  };
+
+  // Auth helper
+  const getToken = useCallback(() => {
+    const t = localStorage.getItem('authToken');
+    if (!t) {
+      setError('Please login to continue.');
+      setTimeout(() => navigate('/login'), 1500);
+    }
+    return t;
+  }, [navigate]);
+
+  // Fetch transactions (mock/API)
+  const fetchTransactions = useCallback(async () => {
+    const token = getToken();
+    if (!token) return;
+    setLoading(true);
+    try {
+      // const res = await baseUrl.get('/api/transactions', { headers: { Authorization: `Bearer ${token}` }});
+      // setTransactions(res.data.content);
+      await new Promise(r => setTimeout(r, 700));
+      setTransactions(mockTransactions);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [getToken]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  // Totals
+  const totalIncome = transactions.filter(t => t.type === 'Income').reduce((s, t) => s + t.amount, 0);
+  const totalExpense = transactions.filter(t => t.type === 'Expense').reduce((s, t) => s + t.amount, 0);
+  const netBalance = totalIncome - totalExpense;
+
+  // Apply filters
+  const filteredTransactions = transactions
+    .filter(t => {
+      const d = new Date(t.date);
+      const amt = t.amount;
+      const matchesSearch = !searchQuery ||
+        t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = filterType === 'All' || t.type === filterType;
+      const matchesCat = filterCategory === 'All' || t.category === filterCategory;
+      const start = filterStartDate ? new Date(filterStartDate) : null;
+      const end = filterEndDate ? new Date(filterEndDate) : null;
+      const matchesDate = (!start || d >= start) && (!end || d <= end);
+      const minA = filterMinAmount ? parseFloat(filterMinAmount) : -Infinity;
+      const maxA = filterMaxAmount ? parseFloat(filterMaxAmount) : Infinity;
+      return matchesSearch && matchesType && matchesCat && matchesDate && amt >= minA && amt <= maxA;
+    })
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+  const startIndex = (currentPage - 1) * transactionsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + transactionsPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterType, filterCategory, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount]);
+
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setFilterType('All');
+    setFilterCategory('All');
+    setFilterStartDate('');
+    setFilterEndDate('');
+    setFilterMinAmount('');
+    setFilterMaxAmount('');
+    setCurrentPage(1);
+  };
+
+  // Enhanced Action Handlers
+  const handleView = (id) => {
+    navigate(`/finance/view/${id}`);
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/finance/edit/${id}`);
+  };
+
+  const handleDelete = (id) => {
+    const transaction = transactions.find(t => t.id === id);
+    
+    confirmAlert({
+      customUI: ({ onClose }) => (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-xl shadow-2xl p-6 max-w-md w-full animate__animated animate__zoomIn`}>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-red-600" />
+              </div>
+              <h1 className={`text-2xl font-bold mb-2 ${themeClasses.text}`}>Confirm Delete</h1>
+              <p className={`${themeClasses.textSecondary} mb-2`}>
+                Are you sure you want to delete this transaction?
+              </p>
+              {transaction && (
+                <div className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-6`}>
+                  <p className={`font-semibold ${themeClasses.text}`}>{transaction.description}</p>
+                  <p className={`text-sm ${themeClasses.textSecondary}`}>
+                    {formatRupee(transaction.amount)} • {transaction.category}
+                  </p>
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button 
+                  onClick={onClose} 
+                  className={`flex-1 px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} font-medium transition-colors`}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => { 
+                    setTransactions(prev => prev.filter(t => t.id !== id)); 
+                    onClose(); 
+                  }} 
+                  className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className={`min-h-screen ${themeClasses.bg} flex items-center justify-center`}>
+        <div className="text-center">
+          <div className="relative mb-4">
+            <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+            <IndianRupee className="w-8 h-8 text-blue-600 absolute inset-0 m-auto animate-pulse" />
+          </div>
+          <p className={`${themeClasses.textSecondary} text-lg`}>Loading your financial overview...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`min-h-screen ${themeClasses.bg} transition-all duration-300 font-sans`}>
+      {/* HEADER */}
+      <header className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600" />
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+            <div className="flex-1">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                  <Wallet className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">Personal Finance Tracker</h1>
+                  <p className="text-teal-100 text-sm sm:text-lg">Your financial health at a glance</p>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 text-white/90">
+                <div className="flex items-center space-x-2">
+                  <IndianRupee className="w-5 h-5" />
+                  <span className="font-medium">Net Balance: {formatRupee(netBalance)}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <PieChart className="w-5 h-5" />
+                  <span className="font-medium">Transactions: {filteredTransactions.length}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+              {/* THEME TOGGLE */}
+              <button 
+                onClick={toggleTheme} 
+                className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all flex items-center justify-center" 
+                title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
+              >
+                {isDarkMode ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}
+              </button>
+              <Link 
+                to="/finance/report" 
+                className="inline-flex items-center justify-center px-4 sm:px-5 py-3 rounded-xl font-semibold shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition text-sm sm:text-base"
+              >
+                <BarChart3 className="w-5 h-5 mr-2" /> 
+                <span className="hidden sm:inline">Detailed Report</span>
+                <span className="sm:hidden">Report</span>
+              </Link>
+              <Link 
+                to="/finance/add" 
+                className="inline-flex items-center justify-center px-4 sm:px-6 py-3 rounded-xl font-semibold shadow-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:from-emerald-400 hover:to-green-500 transition text-sm sm:text-base"
+              >
+                <PlusCircle className="w-5 h-5 mr-2" /> 
+                <span className="hidden sm:inline">New Transaction</span>
+                <span className="sm:hidden">Add</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ERROR */}
+      {error && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 rounded-xl shadow-lg animate__animated animate__fadeIn">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-400 mr-3 flex-shrink-0" />
+              <p className="text-red-700 dark:text-red-300 font-medium flex-1">{error}</p>
+              <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600 flex-shrink-0">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Finance Stats Cards */}
+        <section>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Total Income Card */}
+            <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className={`${themeClasses.textSecondary} text-xs sm:text-sm font-medium`}>Total Income</p>
+                  <p className={`text-xl sm:text-3xl font-bold mt-1 text-green-500 truncate`}>{formatRupee(totalIncome)}</p>
+                  <div className="flex items-center mt-2">
+                    <TrendingUp className="w-4 h-4 text-green-500 mr-1 flex-shrink-0" />
+                    <span className="text-green-500 text-xs sm:text-sm font-medium">Positive flow</span>
+                  </div>
+                </div>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
+                  <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Total Expense Card */}
+            <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className={`${themeClasses.textSecondary} text-xs sm:text-sm font-medium`}>Total Expense</p>
+                  <p className={`text-xl sm:text-3xl font-bold mt-1 text-red-500 truncate`}>{formatRupee(totalExpense)}</p>
+                  <div className="flex items-center mt-2">
+                    <TrendingDown className="w-4 h-4 text-red-500 mr-1 flex-shrink-0" />
+                    <span className="text-red-500 text-xs sm:text-sm font-medium">Outflow</span>
+                  </div>
+                </div>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
+                  <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Net Balance Card */}
+            <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 md:col-span-2 lg:col-span-1`}>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className={`${themeClasses.textSecondary} text-xs sm:text-sm font-medium`}>Net Balance</p>
+                  <p className={`text-xl sm:text-3xl font-bold mt-1 ${netBalance >= 0 ? 'text-blue-500' : 'text-orange-500'} truncate`}>
+                    {formatRupee(netBalance)}
+                  </p>
+                  <div className="flex items-center mt-2">
+                    {netBalance >= 0 ? (
+                      <>
+                        <TrendingUp className="w-4 h-4 text-blue-500 mr-1 flex-shrink-0" />
+                        <span className="text-blue-500 text-xs sm:text-sm font-medium">Healthy</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-orange-500 mr-1 flex-shrink-0" />
+                        <span className="text-orange-500 text-xs sm:text-sm font-medium">Needs attention</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 ml-2">
+                  <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Transaction Records Section */}
+        <section className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-4 sm:p-6 shadow-lg animate__animated animate__fadeInUp`}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className={`text-xl sm:text-2xl font-bold ${themeClasses.text} flex items-center`}>
+              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 mr-3 flex-shrink-0" />
+              Transaction Records ({filteredTransactions.length})
+            </h2>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center space-x-2 p-2 rounded-lg ${themeClasses.hover} transition-colors sm:hidden ${themeClasses.text}`}
+            >
+              <Filter className="w-5 h-5" />
+              <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
+            </button>
+          </div>
+
+          {/* Filter Section */}
+          <div className={`${showFilters ? 'block' : 'hidden'} sm:block animate__animated animate__fadeIn mb-6`}>
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 p-4 border rounded-xl ${themeClasses.border}`}>
+              {/* Search Input */}
+              <div className="relative col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2">
+                <Search className={`w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 ${themeClasses.textSecondary}`} />
+                <input
+                  type="text"
+                  placeholder="Search description or category..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`w-full border ${themeClasses.inputBorder} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-sm`}
+                />
+              </div>
+
+              {/* Type Filter */}
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-sm`}
+              >
+                <option value="All">All Types</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+              </select>
+
+              {/* Category Filter */}
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-sm`}
+              >
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+
+              {/* Date Filters */}
+              <input
+                type="date"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-sm`}
+                title="Filter by Start Date"
+              />
+              <input
+                type="date"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-sm`}
+                title="Filter by End Date"
+              />
+
+              {/* Amount Filters */}
+              <input
+                type="number"
+                placeholder="Min Amount"
+                value={filterMinAmount}
+                onChange={(e) => setFilterMinAmount(e.target.value)}
+                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-sm`}
+                title="Filter by Minimum Amount"
+              />
+              <input
+                type="number"
+                placeholder="Max Amount"
+                value={filterMaxAmount}
+                onChange={(e) => setFilterMaxAmount(e.target.value)}
+                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-sm`}
+                title="Filter by Maximum Amount"
+              />
+
+              {/* Clear Filters Button */}
+              <button
+                onClick={clearAllFilters}
+                className={`col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-6 w-full flex items-center justify-center p-2 rounded-lg ${themeClasses.buttonSecondary} transition-colors font-medium text-sm`}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Clear All Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Transaction List */}
+          <div className="space-y-3 sm:space-y-4">
+            {paginatedTransactions.length === 0 ? (
+              <div className="text-center py-10 sm:py-16">
+                <Search className={`w-12 h-12 sm:w-16 sm:h-16 ${themeClasses.textSecondary} mx-auto mb-4 opacity-50`} />
+                <p className={`${themeClasses.textSecondary} text-base sm:text-lg font-medium mb-2`}>
+                  No transactions found matching your criteria.
+                </p>
+                <p className={`${themeClasses.textSecondary} text-sm mb-4`}>
+                  Try adjusting your filters or search terms.
+                </p>
+                <button
+                  onClick={clearAllFilters}
+                  className={`px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} transition-colors text-sm font-medium`}
+                >
+                  Reset Filters
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Transaction Cards */}
+                {paginatedTransactions.map((transaction) => (
+                  <TransactionCard
+                    key={transaction.id}
+                    transaction={transaction}
+                    themeClasses={themeClasses}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+
+                {/* Pagination */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  themeClasses={themeClasses}
+                />
+
+                {/* Results Summary */}
+                <div className={`text-center pt-4 border-t ${themeClasses.border}`}>
+                  <p className={`${themeClasses.textSecondary} text-sm`}>
+                    Showing {startIndex + 1} to {Math.min(startIndex + transactionsPerPage, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
 
 
 
