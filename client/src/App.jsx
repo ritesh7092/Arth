@@ -126,12 +126,28 @@ function App() {
             </MainLayout>
           }
         />
+         <Route
+          path="/finance/view/:id"
+          element={
+            <MainLayout heading="View Transaction Details">
+              <EditFinance/>
+            </MainLayout>
+          }
+        />
 
          {/* Dynamic route for editing a finance record */}
          <Route
           path="/todo/edit/:id"
           element={
             <MainLayout heading="Edit TODO">
+              <EditTodo/>
+            </MainLayout>
+          }
+        />
+         <Route
+          path="/todo/view/:id"
+          element={
+            <MainLayout heading="View TODO">
               <EditTodo/>
             </MainLayout>
           }
