@@ -107,3 +107,22 @@ body {
 .dark .cta-glow {
   background: linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e40af 100%);
 }
+
+/* Add to your global CSS or inside <style jsx> */
+@keyframes float {
+  0%, 100% { transform: translateY(0px);}
+  50% { transform: translateY(-30px);}
+}
+.animate-float { animation: float 8s ease-in-out infinite; }
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px);}
+  50% { transform: translateY(30px);}
+}
+.animate-float-delayed { animation: float-delayed 10s ease-in-out infinite; }
+
+
+/* Added By Me  */
+/* Add to your global CSS */
+.font-serif {
+  font-family: 'Merriweather', 'Georgia', serif;
+}

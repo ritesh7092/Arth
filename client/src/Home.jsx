@@ -1,32 +1,135 @@
-import React, { useEffect, useState } from "react";
-import { 
-  Moon, Sun, ArrowRight, Sparkles, Shield, Zap, Users, Star, 
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import {
+  Moon, Sun, ArrowRight, Sparkles, Shield, Zap, Users, Star,
   Brain, TrendingUp, Clock, Award, CheckCircle, Play,
   Target, Globe, Rocket, Menu, X, Diamond, ArrowDown,
   Layers, Infinity, Database, BarChart3, MessageSquare,
-  Lightbulb, Palette, Code, Heart
+  Lightbulb, Palette, Code, Heart, Cpu, GitMerge
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { motion, useScroll, useTransform } from 'framer-motion';
+import Particles from "react-tsparticles";
+import { loadFull } from "tsparticles";
+
+// --- SCROLL-REVEAL ECOSYSTEM SECTION ---
+const Ecosystem = ({ isDarkMode }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y1 = useTransform(scrollYProgress, [0, 1], [-120, 60]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [120, -60]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 90]);
+
+  const capabilities = [
+    { icon: Layers, name: "Unified Dashboard" },
+    { icon: Shield, name: "Zero-Trust Security" },
+    { icon: BarChart3, name: "Real-time Analytics" },
+    { icon: Cpu, name: "Advanced AI Core" },
+    { icon: GitMerge, name: "Seamless Integrations" },
+  ];
+
+  const sectionBg = isDarkMode
+    ? "bg-gradient-to-br from-[#181c2a] via-[#1e2235] to-[#2b2250]"
+    : "bg-gradient-to-br from-[#f7fafc] via-[#e3e8ee] to-[#fdf6f0]";
+  const textColor = isDarkMode ? "text-slate-100" : "text-[#181c2a]";
+  const subTextColor = isDarkMode ? "text-slate-300" : "text-[#3b3b4f]";
+
+  return (
+    <section
+      id="ecosystem"
+      ref={ref}
+      className={`relative py-20 md:py-32 ${sectionBg} transition-colors duration-500 overflow-hidden`}
+    >
+      {/* Decorative blurred gradients */}
+      <motion.div
+        style={{ y: y1 }}
+        className="pointer-events-none absolute w-60 h-60 bg-blue-400/20 dark:bg-blue-600/20 rounded-full blur-3xl top-[-60px] left-1/4 z-0"
+      />
+      <motion.div
+        style={{ y: y2 }}
+        className="pointer-events-none absolute w-60 h-60 bg-pink-400/20 dark:bg-pink-600/20 rounded-full blur-3xl bottom-[-60px] right-1/4 z-0"
+      />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16 md:mb-20">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl sm:text-5xl md:text-6xl font-serif font-extrabold tracking-tight text-[#181c2a] dark:text-[#f7fafc] mb-2"
+          >
+            <span className="inline-block relative">
+              <span className="bg-gradient-to-r from-[#bfa76a] to-[#ffd700] bg-clip-text text-transparent drop-shadow-lg">
+                Intelligent Ecosystem
+              </span>
+              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2/3 h-2 bg-gradient-to-r from-[#bfa76a]/40 to-[#ffd700]/40 blur-lg rounded-full opacity-60"></span>
+            </span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`mt-6 text-base sm:text-lg max-w-2xl mx-auto ${subTextColor} font-medium`}
+          >
+            Every component is engineered with precision, powered by cutting-edge technology to create a seamless flow.
+          </motion.p>
+        </div>
+        <div className="relative flex flex-col items-center justify-center">
+          <motion.div
+            style={{ rotate }}
+            className="relative w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 flex items-center justify-center mx-auto my-10"
+          >
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#bfa76a] to-[#ffd700] rounded-full blur-2xl opacity-70 animate-pulse"></div>
+            <div className="relative flex items-center justify-center w-28 h-28 sm:w-40 sm:h-40 md:w-56 md:h-56 bg-white/80 dark:bg-black/60 backdrop-blur-md rounded-3xl border border-[#bfa76a]/30 shadow-2xl ring-4 ring-[#bfa76a]/20 dark:ring-[#ffd700]/20 animate-spin-slow">
+              <Diamond className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 text-[#bfa76a] dark:text-[#ffd700] drop-shadow-lg" />
+            </div>
+          </motion.div>
+          {/* Capabilities icons */}
+          <div className="mt-12 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 w-full max-w-3xl mx-auto">
+            {capabilities.map((cap, idx) => (
+              <motion.div
+                key={cap.name}
+                className="flex flex-col items-center group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+              >
+                <div className="p-4 rounded-full bg-gradient-to-br from-indigo-400 to-fuchsia-400 text-white shadow-xl mb-2 group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300">
+                  <cap.icon size={28} />
+                </div>
+                <span className={`font-semibold text-sm ${textColor} text-center group-hover:text-fuchsia-500 transition-colors duration-200`}>
+                  {cap.name}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
   const navigate = useNavigate();
 
-  // Enhanced theme management with system preference detection
+  // Theme management
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') || 
-             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      return localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     }
     return 'dark';
   });
-  
+
   const [scrollY, setScrollY] = useState(0);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const isDarkMode = theme === 'dark';
 
-  // Enhanced theme toggle with persistence and system detection
+  // Theme toggle
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
@@ -36,83 +139,34 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
     }
   };
 
-  // Apply theme on mount and changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
       document.documentElement.setAttribute('data-theme', theme);
     }
   }, [theme]);
 
-  // Enhanced scroll tracking for animations
   useEffect(() => {
-    const onScroll = () => {
-      setScrollY(window.pageYOffset);
-    };
-    window.addEventListener("scroll", onScroll);
+    const onScroll = () => setScrollY(window.pageYOffset);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Mouse tracking for interactive effects
   useEffect(() => {
+    let ticking = false;
     const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setMousePosition({ x: e.clientX, y: e.clientY });
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Testimonial carousel with smoother transitions
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Pleasant, charming, and highly readable light mode color palette
-  const themeClasses = {
-    // Backgrounds
-    bg: isDarkMode
-      ? 'bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950'
-      : 'bg-gradient-to-br from-[#f7fafc] via-[#e3e8ee] to-[#fdf6f0]', // Soft, warm, and neutral
-
-    bgSecondary: isDarkMode
-      ? 'bg-slate-800/60 backdrop-blur-xl border-slate-700/40'
-      : 'bg-white/95 backdrop-blur-xl border-[#e3e8ee]/60',
-
-    bgGlass: isDarkMode
-      ? 'bg-slate-800/20 backdrop-blur-2xl border-slate-600/20'
-      : 'bg-white/90 backdrop-blur-2xl border-[#e3e8ee]/40',
-
-    // Text colors
-    textPrimary: isDarkMode ? 'text-slate-100' : 'text-[#232946]', // deep blue
-    textSecondary: isDarkMode ? 'text-slate-300' : 'text-[#3b3b4f]', // dark gray-blue
-    textMuted: isDarkMode ? 'text-slate-400' : 'text-[#7b8194]', // soft gray-blue
-
-    // Gradients for headings and accents
-    gradientText: isDarkMode
-      ? 'bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent'
-      : 'bg-gradient-to-r from-[#6a8cff] via-[#fcb69f] to-[#ffb6b9] bg-clip-text text-transparent', // Blue to peach to pink
-
-    // Interactive elements
-    buttonPrimary: isDarkMode
-      ? 'bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white shadow-xl shadow-blue-500/30'
-      : 'bg-gradient-to-r from-[#6a8cff] to-[#ffb6b9] hover:from-[#4f8cff] hover:to-[#fcb69f] text-white shadow-xl shadow-[#fcb69f]/20',
-
-    buttonSecondary: isDarkMode
-      ? 'bg-slate-700/50 hover:bg-slate-600/70 text-slate-200 border border-slate-500/30 shadow-lg shadow-slate-800/20'
-      : 'bg-white/95 hover:bg-[#f7f7fa] text-[#232946] border border-[#e3e8ee] shadow-lg shadow-[#fcb69f]/10',
-
-    // Theme toggle
-    themeToggle: isDarkMode
-      ? 'bg-slate-700/60 hover:bg-slate-600/80 text-amber-400 border border-slate-600/40'
-      : 'bg-white/90 hover:bg-[#f7f7fa] text-[#fcb69f] border border-[#e3e8ee] shadow-md',
-  };
-
-  // Auth logic for top right
-  const authToken = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-  const loggedIn = isAuthenticated || !!authToken;
-
+  // Testimonial carousel
   const testimonials = [
     {
       name: "Sarah Chen",
@@ -123,7 +177,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
       rating: 5
     },
     {
-      name: "Marcus Rodriguez", 
+      name: "Marcus Rodriguez",
       role: "Financial Advisor",
       content: "The financial intelligence features are unmatched. It's like having a personal CFO at your fingertips. Game-changing for our investment decisions.",
       avatar: "MR",
@@ -132,7 +186,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
     },
     {
       name: "Emma Thompson",
-      role: "Startup Founder", 
+      role: "Startup Founder",
       content: "From task management to financial forecasting, Arth does it all with unprecedented elegance and precision. Absolutely revolutionary!",
       avatar: "ET",
       gradient: "from-purple-500 to-indigo-500",
@@ -147,6 +201,76 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
       rating: 5
     }
   ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // tsParticles config (nice, subtle, modern)
+  const particlesInit = useCallback(async (engine) => {
+    await loadFull(engine);
+  }, []);
+
+  const particlesOptions = {
+    fullScreen: { enable: false },
+    background: { color: { value: "transparent" } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 100, density: { enable: true, value_area: 800 } },
+      color: { value: ["#60a5fa", "#a855f7", "#f472b6", "#fff"] },
+      links: {
+        enable: true,
+        color: "#fff",
+        distance: 140,
+        opacity: 0.4,
+        width: 1.5,
+      },
+      move: {
+        enable: true,
+        speed: 1.5,
+        direction: "none",
+        outModes: { default: "out" },
+      },
+      opacity: { value: 0.7 },
+      shape: { type: "circle" },
+      size: { value: { min: 2, max: 5 } },
+    },
+    detectRetina: true,
+  };
+
+  // Theme classes
+  const themeClasses = {
+    bg: isDarkMode
+      ? 'bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950'
+      : 'bg-gradient-to-br from-[#f7fafc] via-[#e3e8ee] to-[#fdf6f0]',
+    bgSecondary: isDarkMode
+      ? 'bg-slate-800/60 backdrop-blur-xl border-slate-700/40'
+      : 'bg-white/95 backdrop-blur-xl border-[#e3e8ee]/60',
+    bgGlass: isDarkMode
+      ? 'bg-slate-800/20 backdrop-blur-2xl border-slate-600/20'
+      : 'bg-white/90 backdrop-blur-2xl border-[#e3e8ee]/40',
+    textPrimary: isDarkMode ? 'text-slate-100' : 'text-[#232946]',
+    textSecondary: isDarkMode ? 'text-slate-300' : 'text-[#3b3b4f]',
+    textMuted: isDarkMode ? 'text-slate-400' : 'text-[#7b8194]',
+    gradientText: isDarkMode
+      ? 'bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent'
+      : 'bg-gradient-to-r from-[#6a8cff] via-[#fcb69f] to-[#ffb6b9] bg-clip-text text-transparent',
+    buttonPrimary: isDarkMode
+      ? 'bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white shadow-xl shadow-blue-500/30'
+      : 'bg-gradient-to-r from-[#6a8cff] to-[#ffb6b9] hover:from-[#4f8cff] hover:to-[#fcb69f] text-white shadow-xl shadow-[#fcb69f]/20',
+    buttonSecondary: isDarkMode
+      ? 'bg-slate-700/50 hover:bg-slate-600/70 text-slate-200 border border-slate-500/30 shadow-lg shadow-slate-800/20'
+      : 'bg-white/95 hover:bg-[#f7f7fa] text-[#232946] border border-[#e3e8ee] shadow-lg shadow-[#fcb69f]/10',
+    themeToggle: isDarkMode
+      ? 'bg-slate-700/60 hover:bg-slate-600/80 text-amber-400 border border-slate-600/40'
+      : 'bg-white/90 hover:bg-[#f7f7fa] text-[#fcb69f] border border-[#e3e8ee] shadow-md',
+  };
+
+  const authToken = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const loggedIn = isAuthenticated || !!authToken;
 
   const features = [
     {
@@ -271,7 +395,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
   ];
 
   return (
-    <div className={`min-h-screen font-sans antialiased transition-all duration-500 ${themeClasses.bg} relative overflow-x-hidden`}>
+    <div className={`min-h-screen font-sans antialiased transition-all duration-500 relative overflow-x-hidden ${themeClasses.bg}`}>
       <style jsx>{`
         .gradient-text, .feature-heading {
           ${isDarkMode
@@ -288,107 +412,45 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
           font-size: 1.5rem;
           letter-spacing: -0.01em;
         }
-        /* Enhanced CSS Variables and Styles */
         .hero-bg {
-          background: ${isDarkMode 
+          background: ${isDarkMode
             ? 'radial-gradient(ellipse at top, #1e1b4b 0%, #0f172a 50%, #000000 100%)'
             : 'radial-gradient(ellipse at top, #dbeafe 0%, #e0e7ff 50%, #f8fafc 100%)'
           };
         }
-
         .glass-card {
-          background: ${isDarkMode 
+          background: ${isDarkMode
             ? 'rgba(30, 41, 59, 0.4)'
             : 'rgba(255,255,255,0.85)'
           };
           backdrop-filter: blur(24px);
-          border: 1px solid ${isDarkMode 
+          border: 1px solid ${isDarkMode
             ? 'rgba(148, 163, 184, 0.2)'
             : 'rgba(220, 220, 245, 0.5)'
           };
           box-shadow: 0 8px 32px 0 rgba(60,60,120,0.06);
         }
-
         .glass-card-strong {
-          background: ${isDarkMode 
+          background: ${isDarkMode
             ? 'rgba(30, 41, 59, 0.7)'
             : 'rgba(255,255,255,0.97)'
           };
           backdrop-filter: blur(40px);
-          border: 1px solid ${isDarkMode 
+          border: 1px solid ${isDarkMode
             ? 'rgba(148, 163, 184, 0.3)'
             : 'rgba(220, 220, 245, 0.7)'
           };
           box-shadow: 0 8px 32px 0 rgba(60,60,120,0.08);
         }
-
-        .feature-glow-blue:hover {
-          box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.6);
+        .card-hover-effect {
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
-        .feature-glow-cyan:hover {
-          box-shadow: 0 25px 50px -12px rgba(6, 182, 212, 0.6);
+        .card-hover-effect:hover {
+          transform: translateY(-8px) scale(1.02);
         }
-        
-        .feature-glow-pink:hover {
-          box-shadow: 0 25px 50px -12px rgba(236, 72, 153, 0.6);
+        .parallax-bg {
+          transform: translateY(${scrollY * 0.5}px);
         }
-        
-        .feature-glow-orange:hover {
-          box-shadow: 0 25px 50px -12px rgba(249, 115, 22, 0.6);
-        }
-
-        .feature-glow-violet:hover {
-          box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.6);
-        }
-
-        .feature-glow-emerald:hover {
-          box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.6);
-        }
-
-        .animate-float {
-          animation: float 8s ease-in-out infinite;
-        }
-
-        .animate-float-delayed {
-          animation: float 8s ease-in-out infinite 4s;
-        }
-
-        .animate-float-slow {
-          animation: float 12s ease-in-out infinite 2s;
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-20px) rotate(1deg); }
-          66% { transform: translateY(-10px) rotate(-1deg); }
-        }
-
-        .testimonial-enter {
-          animation: slideIn 0.8s ease-out;
-        }
-
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(50px) scale(0.95); }
-          to { opacity: 1; transform: translateX(0) scale(1); }
-        }
-
-        .navbar-blur {
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-        }
-
-        .logo-glow {
-          filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.4));
-        }
-
-        .cta-glow {
-          background: ${isDarkMode 
-            ? 'linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e40af 100%)'
-            : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)'
-          };
-        }
-
         .cursor-glow {
           pointer-events: none;
           position: fixed;
@@ -401,53 +463,8 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
           z-index: 0;
           transition: opacity 0.3s ease;
         }
-
-        .scroll-indicator {
-          animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-10px); }
-          60% { transform: translateY(-5px); }
-        }
-
-        .typing-animation {
-          border-right: 2px solid;
-          animation: typing 4s steps(40) infinite, blink 0.75s step-end infinite;
-          white-space: nowrap;
-          overflow: hidden;
-        }
-
-        @keyframes typing {
-          0%, 50%, 100% { width: 0; }
-          10%, 40% { width: 100%; }
-        }
-
-        @keyframes blink {
-          0%, 50% { border-color: transparent; }
-          51%, 100% { border-color: currentColor; }
-        }
-
-        .card-hover-effect {
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .card-hover-effect:hover {
-          transform: translateY(-8px) scale(1.02);
-        }
-
-        .parallax-bg {
-          transform: translateY(${scrollY * 0.5}px);
-        }
-
-        .stats-counter {
-          animation: countUp 2s ease-out;
-        }
-
-        @keyframes countUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        @media (max-width: 640px) {
+          .cursor-glow { display: none; }
         }
       `}</style>
 
@@ -455,11 +472,10 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
       <div className="cursor-glow"></div>
 
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrollY > 50 
-          ? `${themeClasses.bgSecondary} navbar-blur shadow-2xl border-b` 
-          : 'bg-transparent'
-      }`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrollY > 50
+        ? `${themeClasses.bgSecondary} navbar-blur shadow-2xl border-b`
+        : 'bg-transparent'
+        }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
@@ -477,16 +493,17 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
                 </div>
               </a>
             </div>
-            
             {/* Desktop Navigation */}
             <div className="hidden md:block">
               <div className="flex items-center space-x-8">
                 <div className="flex items-center space-x-8">
-                  <a href="#features" className={`${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold text-sm tracking-wide relative group`}>
+                  <a
+                    href="#features"
+                    className={`${themeClasses.textPrimary} relative font-semibold text-sm tracking-wide group`}
+                  >
                     Features
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                    <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300"></span>
                   </a>
-                  {/* <a href="#testimonials" ...>Reviews</a> */}
                 </div>
                 <div className="flex items-center space-x-4">
                   {!loggedIn ? (
@@ -499,8 +516,8 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
                       </a>
                     </>
                   ) : (
-                    <button 
-                      onClick={handleLogout} 
+                    <button
+                      onClick={handleLogout}
                       className={`${themeClasses.buttonSecondary} px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 hover:scale-105`}
                     >
                       Logout
@@ -520,7 +537,6 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
                 </div>
               </div>
             </div>
-
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center space-x-4">
               <button
@@ -538,7 +554,6 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
             </div>
           </div>
         </div>
-
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className={`md:hidden ${themeClasses.bgSecondary} navbar-blur border-t shadow-xl`}>
@@ -561,51 +576,51 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
 
       {/* Hero Section */}
       <section className="hero-bg min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className={`absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-float parallax-bg`}></div>
-          <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-float-delayed parallax-bg`}></div>
-          <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl animate-float-slow`}></div>
-          <div className={`absolute top-10 right-10 w-64 h-64 bg-gradient-to-r from-orange-500/15 to-rose-500/15 rounded-full blur-2xl animate-float`}></div>
+        {/* tsParticles background */}
+        <Particles
+          id="tsparticles-hero"
+          init={particlesInit}
+          options={particlesOptions}
+          className="absolute inset-0 w-full h-full z-0"
+        />
+        {/* Animated blobs (optional, keep your existing ones) */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* ...your animated gradient blobs here... */}
         </div>
-
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Enhanced Hero Badge */}
-          <div className={`inline-flex items-center space-x-3 glass-card px-8 py-4 rounded-full mb-12 border group hover:scale-105 transition-all duration-300`}>
+          {/* Hero Badge */}
+          <div className={`inline-flex items-center space-x-3 glass-card px-6 sm:px-8 py-3 sm:py-4 rounded-full mb-8 sm:mb-12 border group hover:scale-105 transition-all duration-300`}>
             <div className="flex items-center space-x-2">
-              <Star className="w-5 h-5 text-yellow-400 animate-pulse" />
-              <Star className="w-4 h-4 text-yellow-300" />
-              <Star className="w-3 h-3 text-yellow-200" />
+              <Star className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 animate-pulse" />
+              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-pink-400" />
             </div>
-            <span className={`${themeClasses.textPrimary} font-bold text-sm tracking-wide`}>World's #1 Productivity Platform</span>
-            <Award className="w-5 h-5 text-purple-500" />
-            <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
+            <span className={`${themeClasses.textPrimary} font-bold text-xs sm:text-sm tracking-wide`}>Premium Productivity Suite</span>
+            <Award className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-fuchsia-400 animate-pulse" />
           </div>
-          
-          {/* Enhanced Hero Title with Typing Effect */}
-          <div className="mb-8">
-            <h1 className="text-6xl md:text-8xl font-black mb-4 leading-none">
+          {/* Hero Title */}
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-2 sm:mb-4 leading-none">
               <span className="gradient-text block">Revolutionize Your</span>
             </h1>
-            <h1 className="text-6xl md:text-8xl font-black leading-none">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black leading-none">
               <span className="gradient-text block typing-animation">Productivity</span>
             </h1>
           </div>
-          
-          {/* Enhanced Hero Subtitle */}
-          <p className={`text-xl md:text-2xl ${themeClasses.textSecondary} mb-8 max-w-4xl mx-auto leading-relaxed font-medium`}>
-            The ultimate ecosystem for <span className="gradient-text font-bold">Financial Intelligence</span>, 
+          {/* Hero Subtitle */}
+          <p className={`text-base sm:text-xl md:text-2xl ${themeClasses.textSecondary} mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed font-medium`}>
+            The ultimate ecosystem for <span className="gradient-text font-bold">Financial Intelligence</span>,
             <span className="gradient-text font-bold"> Task Mastery</span> & <span className="gradient-text font-bold">AI-Powered Insights</span>
           </p>
-          
-          {/* Enhanced Hero Description */}
-          <p className={`text-base md:text-lg ${themeClasses.textMuted} mb-10 max-w-2xl mx-auto`}>
+          {/* Hero Description */}
+          <p className={`text-xs sm:text-base md:text-lg ${themeClasses.textMuted} mb-8 sm:mb-10 max-w-2xl mx-auto`}>
             Arth is your all-in-one platform for mastering productivity, personal finance, and AI-powered insights. Built for students, professionals, and teams who want to achieve more with less effort—securely, beautifully, and intelligently.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 sm:mb-16">
             <button
               onClick={() => navigate('/dashboard')}
-              className={`${themeClasses.buttonPrimary} px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2`}
+              className={`${themeClasses.buttonPrimary} px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2`}
             >
               <ArrowRight className="w-5 h-5" />
               Get Started Free
@@ -613,6 +628,9 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
           </div>
         </div>
       </section>
+
+      {/* Ecosystem Section */}
+      <Ecosystem isDarkMode={isDarkMode} />
 
       {/* Stats Section */}
       <section className="w-full py-12 md:py-20 bg-transparent" id="stats">
@@ -777,7 +795,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
       */}
 
       {/* Call to Action Section */}
-      <section className="w-full py-16 md:py-24 text-center">
+      {/* <section className="w-full py-16 md:py-24 text-center">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-extrabold gradient-text mb-6">Ready to Transform Your Productivity?</h2>
           <p className={`text-lg md:text-xl ${themeClasses.textSecondary} mb-10`}>
@@ -791,14 +809,60 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
             Start Free Trial
           </a>
         </div>
-      </section>
+      </section> */}
+      <section
+  className={`w-full py-20 md:py-32 border-t-4 transition-colors duration-500
+    ${isDarkMode
+      ? "bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 border-indigo-700"
+      : "bg-gradient-to-br from-[#f7fafc] via-[#e0e7ff] to-[#fdf6f0] border-indigo-400"
+    }`
+  }
+>
+  <div className="max-w-4xl mx-auto px-6 text-center">
+    <div className="mb-12">
+      <h2 className={`text-5xl md:text-6xl font-serif font-extrabold mb-6 leading-tight drop-shadow-sm
+        ${isDarkMode ? "text-indigo-200" : "text-indigo-700"}
+      `}>
+        Ready to Transform Your{" "}
+        <span className={`italic underline decoration-indigo-400 decoration-2 underline-offset-4
+          ${isDarkMode ? "text-indigo-300" : "text-indigo-600"}
+        `}>
+          Productivity
+        </span>
+        ?
+      </h2>
+      <div className="flex justify-center mb-8">
+        <div className={`w-32 h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent`}></div>
+      </div>
+    </div>
+
+    <p className={`text-xl md:text-2xl mb-14 leading-relaxed font-light max-w-2xl mx-auto
+      ${isDarkMode ? "text-indigo-100" : "text-indigo-900"}
+    `}>
+      Experience the perfect blend of productivity and financial intelligence, crafted for the modern professional.
+    </p>
+
+    <div className="space-y-8">
+      <button
+        className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-purple-700 hover:to-blue-700
+          text-white px-14 py-5 font-bold text-lg tracking-wider uppercase transition-all duration-500 shadow-2xl
+          hover:shadow-indigo-400/25 hover:scale-105 border border-indigo-500 inline-flex items-center gap-3 group relative overflow-hidden
+        `}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <Users className="w-6 h-6 group-hover:scale-110 transition-transform duration-300 relative z-10" />
+        <span className="relative z-10">Begin Your Journey</span>
+      </button>
+      {/* <div className="text-sm text-indigo-500 font-medium italic">
+        Launching Soon • Early Access Available • Premium Experience Awaits
+      </div> */}
+    </div>
+  </div>
+</section>
+      
     </div>
   );
 };
 
 export default Home;
-
-
-
-
 
