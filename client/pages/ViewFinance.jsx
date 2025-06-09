@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import baseUrl from '../api/api';
 import 'animate.css'; // Ensure animate.css is imported
 import { useTheme } from '../src/theme/ThemeProvider'; // Adjust path if necessary
+import { FaPaperclip } from 'react-icons/fa';
 
 // Import Lucide React Icons
 import { ArrowLeft, Loader2, AlertTriangle, CheckCircle, Moon, Sun, Calendar, Tag, Info, List, DollarSign, Wallet, Repeat, User2, Clock } from 'lucide-react';
@@ -254,6 +255,29 @@ const ViewFinance = () => {
                 </span>
               </div>
             </div>
+
+            {/* Note and Attachment (New Section) */}
+            {financeData.note && (
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-1">Note</h3>
+                <p className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">{financeData.note}</p>
+              </div>
+            )}
+
+            {financeData.attachment && (
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mb-1">Attachment</h3>
+                <a
+                  href={URL.createObjectURL(financeData.attachment)}
+                  download={financeData.attachment.name}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-semibold"
+                >
+                  <FaPaperclip className="mr-2" /> {financeData.attachment.name}
+                </a>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="pt-8 flex justify-end">

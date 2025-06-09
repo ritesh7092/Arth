@@ -6,7 +6,7 @@ import TodoDashboard from '../pages/TodoDashboard';
 import FinanceDashboard from '../pages/FinanceDashboard';
 import Footer from '../components/Footer';
 import MainLayout from '../components/MainLayout'; // adjust the path as needed
-import DetailedReport from '../pages/DetailedReport';
+import DetailedReport from '../pages/Transactions';
 import AddFinance from '../pages/AddFinance';
 import EditFinance from '../pages/EditFinancePage';
 import AddTodo from '../pages/AddTodo';
@@ -19,6 +19,7 @@ import AboutPage from '../pages/About';
 import Chatbot from '../pages/Chatbot';
 import Dashboard from '../pages/Dashboard';
 import { ThemeProvider } from '../src/theme/ThemeProvider'; // adjust the path as needed
+import Transactions from '../pages/Transactions';
 // import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -156,8 +157,8 @@ function App() {
         <Route
           path="/finance/report"
           element={
-            <MainLayout heading="Detailed Report">
-              <DetailedReport/>
+            <MainLayout heading="Transaction Analytics">
+              <Transactions/>
             </MainLayout>
           }
         />
