@@ -324,9 +324,9 @@ export default function FinanceDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Pagination
+  // --- Pagination & Limiting Logic (like TodoDashboard) ---
   const [currentPage, setCurrentPage] = useState(1);
-  const transactionsPerPage = 10;
+  const transactionsPerPage = 10; // You can adjust this as needed
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -396,9 +396,10 @@ export default function FinanceDashboard() {
   const totalExpense = transactions.filter(t => t.type === 'Expense').reduce((s, t) => s + t.amount, 0);
   const netBalance = totalIncome - totalExpense;
 
-  // Apply filters
+  // --- Filtering and Sorting ---
   const filteredTransactions = transactions
     .filter(t => {
+      // ...your filtering logic...
       const d = new Date(t.date);
       const amt = t.amount;
       const matchesSearch = !searchQuery ||
@@ -415,15 +416,25 @@ export default function FinanceDashboard() {
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
-  const startIndex = (currentPage - 1) * transactionsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + transactionsPerPage);
-
+  // --- Limiting Logic (like TodoDashboard) ---
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, filterType, filterCategory, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+  const indexOfLast = currentPage * transactionsPerPage;
+  const indexOfFirst = indexOfLast - transactionsPerPage;
+  const currentTransactions = filteredTransactions.slice(indexOfFirst, indexOfLast);
+
+  // Pagination handlers
+  const goNext = () => {
+    if (currentPage < totalPages) setCurrentPage((p) => p + 1);
+  };
+  const goPrev = () => {
+    if (currentPage > 1) setCurrentPage((p) => p - 1);
+  };
 
   const clearAllFilters = () => {
     setSearchQuery('');
@@ -749,7 +760,7 @@ export default function FinanceDashboard() {
 
           {/* Transaction List */}
           <div className="space-y-3 sm:space-y-4">
-            {paginatedTransactions.length === 0 ? (
+            {currentTransactions.length === 0 ? (
               <div className="text-center py-10 sm:py-16">
                 <Search className={`w-12 h-12 sm:w-16 sm:h-16 ${themeClasses.textSecondary} mx-auto mb-4 opacity-50`} />
                 <p className={`${themeClasses.textSecondary} text-base sm:text-lg font-medium mb-2`}>
@@ -768,7 +779,7 @@ export default function FinanceDashboard() {
             ) : (
               <>
                 {/* Transaction Cards */}
-                {paginatedTransactions.map((transaction) => (
+                {currentTransactions.map((transaction) => (
                   <TransactionCard
                     key={transaction.id}
                     transaction={transaction}
@@ -779,18 +790,33 @@ export default function FinanceDashboard() {
                   />
                 ))}
 
-                {/* Pagination */}
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                  themeClasses={themeClasses}
-                />
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className={`flex justify-between items-center mt-6 pt-6 border-t ${themeClasses.border}`}>
+                    <button
+                      onClick={goPrev}
+                      disabled={currentPage === 1}
+                      className={`px-4 py-2 rounded-lg font-medium transition ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      Previous
+                    </button>
+                    <span className={`${themeClasses.textSecondary}`}>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={goNext}
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
 
                 {/* Results Summary */}
                 <div className={`text-center pt-4 border-t ${themeClasses.border}`}>
                   <p className={`${themeClasses.textSecondary} text-sm`}>
-                    Showing {startIndex + 1} to {Math.min(startIndex + transactionsPerPage, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                    Showing {indexOfFirst + 1} to {Math.min(indexOfLast, filteredTransactions.length)} of {filteredTransactions.length} transactions
                   </p>
                 </div>
               </>
@@ -801,6 +827,7 @@ export default function FinanceDashboard() {
     </div>
   );
 }
+
 
 
 

@@ -6,8 +6,11 @@ import {
   Layers, Infinity, Database, BarChart3, MessageSquare,
   Lightbulb, Palette, Code, Heart
 } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
+  const navigate = useNavigate();
+
   // Enhanced theme management with system preference detection
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -66,53 +69,49 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Enhanced theme-aware color system with improved light mode readability and pleasant colors
+  // Pleasant, charming, and highly readable light mode color palette
   const themeClasses = {
     // Backgrounds
     bg: isDarkMode
       ? 'bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950'
-      : 'bg-gradient-to-br from-blue-100 via-indigo-50 to-pink-50',
+      : 'bg-gradient-to-br from-[#f7fafc] via-[#e3e8ee] to-[#fdf6f0]', // Soft, warm, and neutral
 
     bgSecondary: isDarkMode
       ? 'bg-slate-800/60 backdrop-blur-xl border-slate-700/40'
-      : 'bg-white/95 backdrop-blur-xl border-slate-200/30',
+      : 'bg-white/95 backdrop-blur-xl border-[#e3e8ee]/60',
 
     bgGlass: isDarkMode
       ? 'bg-slate-800/20 backdrop-blur-2xl border-slate-600/20'
-      : 'bg-white/80 backdrop-blur-2xl border-slate-200/30',
+      : 'bg-white/90 backdrop-blur-2xl border-[#e3e8ee]/40',
 
     // Text colors
-    textPrimary: isDarkMode ? 'text-slate-100' : 'text-indigo-900',
-    textSecondary: isDarkMode ? 'text-slate-300' : 'text-indigo-600',
-    textMuted: isDarkMode ? 'text-slate-400' : 'text-indigo-500',
+    textPrimary: isDarkMode ? 'text-slate-100' : 'text-[#232946]', // deep blue
+    textSecondary: isDarkMode ? 'text-slate-300' : 'text-[#3b3b4f]', // dark gray-blue
+    textMuted: isDarkMode ? 'text-slate-400' : 'text-[#7b8194]', // soft gray-blue
 
     // Gradients for headings and accents
-    gradientPrimary: isDarkMode
-      ? 'bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400'
-      : 'bg-gradient-to-r from-indigo-500 via-purple-400 to-pink-400',
-
-    gradientSecondary: isDarkMode
-      ? 'bg-gradient-to-r from-cyan-400 to-blue-500'
-      : 'bg-gradient-to-r from-cyan-400 to-blue-500',
-
-    gradientAccent: isDarkMode
-      ? 'bg-gradient-to-r from-orange-400 to-rose-500'
-      : 'bg-gradient-to-r from-orange-400 to-pink-400',
+    gradientText: isDarkMode
+      ? 'bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent'
+      : 'bg-gradient-to-r from-[#6a8cff] via-[#fcb69f] to-[#ffb6b9] bg-clip-text text-transparent', // Blue to peach to pink
 
     // Interactive elements
     buttonPrimary: isDarkMode
       ? 'bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white shadow-xl shadow-blue-500/30'
-      : 'bg-gradient-to-r from-indigo-500 to-pink-400 hover:from-indigo-600 hover:to-pink-500 text-white shadow-xl shadow-indigo-200/40',
+      : 'bg-gradient-to-r from-[#6a8cff] to-[#ffb6b9] hover:from-[#4f8cff] hover:to-[#fcb69f] text-white shadow-xl shadow-[#fcb69f]/20',
 
     buttonSecondary: isDarkMode
       ? 'bg-slate-700/50 hover:bg-slate-600/70 text-slate-200 border border-slate-500/30 shadow-lg shadow-slate-800/20'
-      : 'bg-white/95 hover:bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-lg shadow-indigo-100/30',
+      : 'bg-white/95 hover:bg-[#f7f7fa] text-[#232946] border border-[#e3e8ee] shadow-lg shadow-[#fcb69f]/10',
 
     // Theme toggle
     themeToggle: isDarkMode
       ? 'bg-slate-700/60 hover:bg-slate-600/80 text-amber-400 border border-slate-600/40'
-      : 'bg-white/90 hover:bg-indigo-100 text-indigo-500 border border-indigo-200 shadow-md',
+      : 'bg-white/90 hover:bg-[#f7f7fa] text-[#fcb69f] border border-[#e3e8ee] shadow-md',
   };
+
+  // Auth logic for top right
+  const authToken = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const loggedIn = isAuthenticated || !!authToken;
 
   const testimonials = [
     {
@@ -273,18 +272,23 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
 
   return (
     <div className={`min-h-screen font-sans antialiased transition-all duration-500 ${themeClasses.bg} relative overflow-x-hidden`}>
-      {/* Enhanced CSS Variables and Styles */}
       <style jsx>{`
-        .gradient-text {
-          background: ${isDarkMode 
-            ? 'linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #f472b6 100%)'
-            : 'linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%)'
-          };
+        .gradient-text, .feature-heading {
+          ${isDarkMode
+            ? "background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #f472b6 100%);"
+            : "background: linear-gradient(90deg, #3b82f6 0%, #6366f1 40%, #f472b6 100%);"
+          }
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          color: transparent;
         }
-
+        .feature-heading {
+          font-weight: 800;
+          font-size: 1.5rem;
+          letter-spacing: -0.01em;
+        }
+        /* Enhanced CSS Variables and Styles */
         .hero-bg {
           background: ${isDarkMode 
             ? 'radial-gradient(ellipse at top, #1e1b4b 0%, #0f172a 50%, #000000 100%)'
@@ -295,25 +299,27 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
         .glass-card {
           background: ${isDarkMode 
             ? 'rgba(30, 41, 59, 0.4)'
-            : 'rgba(255, 255, 255, 0.9)'
+            : 'rgba(255,255,255,0.85)'
           };
           backdrop-filter: blur(24px);
           border: 1px solid ${isDarkMode 
             ? 'rgba(148, 163, 184, 0.2)'
-            : 'rgba(148, 163, 184, 0.3)'
+            : 'rgba(220, 220, 245, 0.5)'
           };
+          box-shadow: 0 8px 32px 0 rgba(60,60,120,0.06);
         }
 
         .glass-card-strong {
           background: ${isDarkMode 
             ? 'rgba(30, 41, 59, 0.7)'
-            : 'rgba(255, 255, 255, 0.95)'
+            : 'rgba(255,255,255,0.97)'
           };
           backdrop-filter: blur(40px);
           border: 1px solid ${isDarkMode 
             ? 'rgba(148, 163, 184, 0.3)'
-            : 'rgba(148, 163, 184, 0.4)'
+            : 'rgba(220, 220, 245, 0.7)'
           };
+          box-shadow: 0 8px 32px 0 rgba(60,60,120,0.08);
         }
 
         .feature-glow-blue:hover {
@@ -448,7 +454,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
       {/* Cursor Glow Effect */}
       <div className="cursor-glow"></div>
 
-      {/* Enhanced Navigation */}
+      {/* Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrollY > 50 
           ? `${themeClasses.bgSecondary} navbar-blur shadow-2xl border-b` 
@@ -456,7 +462,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            {/* Enhanced Logo */}
+            {/* Logo */}
             <div className="flex items-center">
               <a href="#" className="flex items-center space-x-4 group">
                 <div className="relative">
@@ -480,24 +486,16 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
                     Features
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300"></span>
                   </a>
-                  <a href="#testimonials" className={`${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold text-sm tracking-wide relative group`}>
-                    Reviews
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300"></span>
-                  </a>
-                  <a href="#pricing" className={`${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold text-sm tracking-wide relative group`}>
-                    Pricing
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 group-hover:w-full transition-all duration-300"></span>
-                  </a>
+                  {/* <a href="#testimonials" ...>Reviews</a> */}
                 </div>
-
                 <div className="flex items-center space-x-4">
-                  {!isAuthenticated ? (
+                  {!loggedIn ? (
                     <>
-                      <a href="#" className={`${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold text-sm tracking-wide`}>
-                        Login
+                      <a href="/register" className={`${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold text-sm tracking-wide`}>
+                        Register
                       </a>
-                      <a href="#" className={`${themeClasses.buttonPrimary} px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 hover:scale-105`}>
-                        Get Started
+                      <a href="/login" className={`${themeClasses.buttonPrimary} px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 hover:scale-105`}>
+                        Login
                       </a>
                     </>
                   ) : (
@@ -508,8 +506,6 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
                       Logout
                     </button>
                   )}
-                  
-                  {/* Enhanced Theme Toggle */}
                   <button
                     onClick={toggleTheme}
                     className={`w-12 h-12 ${themeClasses.themeToggle} rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${isDarkMode ? 'focus:ring-offset-slate-900' : 'focus:ring-offset-white'}`}
@@ -543,17 +539,15 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
           </div>
         </div>
 
-        {/* Enhanced Mobile Navigation */}
+        {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className={`md:hidden ${themeClasses.bgSecondary} navbar-blur border-t shadow-xl`}>
             <div className="px-4 pt-4 pb-6 space-y-3">
               <a href="#features" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Features</a>
-              <a href="#testimonials" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Reviews</a>
-              <a href="#pricing" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Pricing</a>
-              {!isAuthenticated ? (
+              {!loggedIn ? (
                 <>
-                  <a href="#" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Login</a>
-                  <a href="#" className={`block px-4 py-3 ${themeClasses.buttonPrimary} text-white font-semibold rounded-lg text-center mt-4`}>Get Started</a>
+                  <a href="/register" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Register</a>
+                  <a href="/login" className={`block px-4 py-3 ${themeClasses.buttonPrimary} text-white font-semibold rounded-lg text-center mt-4`}>Login</a>
                 </>
               ) : (
                 <button onClick={handleLogout} className={`block w-full text-left px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>
@@ -565,7 +559,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
         )}
       </nav>
 
-      {/* Enhanced Hero Section */}
+      {/* Hero Section */}
       <section className="hero-bg min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -609,20 +603,13 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
             Arth is your all-in-one platform for mastering productivity, personal finance, and AI-powered insights. Built for students, professionals, and teams who want to achieve more with less effort—securely, beautifully, and intelligently.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <a
-              href="#features"
+            <button
+              onClick={() => navigate('/dashboard')}
               className={`${themeClasses.buttonPrimary} px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2`}
             >
               <ArrowRight className="w-5 h-5" />
               Get Started Free
-            </a>
-            <a
-              href="#pricing"
-              className={`${themeClasses.buttonSecondary} px-8 py-4 rounded-full font-bold text-lg shadow-md hover:scale-105 transition-all duration-300 flex items-center gap-2`}
-            >
-              <Play className="w-5 h-5" />
-              See Pricing
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -664,7 +651,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
       {/* Features Section */}
       <section id="features" className="w-full py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-center mb-6 gradient-text">Revolutionary Features</h2>
+          <h2 className="feature-heading text-center mb-6 gradient-text">Revolutionary Features</h2>
           <p className={`text-lg md:text-xl ${themeClasses.textSecondary} text-center mb-14 max-w-2xl mx-auto`}>
             Built for the next generation of achievers. Arth unifies productivity, finance, and intelligence—empowering you to master your goals, money, and growth in one seamless platform.
           </p>
@@ -674,7 +661,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
               <div className="w-14 h-14 mb-4 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
                 <Zap size={32} />
               </div>
-              <h3 className="text-xl font-bold mb-2 gradient-text">Unified Productivity & Task Intelligence</h3>
+              <h3 className="feature-heading gradient-text mb-2">Unified Productivity & Task Intelligence</h3>
               <p className={`mb-4 ${themeClasses.textSecondary}`}>
                 Organize, prioritize, and automate your daily tasks with AI-powered Kanban boards, smart reminders, and deep analytics—so you can focus on what matters most.
               </p>
@@ -689,7 +676,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
               <div className="w-14 h-14 mb-4 rounded-full flex items-center justify-center bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg">
                 <TrendingUp size={32} />
               </div>
-              <h3 className="text-xl font-bold mb-2 gradient-text">Personal Finance Command Center</h3>
+              <h3 className="feature-heading gradient-text mb-2">Personal Finance Command Center</h3>
               <p className={`mb-4 ${themeClasses.textSecondary}`}>
                 Track expenses, manage budgets, analyze spending, and forecast your financial future with real-time insights and automation—no spreadsheets required.
               </p>
@@ -704,7 +691,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
               <div className="w-14 h-14 mb-4 rounded-full flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-500 shadow-lg">
                 <Brain size={32} />
               </div>
-              <h3 className="text-xl font-bold mb-2 gradient-text">AI-Powered Personal Assistant</h3>
+              <h3 className="feature-heading gradient-text mb-2">AI-Powered Personal Assistant</h3>
               <p className={`mb-4 ${themeClasses.textSecondary}`}>
                 Get personalized insights, reminders, and recommendations. Arth’s AI learns your habits and helps you optimize your time, money, and growth—automatically.
               </p>
@@ -719,7 +706,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
               <div className="w-14 h-14 mb-4 rounded-full flex items-center justify-center bg-gradient-to-br from-violet-500 to-purple-700 shadow-lg">
                 <Shield size={32} />
               </div>
-              <h3 className="text-xl font-bold mb-2 gradient-text">Secure Data & Privacy First</h3>
+              <h3 className="feature-heading gradient-text mb-2">Secure Data & Privacy First</h3>
               <p className={`mb-4 ${themeClasses.textSecondary}`}>
                 Your data is encrypted, private, and never sold. Arth uses enterprise-grade security and gives you full control—always.
               </p>
@@ -734,7 +721,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
               <div className="w-14 h-14 mb-4 rounded-full flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
                 <BarChart3 size={32} />
               </div>
-              <h3 className="text-xl font-bold mb-2 gradient-text">Growth Analytics & Insights</h3>
+              <h3 className="feature-heading gradient-text mb-2">Growth Analytics & Insights</h3>
               <p className={`mb-4 ${themeClasses.textSecondary}`}>
                 Visualize your progress with beautiful dashboards. Get actionable analytics on your habits, finances, and productivity—see your growth, not just your data.
               </p>
@@ -749,7 +736,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
               <div className="w-14 h-14 mb-4 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 shadow-lg">
                 <Layers size={32} />
               </div>
-              <h3 className="text-xl font-bold mb-2 gradient-text">Seamless Integration & Automation</h3>
+              <h3 className="feature-heading gradient-text mb-2">Seamless Integration & Automation</h3>
               <p className={`mb-4 ${themeClasses.textSecondary}`}>
                 Connect your favorite tools, automate workflows, and sync data across devices. Arth adapts to your ecosystem—no friction, just flow.
               </p>
@@ -810,7 +797,6 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
 };
 
 export default Home;
-
 
 
 

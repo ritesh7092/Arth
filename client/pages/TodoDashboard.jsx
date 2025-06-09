@@ -30,6 +30,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import baseUrl from '../api/api';
+import { useTheme } from '../src/theme/ThemeProvider'; // <-- Add this import
 
 // --- TaskCard Component (Previously Missing) ---
 // This component renders individual task cards for the Kanban-style priority board.
@@ -87,13 +88,16 @@ const TaskCard = ({ task, onMarkDone, onDelete, actionLoading, themeClasses }) =
 
 
 const TodoDashboard = () => {
+  // THEME: use shared provider
+  const { theme, toggleTheme } = useTheme();
+  const isDarkMode = theme === 'dark';
+
   // State management
   const [allTasks, setAllTasks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const tasksPerPage = 6;
 
@@ -513,8 +517,9 @@ const TodoDashboard = () => {
             
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
+                onClick={toggleTheme}
                 className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-200"
+                title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
               >
                 {isDarkMode ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}
               </button>
