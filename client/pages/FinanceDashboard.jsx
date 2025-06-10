@@ -594,12 +594,14 @@ export default function FinanceDashboard() {
   useEffect(() => {
     if (loading) {
       document.body.classList.add('arth-bg-loading');
+      document.documentElement.classList.add('arth-bg-loading');
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overscrollBehavior = 'none';
       document.documentElement.style.overscrollBehavior = 'none';
     } else {
       document.body.classList.remove('arth-bg-loading');
+      document.documentElement.classList.remove('arth-bg-loading');
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
       document.body.style.overscrollBehavior = '';
@@ -608,6 +610,7 @@ export default function FinanceDashboard() {
     // Clean up on unmount
     return () => {
       document.body.classList.remove('arth-bg-loading');
+      document.documentElement.classList.remove('arth-bg-loading');
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
       document.body.style.overscrollBehavior = '';
@@ -615,9 +618,10 @@ export default function FinanceDashboard() {
     };
   }, [loading]);
 
+
   if (loading) {
     return (
-      <div className={`fixed inset-0 z-50 flex items-center justify-center min-h-screen ${themeClasses.bg}`}>
+      <div className={`fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900 ${themeClasses.bg}`}>
         <div className="text-center">
           <div className="relative mb-4">
             <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
@@ -628,6 +632,7 @@ export default function FinanceDashboard() {
       </div>
     );
   }
+
 
   if (error) {
     return (
@@ -950,3 +955,4 @@ if (typeof window !== "undefined" && !document.getElementById('arth-bg-loading-s
   `;
   document.head.appendChild(style);
 }
+

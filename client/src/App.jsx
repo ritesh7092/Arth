@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './Home';
 import TodoDashboard from '../pages/TodoDashboard';
@@ -24,6 +24,11 @@ import Transactions from '../pages/Transactions';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+  }, []);
 
   const handleLogout = () => {
     // remove token, call logout API, etc.
