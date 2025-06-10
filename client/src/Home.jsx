@@ -768,101 +768,249 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
         </div>
       </section>
 
-      {/* Testimonials Section (commented out for now) */}
-      {/*
-      <section id="testimonials" className="w-full py-16 md:py-24 bg-transparent">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-extrabold gradient-text mb-8">What Our Users Say</h2>
-          <div className="relative">
-            <div className="glass-card-strong p-10 rounded-3xl shadow-2xl border flex flex-col items-center transition-all duration-500 testimonial-enter">
-              <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${testimonials[currentTestimonial].gradient} flex items-center justify-center text-white text-2xl font-bold mb-4`}>
-                {testimonials[currentTestimonial].avatar}
-              </div>
-              <div className="flex mb-2">
-                {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-400" />
-                ))}
-              </div>
-              <p className={`text-lg md:text-xl font-medium mb-4 ${themeClasses.textPrimary}`}>
-                "{testimonials[currentTestimonial].content}"
-              </p>
-              <div className="font-bold gradient-text">{testimonials[currentTestimonial].name}</div>
-              <div className={`text-xs ${themeClasses.textMuted}`}>{testimonials[currentTestimonial].role}</div>
-            </div>
-          </div>
+
+
+     
+      {/* Features Gallery Section (Animated Screenshots Carousel) */}
+      <section id="features-gallery" className="py-20 md:py-32">
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold gradient-text mb-12">
+            See Arth in Action
+          </h2>
+          <FeaturesCarousel />
         </div>
       </section>
-      */}
 
-      {/* Call to Action Section */}
-      {/* <section className="w-full py-16 md:py-24 text-center">
-        <div className="max-w-3xl mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-extrabold gradient-text mb-6">Ready to Transform Your Productivity?</h2>
+
+
+       {/* Testimonials Section */}
+      {/* <section id="testimonials" className="py-20 md:py-32">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold gradient-text mb-12">
+            What Our Users Say
+          </h2>
+          
+          <div className="relative mb-8">
+            <div className="glass-card p-10 rounded-3xl border transition-all duration-500">
+              <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${testimonials[currentTestimonial].gradient} flex items-center justify-center text-white text-2xl font-bold mb-6 mx-auto`}>
+                {testimonials[currentTestimonial].avatar}
+              </div>
+              
+              <div className="flex justify-center mb-4">
+                {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                ))}
+              </div>
+              
+              <p className={`text-xl font-medium mb-6 ${themeClasses.textPrimary} italic`}>
+                "{testimonials[currentTestimonial].content}"
+              </p>
+              
+              <div className="gradient-text font-bold text-lg">
+                {testimonials[currentTestimonial].name}
+              </div>
+              <div className={`${themeClasses.textMuted} text-sm mt-1`}>
+                {testimonials[currentTestimonial].role}
+              </div>
+            </div>
+          </div>
+
+        
+          <div className="flex justify-center space-x-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentTestimonial(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentTestimonial 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                    : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </section> */}
+
+      {/* CTA Section */}
+      <section className="py-20 md:py-32">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="glass-card p-12 rounded-3xl border">
+             <h2 className="text-4xl md:text-5xl font-extrabold gradient-text mb-6">Ready to Transform Your Productivity?</h2>
           <p className={`text-lg md:text-xl ${themeClasses.textSecondary} mb-10`}>
-            Join thousands of professionals, students, and teams who trust Arth to power their productivity and financial growth.
+            Experince the perfect blend of productivity and financial intelligence, crafted for the modern professional.
+             <span className="gradient-text font-bold"> Start your journey with Arth today!</span>
           </p>
           <a
             href="#"
             className={`${themeClasses.buttonPrimary} px-10 py-5 rounded-full font-bold text-lg shadow-xl hover:scale-105 transition-all duration-300 inline-flex items-center gap-2`}
           >
             <Users className="w-6 h-6" />
-            Start Free Trial
+            Register
           </a>
+          </div>
         </div>
-      </section> */}
-      <section
-  className={`w-full py-20 md:py-32 border-t-4 transition-colors duration-500
-    ${isDarkMode
-      ? "bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 border-indigo-700"
-      : "bg-gradient-to-br from-[#f7fafc] via-[#e0e7ff] to-[#fdf6f0] border-indigo-400"
-    }`
-  }
->
-  <div className="max-w-4xl mx-auto px-6 text-center">
-    <div className="mb-12">
-      <h2 className={`text-5xl md:text-6xl font-serif font-extrabold mb-6 leading-tight drop-shadow-sm
-        ${isDarkMode ? "text-indigo-200" : "text-indigo-700"}
-      `}>
-        Ready to Transform Your{" "}
-        <span className={`italic underline decoration-indigo-400 decoration-2 underline-offset-4
-          ${isDarkMode ? "text-indigo-300" : "text-indigo-600"}
-        `}>
-          Productivity
-        </span>
-        ?
-      </h2>
-      <div className="flex justify-center mb-8">
-        <div className={`w-32 h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent`}></div>
-      </div>
-    </div>
-
-    <p className={`text-xl md:text-2xl mb-14 leading-relaxed font-light max-w-2xl mx-auto
-      ${isDarkMode ? "text-indigo-100" : "text-indigo-900"}
-    `}>
-      Experience the perfect blend of productivity and financial intelligence, crafted for the modern professional.
-    </p>
-
-    <div className="space-y-8">
-      <button
-        className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-purple-700 hover:to-blue-700
-          text-white px-14 py-5 font-bold text-lg tracking-wider uppercase transition-all duration-500 shadow-2xl
-          hover:shadow-indigo-400/25 hover:scale-105 border border-indigo-500 inline-flex items-center gap-3 group relative overflow-hidden
-        `}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <Users className="w-6 h-6 group-hover:scale-110 transition-transform duration-300 relative z-10" />
-        <span className="relative z-10">Begin Your Journey</span>
-      </button>
-      {/* <div className="text-sm text-indigo-500 font-medium italic">
-        Launching Soon • Early Access Available • Premium Experience Awaits
-      </div> */}
-    </div>
-  </div>
-</section>
+      </section>
       
     </div>
   );
 };
+
+function FeaturesCarousel() {
+  const gallery = [
+    {
+      src: "/gallery/profile.png",
+      title: "Personalized Profile",
+      desc: "Manage your identity, preferences, and see your achievements at a glance."
+    },
+    {
+      src: "/gallery/TaskManagementDashboard.png",
+      title: "Task Management Dashboard",
+      desc: "Track all your tasks, deadlines, and priorities in one powerful dashboard."
+    },
+    {
+      src: "/gallery/TaskManagementKanbanBoard.png",
+      title: "Kanban Board",
+      desc: "Visualize and organize your workflow with an intuitive drag-and-drop Kanban board."
+    },
+    {
+      src: "/gallery/CraftNewTask.png",
+      title: "Craft New Task",
+      desc: "Quickly create and customize tasks with smart suggestions and reminders."
+    },
+    {
+      src: "/gallery/AddFinanceRecord.png",
+      title: "Add Finance Record",
+      desc: "Easily log expenses, income, and transactions for complete financial clarity."
+    },
+    {
+      src: "/gallery/financedashboard.png",
+      title: "Finance Dashboard",
+      desc: "Monitor your budgets, balances, and spending trends with real-time analytics."
+    },
+    {
+      src: "/gallery/TransactionanalyticsReportGraphs.png",
+      title: "Analytics & Reports",
+      desc: "Gain insights from interactive graphs and reports on your financial activity."
+    },
+    {
+      src: "/gallery/TransactionDetailsBorad.png",
+      title: "Transaction Details Board",
+      desc: "Drill down into every transaction for transparency and control."
+    },
+    {
+      src: "/gallery/homepage.png",
+      title: "Welcome Home",
+      desc: "A beautiful, unified entry point to all your productivity and finance tools."
+    }
+  ];
+
+  const [current, setCurrent] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const pauseTimeout = React.useRef();
+
+  // Auto-advance every 3.5s, but resume after 10s if paused
+  React.useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % gallery.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [gallery.length, current, paused]);
+
+  // Helper to pause and then resume auto-advance after 10s
+  const pauseAndResume = () => {
+    setPaused(true);
+    if (pauseTimeout.current) clearTimeout(pauseTimeout.current);
+    pauseTimeout.current = setTimeout(() => setPaused(false), 10000);
+  };
+
+  // Handlers for left/right navigation
+  const goLeft = () => {
+    pauseAndResume();
+    setCurrent((prev) => (prev - 1 + gallery.length) % gallery.length);
+  };
+  const goRight = () => {
+    pauseAndResume();
+    setCurrent((prev) => (prev + 1) % gallery.length);
+  };
+  // Handler for dot navigation
+  const goTo = (idx) => {
+    pauseAndResume();
+    setCurrent(idx);
+  };
+
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (pauseTimeout.current) clearTimeout(pauseTimeout.current);
+    };
+  }, []);
+
+  return (
+    <div className="relative flex flex-col items-center">
+      <div className="relative w-full max-w-2xl mx-auto">
+        {/* Left Arrow */}
+        <button
+          onClick={goLeft}
+          aria-label="Previous Feature"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-slate-800/80 hover:bg-blue-100 dark:hover:bg-blue-900/80 border border-slate-200 dark:border-slate-700 shadow-lg rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200"
+          style={{ marginLeft: '-1.5rem' }}
+        >
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-500" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        {/* Card */}
+        <div className="glass-card p-6 rounded-3xl border shadow-2xl flex flex-col items-center transition-all duration-700 bg-white/80 dark:bg-slate-900/70">
+          <img
+            src={gallery[current].src}
+            alt={gallery[current].title}
+            className="rounded-2xl mb-6 shadow-lg object-cover w-full h-72 transition-all duration-700 border border-slate-200 dark:border-slate-700"
+            style={{ objectFit: "cover" }}
+          />
+          <div className="font-bold text-2xl gradient-text mb-2">{gallery[current].title}</div>
+          <p className="text-base text-slate-600 dark:text-slate-300 mb-2">{gallery[current].desc}</p>
+        </div>
+        {/* Right Arrow */}
+        <button
+          onClick={goRight}
+          aria-label="Next Feature"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-slate-800/80 hover:bg-pink-100 dark:hover:bg-pink-900/80 border border-slate-200 dark:border-slate-700 shadow-lg rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200"
+          style={{ marginRight: '-1.5rem' }}
+        >
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" className="text-pink-500" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      {/* Dots */}
+      <div className="flex justify-center mt-6 flex-wrap gap-2">
+        {gallery.map((item, idx) => (
+          <button
+            key={idx}
+            onClick={() => goTo(idx)}
+            aria-label={`Show ${item.title}`}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              idx === current
+                ? "bg-gradient-to-r from-blue-400 to-pink-400"
+                : "bg-gray-300 dark:bg-gray-600"
+            }`}
+          />
+        ))}
+      </div>
+      {/* Feature quick-jump dropdown (optional, for accessibility) */}
+      <div className="mt-4">
+        <select
+          value={current}
+          onChange={e => goTo(Number(e.target.value))}
+          className="rounded-lg border px-3 py-1 text-sm shadow bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+          aria-label="Jump to feature"
+        >
+          {gallery.map((item, idx) => (
+            <option key={item.title} value={idx}>{item.title}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
 
 export default Home;
 
