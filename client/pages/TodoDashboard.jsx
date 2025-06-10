@@ -463,10 +463,33 @@ const TodoDashboard = () => {
     fetchTasks();
   }, [fetchTasks]);
 
+  useEffect(() => {
+    if (loading) {
+      document.body.classList.add('arth-bg-loading');
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overscrollBehavior = 'none';
+      document.documentElement.style.overscrollBehavior = 'none';
+    } else {
+      document.body.classList.remove('arth-bg-loading');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.overscrollBehavior = '';
+      document.documentElement.style.overscrollBehavior = '';
+    }
+    return () => {
+      document.body.classList.remove('arth-bg-loading');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.overscrollBehavior = '';
+      document.documentElement.style.overscrollBehavior = '';
+    };
+  }, [loading]);
+
   // Loading state
   if (loading) {
     return (
-      <div className={`min-h-screen ${themeClasses.bg} flex items-center justify-center`}>
+      <div className={`fixed inset-0 z-50 flex items-center justify-center min-h-screen ${themeClasses.bg}`}>
         <div className="text-center">
           <div className="relative">
             <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
@@ -878,3 +901,4 @@ const TodoDashboard = () => {
 };
 
 export default TodoDashboard;
+
