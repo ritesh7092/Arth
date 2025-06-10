@@ -9,11 +9,13 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { FaCalendarAlt, FaFilter, FaDownload, FaSun, FaMoon, FaFileCsv, FaPaperclip, FaStickyNote } from "react-icons/fa";
+import {
+  FaCalendarAlt, FaFilter, FaDownload, FaSun, FaMoon, FaFileCsv, FaPaperclip, FaStickyNote
+} from "react-icons/fa";
 import "./print.css";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useNavigate } from "react-router-dom"; // Add this import if using react-router
+import { useNavigate } from "react-router-dom";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
@@ -27,6 +29,7 @@ const categoriesList = [
 ];
 
 const Transactions = () => {
+  // --- Theme ---
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined' && localStorage.getItem('theme')) {
       return localStorage.getItem('theme');
@@ -47,11 +50,9 @@ const Transactions = () => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
+  const toggleTheme = () => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
 
-  // --- Transaction Notes/Attachments ---
+  // --- Transactions State ---
   const [transactions, setTransactions] = useState([
     { id: 1, transactionDate: "2025-02-01", description: "Salary for February", category: "Salary", transactionType: "Credit", amount: 50000, paymentMethod: "Bank Transfer", counterparty: "Employer Inc.", note: "", attachment: null },
     { id: 2, transactionDate: "2025-01-05", description: "Grocery Shopping", category: "Food", transactionType: "Debit", amount: 3000, paymentMethod: "Credit Card", counterparty: "Supermarket", note: "", attachment: null },
@@ -64,28 +65,30 @@ const Transactions = () => {
     { id: 9, transactionDate: "2025-03-20", description: "Another Lent to Friend", category: "Lent", transactionType: "Debit", amount: 5000, paymentMethod: "Cash", counterparty: "Friend", note: "", attachment: null },
   ]);
 
-  // --- Advanced Filtering States ---
+  // --- Filtering States ---
   const [filterYear, setFilterYear] = useState("2025");
   const [filterMonth, setFilterMonth] = useState("");
   const [filterMinAmount, setFilterMinAmount] = useState("");
   const [filterMaxAmount, setFilterMaxAmount] = useState("");
-  const [filterCategories, setFilterCategories] = useState([]); // Multi-select
+  const [filterCategories, setFilterCategories] = useState([]);
   const [filterPaymentMethod, setFilterPaymentMethod] = useState("All");
 
-  // --- Notes/Attachments Modal ---
+  // --- Modal State ---
   const [modalTxn, setModalTxn] = useState(null);
   const [modalNote, setModalNote] = useState("");
   const [modalAttachment, setModalAttachment] = useState(null);
+  const [modalError, setModalError] = useState("");
 
   // --- Category Dropdown State ---
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
-  // --- Chart refs for exporting images
+  // --- Chart refs ---
   const barChartRef = useRef();
   const pieChartRef = useRef();
 
   // --- Filtering Logic ---
   const filteredData = transactions.filter((txn) => {
+    if (!txn.transactionDate) return false;
     const txnYear = txn.transactionDate.substring(0, 4);
     const txnMonth = txn.transactionDate.substring(5, 7);
     const matchesYear = txnYear === filterYear;
@@ -97,7 +100,7 @@ const Transactions = () => {
     return matchesYear && matchesMonth && matchesMin && matchesMax && matchesCategory && matchesPayment;
   });
 
-  // --- Chart Data (unchanged) ---
+  // --- Chart Data ---
   const getTotals = (data) => {
     return data.reduce((acc, txn) => {
       acc[txn.category] = (acc[txn.category] || 0) + txn.amount;
@@ -234,7 +237,6 @@ const Transactions = () => {
     const headers = ["Date", "Description", "Category", "Type", "Amount", "Payment Method", "Counterparty", "Note", "Attachment"];
     const rows = filteredData.map(txn =>
       [
-        // Wrap date in ="..." to force Excel to treat as text/date
         `="${txn.transactionDate}"`,
         txn.description,
         txn.category,
@@ -258,144 +260,21 @@ const Transactions = () => {
 
   // --- Print Logic: Force light theme and readable charts for print ---
   const handlePrint = async () => {
-    // Save current theme and chart options
     const prevTheme = theme;
-    const prevBarOptions = { ...chartOptions };
-    const prevPieOptions = { ...pieChartOptions };
-
-    // Force light theme for print
     setTheme('light');
     await new Promise(resolve => setTimeout(resolve, 200));
-
-    // Update chart options for print (dark text, white bg)
-    const printAxisColor = "#374151";
-    const printLegendColor = "#374151";
-    const printChartOptions = {
-      ...chartOptions,
-      plugins: {
-        ...chartOptions.plugins,
-        legend: {
-          ...chartOptions.plugins.legend,
-          labels: { ...chartOptions.plugins.legend.labels, color: printLegendColor }
-        }
-      },
-      scales: {
-        y: {
-          ...chartOptions.scales.y,
-          ticks: { ...chartOptions.scales.y.ticks, color: printAxisColor },
-          title: { ...chartOptions.scales.y.title, color: printAxisColor }
-        },
-        x: {
-          ...chartOptions.scales.x,
-          ticks: { ...chartOptions.scales.x.ticks, color: printAxisColor },
-          title: { ...chartOptions.scales.x.title, color: printAxisColor }
-        }
-      }
-    };
-    const printPieOptions = {
-      ...pieChartOptions,
-      plugins: {
-        ...pieChartOptions.plugins,
-        legend: {
-          ...pieChartOptions.plugins.legend,
-          labels: { ...pieChartOptions.plugins.legend.labels, color: printLegendColor }
-        }
-      }
-    };
-
-    // Force update the charts with print options
-    if (barChartRef.current) {
-      barChartRef.current.options = printChartOptions;
-      barChartRef.current.update();
-    }
-    if (pieChartRef.current) {
-      pieChartRef.current.options = printPieOptions;
-      pieChartRef.current.update();
-    }
-
-    // Wait for chart to update
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    // Print
     window.print();
-
-    // Restore previous theme and chart options
     setTheme(prevTheme);
-    if (barChartRef.current) {
-      barChartRef.current.options = prevBarOptions;
-      barChartRef.current.update();
-    }
-    if (pieChartRef.current) {
-      pieChartRef.current.options = prevPieOptions;
-      pieChartRef.current.update();
-    }
   };
 
   // --- Export PDF with charts, table, and branding ---
   const exportToPDF = async () => {
-    // 1. Save current theme and chart options
     const prevTheme = theme;
-    const prevBarOptions = { ...chartOptions };
-    const prevPieOptions = { ...pieChartOptions };
-
-    // 2. Force light theme for charts for export
     setTheme('light');
-    // Wait for React to re-render with new theme
     await new Promise(resolve => setTimeout(resolve, 200));
-
-    // 3. Update chart options for export (dark text, white bg)
-    const exportAxisColor = "#374151";
-    const exportLegendColor = "#374151";
-    const exportChartOptions = {
-      ...chartOptions,
-      plugins: {
-        ...chartOptions.plugins,
-        legend: {
-          ...chartOptions.plugins.legend,
-          labels: { ...chartOptions.plugins.legend.labels, color: exportLegendColor }
-        }
-      },
-      scales: {
-        y: {
-          ...chartOptions.scales.y,
-          ticks: { ...chartOptions.scales.y.ticks, color: exportAxisColor },
-          title: { ...chartOptions.scales.y.title, color: exportAxisColor }
-        },
-        x: {
-          ...chartOptions.scales.x,
-          ticks: { ...chartOptions.scales.x.ticks, color: exportAxisColor },
-          title: { ...chartOptions.scales.x.title, color: exportAxisColor }
-        }
-      }
-    };
-    const exportPieOptions = {
-      ...pieChartOptions,
-      plugins: {
-        ...pieChartOptions.plugins,
-        legend: {
-          ...pieChartOptions.plugins.legend,
-          labels: { ...pieChartOptions.plugins.legend.labels, color: exportLegendColor }
-        }
-      }
-    };
-
-    // 4. Force update the charts with export options
-    if (barChartRef.current) {
-      barChartRef.current.options = exportChartOptions;
-      barChartRef.current.update();
-    }
-    if (pieChartRef.current) {
-      pieChartRef.current.options = exportPieOptions;
-      pieChartRef.current.update();
-    }
-
-    // 5. Wait for chart to update
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    // 6. Generate PDF
     const doc = new jsPDF("p", "mm", "a4");
 
-    // --- Branding Section ---
+    // Branding
     doc.setFillColor(30, 64, 175);
     doc.rect(0, 0, 210, 30, "F");
     doc.setTextColor(255, 255, 255);
@@ -405,7 +284,6 @@ const Transactions = () => {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text("PRODUCTIVITY", 40, 13);
-    // doc.text("Features", 40, 19);
     doc.setFontSize(9);
     doc.text("World's #1 Productivity Platform", 140, 10, { align: "right", maxWidth: 60 });
     doc.setFontSize(13);
@@ -417,19 +295,19 @@ const Transactions = () => {
     doc.setFontSize(9);
     doc.text("Arth is your all-in-one platform for mastering productivity, personal finance, and AI-powered insights. Built for students, professionals, and teams who want to achieve more with less effort—securely, beautifully, and intelligently.", 14, 48, { maxWidth: 180 });
 
-    // --- CREDIT (BOLD & VISIBLE, moved below branding) ---
+    // CREDIT
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(30, 64, 175); // Strong blue for visibility
+    doc.setTextColor(30, 64, 175);
     doc.text("Designed, Developed and By Ritesh Raj Tiwari", 14, 60);
 
-    // --- Main Report Title ---
+    // Main Report Title
     doc.setTextColor(30, 64, 175);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.text("Transaction Analytics & Summary", 14, 70);
 
-    // --- Bar Chart ---
+    // Bar Chart
     const barChart = barChartRef.current;
     if (barChart && barChart.toBase64Image) {
       const barImg = barChart.toBase64Image();
@@ -439,7 +317,7 @@ const Transactions = () => {
       doc.addImage(barImg, "PNG", 14, 84, 180, 50);
     }
 
-    // --- Pie Chart ---
+    // Pie Chart
     const pieChart = pieChartRef.current;
     if (pieChart && pieChart.toBase64Image) {
       doc.setTextColor(30, 64, 175);
@@ -448,7 +326,7 @@ const Transactions = () => {
       doc.addImage(pieImg, "PNG", 14, 148, 80, 50);
     }
 
-    // --- Table ---
+    // Table
     doc.setFontSize(13);
     doc.setTextColor(30, 64, 175);
     doc.setFont("helvetica", "bold");
@@ -478,17 +356,7 @@ const Transactions = () => {
     });
 
     doc.save("transactions.pdf");
-
-    // 7. Restore previous theme and chart options
     setTheme(prevTheme);
-    if (barChartRef.current) {
-      barChartRef.current.options = prevBarOptions;
-      barChartRef.current.update();
-    }
-    if (pieChartRef.current) {
-      pieChartRef.current.options = prevPieOptions;
-      pieChartRef.current.update();
-    }
   };
 
   // --- Clear Filters ---
@@ -506,13 +374,19 @@ const Transactions = () => {
     setModalTxn(txn);
     setModalNote(txn.note || "");
     setModalAttachment(txn.attachment || null);
+    setModalError("");
   };
   const closeNoteModal = () => {
     setModalTxn(null);
     setModalNote("");
     setModalAttachment(null);
+    setModalError("");
   };
   const saveNoteAttachment = () => {
+    if (modalAttachment && modalAttachment.size > 5 * 1024 * 1024) {
+      setModalError("Attachment must be less than 5MB.");
+      return;
+    }
     setTransactions((prev) =>
       prev.map((t) =>
         t.id === modalTxn.id
@@ -533,13 +407,13 @@ const Transactions = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [categoryDropdownOpen]);
 
-  const navigate = useNavigate(); // Add this if not already present
+  const navigate = useNavigate();
 
   return (
     <div className={`min-h-screen ${themeClasses.bg} flex flex-col transition-colors duration-300`}>
-      <main className="container mx-auto py-8 px-4 flex-grow">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className={`text-4xl font-extrabold ${themeClasses.heading} transition-colors duration-300`}>
+      <main className="container mx-auto py-6 px-2 sm:px-4 flex-grow">
+        <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <h1 className={`text-3xl sm:text-4xl font-extrabold ${themeClasses.heading} transition-colors duration-300 text-center md:text-left`}>
             Transaction Analytics & Summary
           </h1>
           <div className="flex gap-2">
@@ -554,7 +428,6 @@ const Transactions = () => {
                 <FaMoon className="text-indigo-600 text-xl" />
               )}
             </button>
-            {/* --- Dashboard Redirect Button --- */}
             <button
               onClick={() => navigate("/finance/dashboard")}
               className="no-print ml-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow transition"
@@ -566,8 +439,8 @@ const Transactions = () => {
         </header>
 
         {/* --- Advanced Filtering Section --- */}
-        <div className={`flex flex-col md:flex-row justify-center items-center gap-4 mb-8 p-6 rounded-xl shadow-lg ${themeClasses.card} ${themeClasses.border} border`}>
-          <div className="w-full md:w-1/5">
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8 p-4 rounded-xl shadow-lg ${themeClasses.card} ${themeClasses.border} border`}>
+          <div>
             <label className={`block text-sm font-medium mb-1 flex items-center ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
               <FaCalendarAlt className="mr-2 text-blue-500" />
               Select Year
@@ -580,7 +453,7 @@ const Transactions = () => {
               placeholder="Year"
             />
           </div>
-          <div className="w-full md:w-1/5">
+          <div>
             <label className={`block text-sm font-medium mb-1 flex items-center ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
               <FaFilter className="mr-2 text-blue-500" />
               Select Month (optional)
@@ -593,7 +466,7 @@ const Transactions = () => {
               placeholder="Month"
             />
           </div>
-          <div className="w-full md:w-1/5">
+          <div>
             <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>Min Amount</label>
             <input
               type="number"
@@ -603,7 +476,7 @@ const Transactions = () => {
               placeholder="Min"
             />
           </div>
-          <div className="w-full md:w-1/5">
+          <div>
             <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>Max Amount</label>
             <input
               type="number"
@@ -613,7 +486,7 @@ const Transactions = () => {
               placeholder="Max"
             />
           </div>
-          <div className="w-full md:w-1/5 relative" id="category-dropdown">
+          <div className="relative" id="category-dropdown">
             <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>Categories</label>
             <button
               type="button"
@@ -659,7 +532,7 @@ const Transactions = () => {
               </div>
             )}
           </div>
-          <div className="w-full md:w-1/5">
+          <div>
             <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>Payment Method</label>
             <select
               value={filterPaymentMethod}
@@ -671,7 +544,7 @@ const Transactions = () => {
               ))}
             </select>
           </div>
-          <div className="w-full md:w-1/5 flex flex-col gap-2">
+          <div className="flex flex-col gap-2 col-span-1 xl:col-span-1">
             <label className="block text-sm font-medium mb-1 opacity-0 select-none">Actions</label>
             <button
               onClick={clearFilters}
@@ -683,7 +556,7 @@ const Transactions = () => {
           </div>
         </div>
 
-        {/* --- Charts with refs for export --- */}
+        {/* --- Charts --- */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className={`${themeClasses.card} p-6 rounded-xl shadow-lg transition-colors duration-300`}>
             <h2 className="text-xl font-bold mb-4 text-center">
@@ -703,11 +576,12 @@ const Transactions = () => {
           </div>
         </div>
 
-        <div className={`mt-8 p-6 rounded-xl shadow-lg ${themeClasses.card} transition-colors duration-300`}>
+        {/* --- Table --- */}
+        <div className={`mt-8 p-4 sm:p-6 rounded-xl shadow-lg ${themeClasses.card} transition-colors duration-300`}>
           <h2 className="text-2xl font-bold mb-4 text-center">
             Transaction Details
           </h2>
-          <div className={`overflow-x-auto shadow-lg rounded-lg border ${themeClasses.border}`} style={{ maxHeight: "400px" }}>
+          <div className="overflow-x-auto shadow-lg rounded-lg border" style={{ maxHeight: "400px" }}>
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className={themeClasses.tableHead + " sticky top-0 z-10"}>
                 <tr>
@@ -734,7 +608,7 @@ const Transactions = () => {
                         </span>
                       </td>
                       <td className={`px-4 py-3 text-center text-sm font-semibold ${themeClasses.accent}`}>
-                        ₹ {txn.amount.toLocaleString()}
+                        ₹ {txn.amount?.toLocaleString()}
                       </td>
                       <td className={`px-4 py-3 text-center text-sm ${themeClasses.tableCell}`}>{txn.paymentMethod || "--"}</td>
                       <td className={`px-4 py-3 text-center text-sm ${themeClasses.tableCell}`}>{txn.counterparty || "--"}</td>
@@ -778,7 +652,8 @@ const Transactions = () => {
           </div>
         </div>
 
-        <div className="flex gap-4 mb-4">
+        {/* --- Export Buttons --- */}
+        <div className="flex flex-wrap gap-4 mb-4 mt-8 justify-center">
           <button
             onClick={exportToCSV}
             className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition"
@@ -819,16 +694,29 @@ const Transactions = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Attachment (optional)</label>
+              <label className="block text-sm font-medium mb-1">Attachment (optional, max 5MB)</label>
               <input
                 type="file"
                 accept="image/*,application/pdf"
-                onChange={e => setModalAttachment(e.target.files[0])}
+                onChange={e => {
+                  const file = e.target.files[0];
+                  if (file && file.size > 5 * 1024 * 1024) {
+                    setModalError("Attachment must be less than 5MB.");
+                  } else {
+                    setModalAttachment(file);
+                    setModalError("");
+                  }
+                }}
                 className="block w-full text-sm"
               />
               {modalAttachment && (
                 <div className="mt-2 text-xs text-blue-600">
                   {modalAttachment.name}
+                </div>
+              )}
+              {modalError && (
+                <div className="mt-2 text-xs text-red-600">
+                  {modalError}
                 </div>
               )}
             </div>
@@ -842,6 +730,7 @@ const Transactions = () => {
               <button
                 className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                 onClick={saveNoteAttachment}
+                disabled={!!modalError}
               >
                 Save
               </button>
@@ -853,54 +742,5 @@ const Transactions = () => {
   );
 };
 
-
 export default Transactions;
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState, useEffect } from "react";
-// import { Bar, Pie } from "react-chartjs-2";
-// import {
-//   Chart as ChartJS,
-//   CategoryScale,
-//   LinearScale,
-//   BarElement,
-//   ArcElement,
-//   Tooltip,
-//   Legend,
-// } from "chart.js";
-// import { FaCalendarAlt, FaFilter, FaDownload, FaSun, FaMoon, FaFileCsv } from "react-icons/fa";
-// import "./print.css";
-
-// // Register ChartJS components
-// ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
-
-// const DetailedReport = () => {
-//   const [theme, setTheme] = useState(() => {
-//     if (typeof window !== 'undefined' && localStorage.getItem('theme')) {
-//       return localStorage.getItem('theme');
-//     }
-//     if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-//       return 'dark';
-//     }
-//     return 'light';
-//   });
-
-//   useEffect(() => {
-//     const html = document.documentElement;
-//     if (theme === 'dark') {
-//       html.classList.add('dark');
-//     } else {
-//       html.classList.remove('dark');
-//     }
-//     localStorage.setItem('theme', theme);
 
