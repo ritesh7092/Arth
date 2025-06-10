@@ -1,14 +1,15 @@
 package com.arthManager.finance.controller;
 
 import com.arthManager.finance.dto.AddFinance;
+import com.arthManager.finance.dto.FinanceDto;
 import com.arthManager.finance.service.FinanceService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/finance")
@@ -22,6 +23,19 @@ public class FinanceController {
 //    public FinanceController(FinanceService financeService) {
 //        this.financeService = financeService;
 //    }
+
+//    Get paginatated finance records (Transactions) for the authenticated user
+    @GetMapping("/transactions")
+    public Page<FinanceDto> getTransactions(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            Pageable pageable,
+            @AuthenticationPrincipal(expression = "username") String username
+    ){
+        return financeService.getTransactions(username, type, category, startDate, endDate, pageable);
+    }
 
 
     @PostMapping("/create")

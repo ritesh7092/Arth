@@ -94,8 +94,9 @@ public class Finance {
 
     // Enum for loan/borrow status.
     public enum DueStatus {
-        PENDING,
-        COMPLETED
+        PAID,          // The loan/borrow has been fully paid
+        UNPAID,        // The loan/borrow is still outstanding
+        PARTIALLY_PAID // Some amount has been paid, but not all
     }
 }
 
