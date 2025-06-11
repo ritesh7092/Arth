@@ -37,6 +37,16 @@ public class FinanceController {
         return financeService.getTransactions(username, type, category, startDate, endDate, pageable);
     }
 
+    //Get a single transaction by ID
+    @GetMapping("/transactions/{id}")
+    public ResponseEntity<FinanceDto> getTransaction(
+            @PathVariable Long id,
+            @AuthenticationPrincipal(expression = "username") String username
+    ) {
+        FinanceDto financeDto = financeService.getTransactionById(username, id);
+        return ResponseEntity.ok(financeDto);
+    }
+
 
     @PostMapping("/create")
     public ResponseEntity<?> createFinanceRecord(@RequestBody AddFinance addFinance) {

@@ -52,6 +52,15 @@ public class FinanceService {
         return page.map(this::toDto);
     }
 
+    public FinanceDto getTransactionById(String username, Long id){
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with username: " + username)
+        );
+        Finance finance = financeRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+        return toDto(finance);
+    }
+
     public Finance createFinanceRecord(AddFinance addFinance) {
         User user = getAuthenticatedUser();
         Finance finance = new Finance();
