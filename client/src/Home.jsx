@@ -1,15 +1,88 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Moon, Sun, ArrowRight, Sparkles, Shield, Zap, Users, Star,
-  Brain, TrendingUp, Clock, Award, CheckCircle, Play,
-  Target, Globe, Rocket, Menu, X, Diamond, ArrowDown,
-  Layers, Infinity, Database, BarChart3, MessageSquare,
-  Lightbulb, Palette, Code, Heart, Cpu, GitMerge
+  Brain, TrendingUp, Award, CheckCircle, Menu, X, Diamond, Layers, BarChart3, Database, Cpu, GitMerge
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from 'framer-motion';
-import Particles from "react-tsparticles";
-import { loadFull } from "tsparticles";
+
+// --- Floating Particles (Performance Optimized) ---
+const FloatingParticles = ({ isDarkMode }) => {
+  const canvasRef = React.useRef(null);
+  const particlesRef = React.useRef([]);
+  const animationRef = React.useRef();
+  const resizeTimeout = React.useRef();
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    // Debounced resize
+    const handleResize = () => {
+      clearTimeout(resizeTimeout.current);
+      resizeTimeout.current = setTimeout(resizeCanvas, 100);
+    };
+
+    resizeCanvas();
+    window.addEventListener('resize', handleResize);
+
+    // Fewer particles for better performance
+    const particleCount = 36;
+    particlesRef.current = Array.from({ length: particleCount }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      size: Math.random() * 2.2 + 1,
+      opacity: Math.random() * 0.5 + 0.3,
+      color: isDarkMode
+        ? `hsl(${Math.random() * 60 + 200}, 70%, 60%)`
+        : `hsl(${Math.random() * 60 + 180}, 60%, 50%)`
+    }));
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const particle of particlesRef.current) {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = particle.color;
+        ctx.globalAlpha = particle.opacity;
+        ctx.fill();
+      }
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      clearTimeout(resizeTimeout.current);
+    };
+  }, [isDarkMode]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 0, willChange: "transform" }}
+    />
+  );
+};
 
 // --- SCROLL-REVEAL ECOSYSTEM SECTION ---
 const Ecosystem = ({ isDarkMode }) => {
@@ -109,6 +182,165 @@ const Ecosystem = ({ isDarkMode }) => {
       </div>
     </section>
   );
+};
+
+function FeaturesCarousel() {
+  const gallery = [
+    {
+      src: "/gallery/profile.png",
+      title: "Personalized Profile",
+      desc: "Manage your identity, preferences, and see your achievements at a glance."
+    },
+    {
+      src: "/gallery/TaskManagementDashboard.png",
+      title: "Task Management Dashboard",
+      desc: "Track all your tasks, deadlines, and priorities in one powerful dashboard."
+    },
+    {
+      src: "/gallery/TaskManagementKanbanBoard.png",
+      title: "Kanban Board",
+      desc: "Visualize and organize your workflow with an intuitive drag-and-drop Kanban board."
+    },
+    {
+      src: "/gallery/CraftNewTask.png",
+      title: "Craft New Task",
+      desc: "Quickly create and customize tasks with smart suggestions and reminders."
+    },
+    {
+      src: "/gallery/AddFinanceRecord.png",
+      title: "Add Finance Record",
+      desc: "Easily log expenses, income, and transactions for complete financial clarity."
+    },
+    {
+      src: "/gallery/financedashboard.png",
+      title: "Finance Dashboard",
+      desc: "Monitor your budgets, balances, and spending trends with real-time analytics."
+    },
+    {
+      src: "/gallery/TransactionanalyticsReportGraphs.png",
+      title: "Analytics & Reports",
+      desc: "Gain insights from interactive graphs and reports on your financial activity."
+    },
+    {
+      src: "/gallery/TransactionDetailsBorad.png",
+      title: "Transaction Details Board",
+      desc: "Drill down into every transaction for transparency and control."
+    },
+    {
+      src: "/gallery/homepage.png",
+      title: "Welcome Home",
+      desc: "A beautiful, unified entry point to all your productivity and finance tools."
+    }
+  ];
+
+  const [current, setCurrent] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const pauseTimeout = React.useRef();
+
+  // Auto-advance every 3.5s, but resume after 10s if paused
+  React.useEffect(() => {
+    if (paused) return;
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % gallery.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [gallery.length, current, paused]);
+
+  // Helper to pause and then resume auto-advance after 10s
+  const pauseAndResume = () => {
+    setPaused(true);
+    if (pauseTimeout.current) clearTimeout(pauseTimeout.current);
+    pauseTimeout.current = setTimeout(() => setPaused(false), 10000);
+  };
+
+  // Handlers for left/right navigation
+  const goLeft = () => {
+    pauseAndResume();
+    setCurrent((prev) => (prev - 1 + gallery.length) % gallery.length);
+  };
+  const goRight = () => {
+    pauseAndResume();
+    setCurrent((prev) => (prev + 1) % gallery.length);
+  };
+  // Handler for dot navigation
+  const goTo = (idx) => {
+    pauseAndResume();
+    setCurrent(idx);
+  };
+
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (pauseTimeout.current) clearTimeout(pauseTimeout.current);
+    };
+  }, []);
+
+  // Detect dark mode for text color
+  const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  return (
+    <div className="relative flex flex-col items-center">
+      <div className="relative w-full max-w-2xl mx-auto">
+        {/* Left Arrow */}
+        <button
+          onClick={goLeft}
+          aria-label="Previous Feature"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-slate-800/80 hover:bg-blue-100 dark:hover:bg-blue-900/80 border border-slate-200 dark:border-slate-700 shadow-lg rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200"
+          style={{ marginLeft: '-1.5rem' }}
+        >
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-500" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        {/* Card */}
+        <div className="glass-card p-6 rounded-3xl border shadow-2xl flex flex-col items-center transition-all duration-700 bg-white/80 dark:bg-slate-900/70">
+          <img
+            src={gallery[current].src}
+            alt={gallery[current].title}
+            className="rounded-2xl mb-6 shadow-lg object-cover w-full h-72 transition-all duration-700 border border-slate-200 dark:border-slate-700"
+            style={{ objectFit: "cover" }}
+          />
+          <div className="font-bold text-2xl gradient-text mb-2">{gallery[current].title}</div>
+          <p className={`text-base ${isDarkMode ? "text-slate-300" : "text-slate-800"} mb-2`}>{gallery[current].desc}</p>
+        </div>
+        {/* Right Arrow */}
+        <button
+          onClick={goRight}
+          aria-label="Next Feature"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-slate-800/80 hover:bg-pink-100 dark:hover:bg-pink-900/80 border border-slate-200 dark:border-slate-700 shadow-lg rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200"
+          style={{ marginRight: '-1.5rem' }}
+        >
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" className="text-pink-500" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      {/* Dots */}
+      <div className="flex justify-center mt-6 flex-wrap gap-2">
+        {gallery.map((item, idx) => (
+          <button
+            key={idx}
+            onClick={() => goTo(idx)}
+            aria-label={`Show ${item.title}`}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              idx === current
+                ? "bg-gradient-to-r from-blue-400 to-pink-400"
+                : "bg-gray-300 dark:bg-gray-600"
+            }`}
+          />
+        ))}
+      </div>
+      {/* Feature quick-jump dropdown (optional, for accessibility) */}
+      <div className="mt-4">
+        <select
+          value={current}
+          onChange={e => goTo(Number(e.target.value))}
+          className="rounded-lg border px-3 py-1 text-sm shadow bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+          aria-label="Jump to feature"
+        >
+          {gallery.map((item, idx) => (
+            <option key={item.title} value={idx}>{item.title}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
 }
 
 const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
@@ -124,7 +356,6 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
   });
 
   const [scrollY, setScrollY] = useState(0);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const isDarkMode = theme === 'dark';
@@ -166,85 +397,10 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Testimonial carousel
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Product Manager, TechCorp",
-      content: "Arth transformed our workflow completely. The AI insights are incredibly accurate and the interface is simply stunning. Our team productivity increased by 300%.",
-      avatar: "SC",
-      gradient: "from-pink-500 to-rose-500",
-      rating: 5
-    },
-    {
-      name: "Marcus Rodriguez",
-      role: "Financial Advisor",
-      content: "The financial intelligence features are unmatched. It's like having a personal CFO at your fingertips. Game-changing for our investment decisions.",
-      avatar: "MR",
-      gradient: "from-blue-500 to-cyan-500",
-      rating: 5
-    },
-    {
-      name: "Emma Thompson",
-      role: "Startup Founder",
-      content: "From task management to financial forecasting, Arth does it all with unprecedented elegance and precision. Absolutely revolutionary!",
-      avatar: "ET",
-      gradient: "from-purple-500 to-indigo-500",
-      rating: 5
-    },
-    {
-      name: "David Kim",
-      role: "Creative Director",
-      content: "The AI-powered insights have revolutionized how we approach creative projects. Arth understands our workflow better than we do ourselves.",
-      avatar: "DK",
-      gradient: "from-orange-500 to-amber-500",
-      rating: 5
-    }
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial(prev => (prev + 1) % testimonials.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // tsParticles config (nice, subtle, modern)
-  const particlesInit = useCallback(async (engine) => {
-    await loadFull(engine);
-  }, []);
-
-  const particlesOptions = {
-    fullScreen: { enable: false },
-    background: { color: { value: "transparent" } },
-    fpsLimit: 60,
-    particles: {
-      number: { value: 100, density: { enable: true, value_area: 800 } },
-      color: { value: ["#60a5fa", "#a855f7", "#f472b6", "#fff"] },
-      links: {
-        enable: true,
-        color: "#fff",
-        distance: 140,
-        opacity: 0.4,
-        width: 1.5,
-      },
-      move: {
-        enable: true,
-        speed: 1.5,
-        direction: "none",
-        outModes: { default: "out" },
-      },
-      opacity: { value: 0.7 },
-      shape: { type: "circle" },
-      size: { value: { min: 2, max: 5 } },
-    },
-    detectRetina: true,
-  };
-
-  // Theme classes
+  // Theme classes (match Ecosystem bg)
   const themeClasses = {
     bg: isDarkMode
-      ? 'bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950'
+      ? 'bg-gradient-to-br from-[#181c2a] via-[#1e2235] to-[#2b2250]'
       : 'bg-gradient-to-br from-[#f7fafc] via-[#e3e8ee] to-[#fdf6f0]',
     bgSecondary: isDarkMode
       ? 'bg-slate-800/60 backdrop-blur-xl border-slate-700/40'
@@ -271,128 +427,6 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
 
   const authToken = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
   const loggedIn = isAuthenticated || !!authToken;
-
-  const features = [
-    {
-      icon: <Shield size={32} />,
-      title: "Intelligent Task Management",
-      description: "AI-powered Kanban boards with smart prioritization, automated scheduling, and predictive analytics for maximum productivity. Experience the future of task organization.",
-      gradient: isDarkMode 
-        ? "from-blue-500 to-purple-600" 
-        : "from-blue-600 to-purple-700",
-      glowColor: "blue",
-      benefits: ["Smart Prioritization", "Auto-scheduling", "Predictive Analytics"]
-    },
-    {
-      icon: <TrendingUp size={32} />,
-      title: "Advanced Finance Intelligence", 
-      description: "Sophisticated budgeting with real-time analytics, investment tracking, and AI-driven financial forecasting. Make smarter financial decisions with confidence.",
-      gradient: isDarkMode 
-        ? "from-cyan-500 to-blue-600" 
-        : "from-cyan-600 to-blue-700",
-      glowColor: "cyan",
-      benefits: ["Real-time Analytics", "Investment Tracking", "AI Forecasting"]
-    },
-    {
-      icon: <Brain size={32} />,
-      title: "AI-Powered Assistant",
-      description: "Conversational AI that learns your patterns, provides personalized insights, and anticipates your needs. Your intelligent productivity companion.",
-      gradient: isDarkMode 
-        ? "from-pink-500 to-rose-500" 
-        : "from-pink-600 to-rose-600",
-      glowColor: "pink",
-      benefits: ["Pattern Learning", "Personalized Insights", "Predictive Actions"]
-    },
-    {
-      icon: <Zap size={32} />,
-      title: "Productivity Automation",
-      description: "Automate repetitive tasks, streamline workflows, and focus on what matters most with intelligent automation that adapts to your style.",
-      gradient: isDarkMode 
-        ? "from-orange-500 to-amber-500" 
-        : "from-orange-600 to-amber-600",
-      glowColor: "orange",
-      benefits: ["Smart Automation", "Workflow Optimization", "Focus Enhancement"]
-    },
-    {
-      icon: <Database size={32} />,
-      title: "Unified Data Hub",
-      description: "Centralize all your data with seamless integrations, real-time synchronization, and intelligent data relationships across all your tools.",
-      gradient: isDarkMode 
-        ? "from-violet-500 to-purple-600" 
-        : "from-violet-600 to-purple-700",
-      glowColor: "violet",
-      benefits: ["Data Centralization", "Real-time Sync", "Smart Integrations"]
-    },
-    {
-      icon: <BarChart3 size={32} />,
-      title: "Advanced Analytics",
-      description: "Deep insights into your productivity patterns, performance metrics, and growth opportunities with beautiful, actionable visualizations.",
-      gradient: isDarkMode 
-        ? "from-emerald-500 to-teal-600" 
-        : "from-emerald-600 to-teal-700",
-      glowColor: "emerald",
-      benefits: ["Performance Metrics", "Pattern Analysis", "Growth Insights"]
-    }
-  ];
-
-  const stats = [
-    { number: "15M+", label: "Active Users", icon: <Users size={24} />, color: "text-blue-400" },
-    { number: "99.99%", label: "Uptime", icon: <Shield size={24} />, color: "text-emerald-400" },
-    { number: "2.5M+", label: "Tasks Completed Daily", icon: <CheckCircle size={24} />, color: "text-purple-400" },
-    { number: "$5B+", label: "Transactions Tracked", icon: <TrendingUp size={24} />, color: "text-cyan-400" }
-  ];
-
-  const pricingPlans = [
-    {
-      name: "Starter",
-      price: "Free",
-      period: "",
-      description: "Perfect for individuals getting started with productivity",
-      features: [
-        "Up to 3 projects",
-        "Basic task management",
-        "5GB storage",
-        "Email support",
-        "Mobile app access"
-      ],
-      gradient: "from-blue-500 to-cyan-500",
-      popular: false
-    },
-    {
-      name: "Professional",
-      price: "$29",
-      period: "/month",
-      description: "Ideal for professionals and small teams",
-      features: [
-        "Unlimited projects",
-        "Advanced AI features",
-        "100GB storage",
-        "Priority support",
-        "Analytics & insights",
-        "Team collaboration",
-        "Custom integrations"
-      ],
-      gradient: "from-purple-500 to-pink-500",
-      popular: true
-    },
-    {
-      name: "Enterprise",
-      price: "Custom",
-      period: "",
-      description: "For large organizations with advanced needs",
-      features: [
-        "Everything in Professional",
-        "Unlimited storage",
-        "24/7 phone support",
-        "Custom AI training",
-        "Advanced security",
-        "SSO integration",
-        "Dedicated success manager"
-      ],
-      gradient: "from-orange-500 to-rose-500",
-      popular: false
-    }
-  ];
 
   return (
     <div className={`min-h-screen font-sans antialiased transition-all duration-500 relative overflow-x-hidden ${themeClasses.bg}`}>
@@ -470,6 +504,8 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
 
       {/* Cursor Glow Effect */}
       <div className="cursor-glow"></div>
+      {/* Floating Particles Background */}
+      <FloatingParticles isDarkMode={isDarkMode} />
 
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrollY > 50
@@ -576,14 +612,6 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
 
       {/* Hero Section */}
       <section className="hero-bg min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
-        {/* tsParticles background */}
-        <Particles
-          id="tsparticles-hero"
-          init={particlesInit}
-          options={particlesOptions}
-          className="absolute inset-0 w-full h-full z-0"
-        />
-        {/* Animated blobs (optional, keep your existing ones) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {/* ...your animated gradient blobs here... */}
         </div>
@@ -614,7 +642,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
             <span className="gradient-text font-bold"> Task Mastery</span> & <span className="gradient-text font-bold">AI-Powered Insights</span>
           </p>
           {/* Hero Description */}
-          <p className={`text-xs sm:text-base md:text-lg ${themeClasses.textMuted} mb-8 sm:mb-10 max-w-2xl mx-auto`}>
+          <p className={`text-xs sm:text-base md:text-lg ${isDarkMode ? "text-slate-400" : "text-slate-800"} mb-8 sm:mb-10 max-w-2xl mx-auto`}>
             Arth is your all-in-one platform for mastering productivity, personal finance, and AI-powered insights. Built for students, professionals, and teams who want to achieve more with less effort—securely, beautifully, and intelligently.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 sm:mb-16">
@@ -771,12 +799,16 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
 
 
      
+     
       {/* Features Gallery Section (Animated Screenshots Carousel) */}
       <section id="features-gallery" className="py-20 md:py-32">
         <div className="max-w-5xl mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold gradient-text mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold gradient-text mb-6">
             See Arth in Action
           </h2>
+          <p className={`mb-12 text-lg md:text-xl ${isDarkMode ? "text-slate-300" : "text-slate-800"}`}>
+            A beautiful, unified entry point to all your productivity and finance tools.
+          </p>
           <FeaturesCarousel />
         </div>
       </section>
@@ -855,161 +887,5 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
     </div>
   );
 };
-
-function FeaturesCarousel() {
-  const gallery = [
-    {
-      src: "/gallery/profile.png",
-      title: "Personalized Profile",
-      desc: "Manage your identity, preferences, and see your achievements at a glance."
-    },
-    {
-      src: "/gallery/TaskManagementDashboard.png",
-      title: "Task Management Dashboard",
-      desc: "Track all your tasks, deadlines, and priorities in one powerful dashboard."
-    },
-    {
-      src: "/gallery/TaskManagementKanbanBoard.png",
-      title: "Kanban Board",
-      desc: "Visualize and organize your workflow with an intuitive drag-and-drop Kanban board."
-    },
-    {
-      src: "/gallery/CraftNewTask.png",
-      title: "Craft New Task",
-      desc: "Quickly create and customize tasks with smart suggestions and reminders."
-    },
-    {
-      src: "/gallery/AddFinanceRecord.png",
-      title: "Add Finance Record",
-      desc: "Easily log expenses, income, and transactions for complete financial clarity."
-    },
-    {
-      src: "/gallery/financedashboard.png",
-      title: "Finance Dashboard",
-      desc: "Monitor your budgets, balances, and spending trends with real-time analytics."
-    },
-    {
-      src: "/gallery/TransactionanalyticsReportGraphs.png",
-      title: "Analytics & Reports",
-      desc: "Gain insights from interactive graphs and reports on your financial activity."
-    },
-    {
-      src: "/gallery/TransactionDetailsBorad.png",
-      title: "Transaction Details Board",
-      desc: "Drill down into every transaction for transparency and control."
-    },
-    {
-      src: "/gallery/homepage.png",
-      title: "Welcome Home",
-      desc: "A beautiful, unified entry point to all your productivity and finance tools."
-    }
-  ];
-
-  const [current, setCurrent] = React.useState(0);
-  const [paused, setPaused] = React.useState(false);
-  const pauseTimeout = React.useRef();
-
-  // Auto-advance every 3.5s, but resume after 10s if paused
-  React.useEffect(() => {
-    if (paused) return;
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % gallery.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, [gallery.length, current, paused]);
-
-  // Helper to pause and then resume auto-advance after 10s
-  const pauseAndResume = () => {
-    setPaused(true);
-    if (pauseTimeout.current) clearTimeout(pauseTimeout.current);
-    pauseTimeout.current = setTimeout(() => setPaused(false), 10000);
-  };
-
-  // Handlers for left/right navigation
-  const goLeft = () => {
-    pauseAndResume();
-    setCurrent((prev) => (prev - 1 + gallery.length) % gallery.length);
-  };
-  const goRight = () => {
-    pauseAndResume();
-    setCurrent((prev) => (prev + 1) % gallery.length);
-  };
-  // Handler for dot navigation
-  const goTo = (idx) => {
-    pauseAndResume();
-    setCurrent(idx);
-  };
-
-  // Clean up timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (pauseTimeout.current) clearTimeout(pauseTimeout.current);
-    };
-  }, []);
-
-  return (
-    <div className="relative flex flex-col items-center">
-      <div className="relative w-full max-w-2xl mx-auto">
-        {/* Left Arrow */}
-        <button
-          onClick={goLeft}
-          aria-label="Previous Feature"
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-slate-800/80 hover:bg-blue-100 dark:hover:bg-blue-900/80 border border-slate-200 dark:border-slate-700 shadow-lg rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200"
-          style={{ marginLeft: '-1.5rem' }}
-        >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-500" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-        </button>
-        {/* Card */}
-        <div className="glass-card p-6 rounded-3xl border shadow-2xl flex flex-col items-center transition-all duration-700 bg-white/80 dark:bg-slate-900/70">
-          <img
-            src={gallery[current].src}
-            alt={gallery[current].title}
-            className="rounded-2xl mb-6 shadow-lg object-cover w-full h-72 transition-all duration-700 border border-slate-200 dark:border-slate-700"
-            style={{ objectFit: "cover" }}
-          />
-          <div className="font-bold text-2xl gradient-text mb-2">{gallery[current].title}</div>
-          <p className="text-base text-slate-600 dark:text-slate-300 mb-2">{gallery[current].desc}</p>
-        </div>
-        {/* Right Arrow */}
-        <button
-          onClick={goRight}
-          aria-label="Next Feature"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-slate-800/80 hover:bg-pink-100 dark:hover:bg-pink-900/80 border border-slate-200 dark:border-slate-700 shadow-lg rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200"
-          style={{ marginRight: '-1.5rem' }}
-        >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" className="text-pink-500" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-      {/* Dots */}
-      <div className="flex justify-center mt-6 flex-wrap gap-2">
-        {gallery.map((item, idx) => (
-          <button
-            key={idx}
-            onClick={() => goTo(idx)}
-            aria-label={`Show ${item.title}`}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              idx === current
-                ? "bg-gradient-to-r from-blue-400 to-pink-400"
-                : "bg-gray-300 dark:bg-gray-600"
-            }`}
-          />
-        ))}
-      </div>
-      {/* Feature quick-jump dropdown (optional, for accessibility) */}
-      <div className="mt-4">
-        <select
-          value={current}
-          onChange={e => goTo(Number(e.target.value))}
-          className="rounded-lg border px-3 py-1 text-sm shadow bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-          aria-label="Jump to feature"
-        >
-          {gallery.map((item, idx) => (
-            <option key={item.title} value={idx}>{item.title}</option>
-          ))}
-        </select>
-      </div>
-    </div>
-  );
-}
 
 export default Home;
