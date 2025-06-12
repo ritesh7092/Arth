@@ -1,4 +1,3 @@
-// src/components/FinanceDashboard.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'animate.css';
@@ -22,15 +21,8 @@ import {
   Edit2,
   Trash2,
   BarChart3,
-  ChevronLeft,
-  ChevronRight,
   PiggyBank,
-  DollarSign,
-  Scale,
-  Calendar,
-  Tag,
   Clock,
-  ArrowLeftRight,
   Paperclip,
 } from 'lucide-react';
 import baseUrl from '../api/api';
@@ -56,10 +48,17 @@ const MetricCard = ({ icon: Icon, title, value, colorClass }) => (
 // Transaction Card
 const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }) => {
   const isExpense = transaction.type === 'Expense';
+  const isLoanOrBorrow = transaction.type === 'LOAN' || transaction.type === 'BORROW';
+  const isPending = isLoanOrBorrow && (transaction.dueStatus === 'UNPAID' || transaction.dueStatus === 'PARTIALLY_PAID');
   const amountColor = isExpense ? 'text-red-500' : 'text-green-500';
 
   return (
-    <div className={`${themeClasses.cardBg} border ${themeClasses.border} rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200 animate__animated animate__fadeIn`}>
+    <div
+      className={`
+        ${themeClasses.cardBg} border ${themeClasses.border} rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200 animate__animated animate__fadeIn
+        ${isPending ? 'ring-2 ring-yellow-400/80 dark:ring-yellow-500/80 bg-yellow-50 dark:bg-yellow-900/30' : ''}
+      `}
+    >
       <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -86,6 +85,19 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
             }`}>
               {transaction.type}
             </span>
+            {(transaction.type === 'LOAN' || transaction.type === 'BORROW') && transaction.dueStatus && (
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                transaction.dueStatus === 'PAID'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                  : transaction.dueStatus === 'UNPAID'
+                  ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                  : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+              }`}>
+                {transaction.type === 'LOAN'
+                  ? `Given: ${transaction.dueStatus.replace('_', ' ')}`
+                  : `Taken: ${transaction.dueStatus.replace('_', ' ')}`}
+              </span>
+            )}
           </div>
           <p className={`${themeClasses.textSecondary} text-xs sm:text-sm mt-2`}>
             {new Date(transaction.date).toLocaleDateString('en-IN', {
@@ -149,6 +161,7 @@ export default function FinanceDashboard() {
   const [filterEndDate, setFilterEndDate] = useState('');
   const [filterMinAmount, setFilterMinAmount] = useState('');
   const [filterMaxAmount, setFilterMaxAmount] = useState('');
+  const [filterDueStatus, setFilterDueStatus] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
   const navigate = useNavigate();
@@ -163,14 +176,14 @@ export default function FinanceDashboard() {
     bg: isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50',
     cardBg: isDarkMode ? 'bg-gray-800' : 'bg-white/80 backdrop-blur-sm',
     text: isDarkMode ? 'text-white' : 'text-gray-900',
-    textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-600',
-    border: isDarkMode ? 'border-gray-700' : 'border-gray-200/50',
-    inputBorder: isDarkMode ? 'border-gray-600' : 'border-gray-300',
-    hover: isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-white/90',
+    textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-700', // changed from text-gray-600 to text-gray-700 for better contrast
+    border: isDarkMode ? 'border-gray-700' : 'border-gray-300', // changed from border-gray-200/50 to border-gray-300
+    inputBorder: isDarkMode ? 'border-gray-600' : 'border-gray-400', // changed from border-gray-300 to border-gray-400
+    hover: isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100', // changed from hover:bg-white/90 to hover:bg-gray-100
     buttonPrimary: 'bg-emerald-600 hover:bg-emerald-700 text-white',
     buttonSecondary: isDarkMode
       ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-      : 'bg-gray-300 hover:bg-gray-400 text-gray-800',
+      : 'bg-gray-200 hover:bg-gray-300 text-gray-900', // changed from bg-gray-300 hover:bg-gray-400 text-gray-800
   };
 
   // Auth helper
@@ -189,7 +202,8 @@ export default function FinanceDashboard() {
     if (!token) return;
     setLoading(true);
     try {
-      // const res = await baseUrl.get('/api/transactions', { headers: { Authorization: `Bearer ${token}` }});
+      // Uncomment and use your real API here:
+      // const res = await baseUrl.get('/api/finance/transactions', { headers: { Authorization: `Bearer ${token}` }});
       // setTransactions(res.data.content);
       // For demo, use mock data:
       await new Promise(r => setTimeout(r, 700));
@@ -291,15 +305,16 @@ export default function FinanceDashboard() {
         const matchesDate = (!start || d >= start) && (!end || d <= end);
         const minA = filterMinAmount ? parseFloat(filterMinAmount) : -Infinity;
         const maxA = filterMaxAmount ? parseFloat(filterMaxAmount) : Infinity;
-        return matchesSearch && matchesType && matchesCat && matchesDate && amt >= minA && amt <= maxA;
+        const matchesDueStatus = !filterDueStatus || t.dueStatus === filterDueStatus;
+        return matchesSearch && matchesType && matchesCat && matchesDate && amt >= minA && amt <= maxA && matchesDueStatus;
       })
       .sort((a, b) => new Date(b.date) - new Date(a.date))
-  , [transactions, searchQuery, filterType, filterCategory, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount]);
+  , [transactions, searchQuery, filterType, filterCategory, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount, filterDueStatus]);
 
-  // --- Limiting Logic (like TodoDashboard) ---
+  // --- Limiting Logic ---
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, filterType, filterCategory, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount]);
+  }, [searchQuery, filterType, filterCategory, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount, filterDueStatus]);
 
   const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
   const indexOfLast = currentPage * transactionsPerPage;
@@ -322,6 +337,7 @@ export default function FinanceDashboard() {
     setFilterEndDate('');
     setFilterMinAmount('');
     setFilterMaxAmount('');
+    setFilterDueStatus('');
     setCurrentPage(1);
   };
 
@@ -402,7 +418,7 @@ export default function FinanceDashboard() {
   const handleExportPDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
 
-    // --- Branding Section ---
+    // Branding Section
     doc.setFillColor(30, 64, 175);
     doc.rect(0, 0, 210, 30, "F");
     doc.setTextColor(255, 255, 255);
@@ -423,19 +439,19 @@ export default function FinanceDashboard() {
     doc.setFontSize(9);
     doc.text("Arth is your all-in-one platform for mastering productivity, personal finance, and AI-powered insights. Built for students, professionals, and teams who want to achieve more with less effort—securely, beautifully, and intelligently.", 14, 48, { maxWidth: 180 });
 
-    // --- CREDIT (BOLD & VISIBLE, moved below branding) ---
+    // CREDIT
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30, 64, 175);
     doc.text("Designed, Developed and By Ritesh Raj Tiwari", 14, 60);
 
-    // --- Main Report Title ---
+    // Main Report Title
     doc.setTextColor(30, 64, 175);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.text("Finance Dashboard Summary", 14, 70);
 
-    // --- Summary Table (Current Month, Previous Month, This Year) ---
+    // Summary Table
     doc.setFontSize(13);
     doc.setTextColor(30, 64, 175);
     doc.setFont("helvetica", "bold");
@@ -478,13 +494,13 @@ export default function FinanceDashboard() {
       margin: { left: 14, right: 14 }
     });
 
-    // --- Personalized Suggestion ---
+    // Personalized Suggestion
     doc.setFontSize(12);
     doc.setTextColor(60, 60, 60);
     doc.setFont("helvetica", "italic");
     doc.text(`Personalized Suggestion: ${suggestion}`, 14, doc.lastAutoTable.finalY + 10);
 
-    // --- Transaction Table ---
+    // Transaction Table
     doc.setFontSize(13);
     doc.setTextColor(30, 64, 175);
     doc.setFont("helvetica", "bold");
@@ -635,7 +651,16 @@ export default function FinanceDashboard() {
     };
   }, [loading]);
 
+  // --- Pending Loans/Borrows Metrics ---
+  const pendingLoansGiven = transactions.filter(
+    t => t.type === 'LOAN' && (t.dueStatus === 'UNPAID' || t.dueStatus === 'PARTIALLY_PAID')
+  ).length;
+  const pendingBorrowsTaken = transactions.filter(
+    t => t.type === 'BORROW' && (t.dueStatus === 'UNPAID' || t.dueStatus === 'PARTIALLY_PAID')
+  ).length;
+  const totalPending = pendingLoansGiven + pendingBorrowsTaken;
 
+  // --- Error/Loading UI ---
   if (loading) {
     return (
       <div className={`fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900 ${themeClasses.bg}`}>
@@ -649,7 +674,6 @@ export default function FinanceDashboard() {
       </div>
     );
   }
-
 
   if (error) {
     return (
@@ -685,7 +709,7 @@ export default function FinanceDashboard() {
                 </div>
                 <div>
                   <h1 className="text-xl sm:text-2xl lg:text-4xl font-black text-white">Personal Finance Tracker</h1>
-                  <p className="text-teal-100 text-xs sm:text-sm lg:text-lg">Your financial health at a glance</p>
+                  <p className="text-teal-700 text-xs sm:text-sm lg:text-lg">Your financial health at a glance</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 text-white/90">
@@ -728,7 +752,7 @@ export default function FinanceDashboard() {
         </div>
       </header>
 
-      {/* FINANCE CARDS */}
+      {/* --- METRICS --- */}
       <main className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8 space-y-8">
         {/* --- CURRENT MONTH METRICS --- */}
         <section>
@@ -740,6 +764,31 @@ export default function FinanceDashboard() {
             <MetricCard icon={AlertCircle} title="Loss (Month)" value={formatRupee(currentLoss)} colorClass="bg-gradient-to-br from-yellow-400 to-red-500" />
             <MetricCard icon={CreditCard} title="Transactions (Month)" value={currentMonthTxns.length} colorClass="bg-gradient-to-br from-purple-500 to-fuchsia-500" />
             <MetricCard icon={Wallet} title="Net Balance (Month)" value={formatRupee(currentSavings)} colorClass="bg-gradient-to-br from-blue-500 to-purple-500" />
+          </div>
+        </section>
+
+        {/* --- PENDING LOANS/BORROWS METRICS --- */}
+        <section>
+          <h2 className="mb-4 text-base sm:text-xl font-bold text-gray-800 dark:text-gray-100">Pending Loans & Borrows</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+            <MetricCard
+              icon={AlertCircle}
+              title="Pending Loans Given"
+              value={pendingLoansGiven}
+              colorClass="bg-gradient-to-br from-yellow-400 to-orange-500"
+            />
+            <MetricCard
+              icon={AlertCircle}
+              title="Pending Borrows Taken"
+              value={pendingBorrowsTaken}
+              colorClass="bg-gradient-to-br from-yellow-400 to-pink-500"
+            />
+            <MetricCard
+              icon={AlertCircle}
+              title="All Pending (Loans/Borrows)"
+              value={totalPending}
+              colorClass="bg-gradient-to-br from-yellow-400 to-red-500"
+            />
           </div>
         </section>
 
@@ -832,6 +881,8 @@ export default function FinanceDashboard() {
                 <option value="All">All Types</option>
                 <option value="Income">Income</option>
                 <option value="Expense">Expense</option>
+                <option value="LOAN">Loan (Given)</option>
+                <option value="BORROW">Borrow (Taken)</option>
               </select>
 
               {/* Category Filter */}
@@ -878,6 +929,18 @@ export default function FinanceDashboard() {
                 className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
                 title="Filter by Maximum Amount"
               />
+
+              {/* Due Status Filter */}
+              <select
+                value={filterDueStatus}
+                onChange={e => setFilterDueStatus(e.target.value)}
+                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
+              >
+                <option value="">All Status</option>
+                <option value="PAID">Paid</option>
+                <option value="UNPAID">Unpaid</option>
+                <option value="PARTIALLY_PAID">Partially Paid</option>
+              </select>
 
               {/* Clear Filters Button */}
               <button
@@ -954,6 +1017,10 @@ export default function FinanceDashboard() {
           <Clock className="w-4 h-4 mr-1" /> Server Time: {new Date().toLocaleString()}
         </div>
       </main>
+      <div className="flex items-center mt-2 text-xs text-yellow-700 dark:text-yellow-300">
+        <span className="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
+        Highlighted = Pending Loan/Borrow (Unpaid or Partially Paid)
+      </div>
     </div>
   );
 }
@@ -972,5 +1039,3 @@ if (typeof window !== "undefined" && !document.getElementById('arth-bg-loading-s
   `;
   document.head.appendChild(style);
 }
-
-
