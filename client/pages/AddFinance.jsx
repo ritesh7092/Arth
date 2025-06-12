@@ -1,13 +1,12 @@
 // src/components/AddFinance.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Paperclip } from 'lucide-react';
 import baseUrl from '../api/api';
-import 'animate.css'; // Ensure animate.css is imported
-import { useTheme } from '../src/theme/ThemeProvider'; // Adjust path if necessary
+import 'animate.css';
+import { useTheme } from '../src/theme/ThemeProvider';
 import {
   Sun, Moon, CheckCircle, AlertTriangle, XCircle, Loader2, PlusCircle, ArrowLeft
-} from 'lucide-react'; // Import icons from lucide-react
+} from 'lucide-react';
 
 const AddFinance = () => {
   const { theme, toggleTheme } = useTheme();
@@ -23,12 +22,11 @@ const AddFinance = () => {
     paymentMethod: '',
     counterparty: '',
     dueStatus: '',
-    attachment: null,
   });
   const [submitting, setSubmitting] = useState(false);
   const [flashMessage, setFlashMessage] = useState(null);
-  const [serverTime, setServerTime] = useState(new Date().toLocaleString()); // Keep for consistency
-  const [error, setError] = useState('');
+  const [serverTime, setServerTime] = useState(new Date().toLocaleString());
+  const [fieldErrors, setFieldErrors] = useState({});
 
   // --- THEME-AWARE STYLING ---
   const themeClasses = {
@@ -49,7 +47,6 @@ const AddFinance = () => {
     errorText: 'text-red-500'
   };
 
-  // Update server time every second
   useEffect(() => {
     const interval = setInterval(() => {
       setServerTime(new Date().toLocaleString());
@@ -60,19 +57,28 @@ const AddFinance = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFinanceData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    setFinanceData((prev) => ({ ...prev, attachment: e.target.files[0] }));
+    setFieldErrors((prev) => ({ ...prev, [name]: undefined })); // Clear field error on change
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setFlashMessage(null);
+    setFieldErrors({});
 
-    if (!e.target.checkValidity()) {
-      e.target.reportValidity(); // This will show native HTML5 validation errors
+    // Prepare data: convert empty dueStatus to null
+    const dataToSend = {
+      ...financeData,
+      dueStatus: financeData.dueStatus === '' ? null : financeData.dueStatus
+    };
+
+    // Optionally, check only required fields manually if you want
+    if (
+      !financeData.transactionDate ||
+      !financeData.amount ||
+      !financeData.description ||
+      !financeData.category ||
+      !financeData.transactionType
+    ) {
       setFlashMessage({ type: 'error', message: 'Please fill in all required fields.' });
       setTimeout(() => setFlashMessage(null), 4000);
       return;
@@ -87,25 +93,18 @@ const AddFinance = () => {
 
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      Object.entries(financeData).forEach(([key, value]) => {
-        if (value !== '' && value !== null) {
-          formData.append(key, value);
-        }
-      });
       await baseUrl.post(
         '/api/finance/create',
-        formData,
+        dataToSend,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'application/json'
           }
         }
       );
 
       setFlashMessage({ type: 'success', message: 'Finance record saved successfully!' });
-      // Reset form
       setFinanceData({
         transactionDate: '',
         amount: '',
@@ -115,19 +114,35 @@ const AddFinance = () => {
         paymentMethod: '',
         counterparty: '',
         dueStatus: '',
-        attachment: null,
       });
+      setFieldErrors({});
 
       setTimeout(() => {
         setFlashMessage(null);
-        navigate('/finance/dashboard'); // Assuming this is your finance dashboard route
+        navigate('/finance/dashboard');
       }, 2000);
     } catch (error) {
-      console.error('API Error:', error);
-      const errorMessage =
+      let errorMessage =
+        error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
         'An unexpected error occurred. Please try again.';
+
+      // If backend returns field errors as an object (not array)
+      if (
+        error.response &&
+        error.response.data &&
+        typeof error.response.data === 'object' &&
+        !Array.isArray(error.response.data)
+      ) {
+        setFieldErrors(error.response.data); // set all field errors
+        // Optionally show the first error as a flash message
+        const firstFieldError = Object.values(error.response.data)[0];
+        if (firstFieldError) errorMessage = firstFieldError;
+      } else {
+        setFieldErrors({});
+      }
+
       setFlashMessage({ type: 'error', message: errorMessage });
       setTimeout(() => setFlashMessage(null), 5000);
     } finally {
@@ -153,7 +168,7 @@ const AddFinance = () => {
         </>
       )}
 
-      {/* --- THEME TOGGLE BUTTON (Precise Positioning & Perfect Shape) --- */}
+      {/* Theme Toggle Button */}
       <div className="fixed top-6 right-6 z-50">
         <button
           onClick={toggleTheme}
@@ -218,6 +233,9 @@ const AddFinance = () => {
                   required
                   className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
                 />
+                {fieldErrors.transactionDate && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.transactionDate}</div>
+                )}
               </div>
               <div>
                 <label htmlFor="amount" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>Amount (₹) <span className={themeClasses.textHighlight}>*</span></label>
@@ -231,10 +249,12 @@ const AddFinance = () => {
                     onChange={handleChange}
                     required
                     step="0.01"
-                    min="0"
                     className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 pl-9 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
                   />
                 </div>
+                {fieldErrors.amount && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.amount}</div>
+                )}
               </div>
             </div>
 
@@ -251,6 +271,9 @@ const AddFinance = () => {
                 placeholder="e.g., Monthly rent payment, Groceries, Freelance income"
                 className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
               ></textarea>
+              {fieldErrors.description && (
+                <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.description}</div>
+              )}
             </div>
 
             {/* Category, Transaction Type, Payment Method */}
@@ -278,6 +301,9 @@ const AddFinance = () => {
                   <option value="Education">Education</option>
                   <option value="Other">Other</option>
                 </select>
+                {fieldErrors.category && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.category}</div>
+                )}
               </div>
 
               <div>
@@ -295,8 +321,10 @@ const AddFinance = () => {
                   <option value="EXPENSE">Expense</option>
                   <option value="BORROW">Borrow</option>
                   <option value="LOAN">Loan (Given)</option>
-                  <option value="TRANSFER">Transfer</option>
                 </select>
+                {fieldErrors.transactionType && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.transactionType}</div>
+                )}
               </div>
 
               <div>
@@ -310,6 +338,9 @@ const AddFinance = () => {
                   placeholder="e.g., Cash, Bank Transfer, UPI, Card"
                   className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
                 />
+                {fieldErrors.paymentMethod && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.paymentMethod}</div>
+                )}
               </div>
             </div>
 
@@ -326,6 +357,9 @@ const AddFinance = () => {
                   placeholder="e.g., Landlord, Employer, Friend"
                   className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
                 />
+                {fieldErrors.counterparty && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.counterparty}</div>
+                )}
               </div>
               <div>
                 <label htmlFor="dueStatus" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>Due Status</label>
@@ -337,23 +371,14 @@ const AddFinance = () => {
                   className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300 appearance-none pr-10 custom-select-arrow`}
                 >
                   <option value="">Select Status (if applicable)</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="OVERDUE">Overdue</option>
-                  <option value="N/A">Not Applicable</option>
+                  <option value="PAID">Paid</option>
+                  <option value="UNPAID">Unpaid</option>
+                  <option value="PARTIALLY_PAID">Partially Paid</option>
                 </select>
+                {fieldErrors.dueStatus && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.dueStatus}</div>
+                )}
               </div>
-            </div>
-
-            {/* Attachment (Newly Added Field) */}
-            <div className="mb-3">
-              <label className="block mb-1 font-semibold">Attachment</label>
-              <input type="file" name="attachment" onChange={handleFileChange} className="w-full" />
-              {financeData.attachment && (
-                <div className="mt-2 text-blue-600 flex items-center">
-                  <Paperclip className="mr-2" /> {financeData.attachment.name}
-                </div>
-              )}
             </div>
 
             {/* Submit Button */}

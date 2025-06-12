@@ -3,6 +3,7 @@ package com.arthManager.finance.controller;
 import com.arthManager.finance.dto.AddFinance;
 import com.arthManager.finance.dto.FinanceDto;
 import com.arthManager.finance.service.FinanceService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,15 +17,15 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class FinanceController {
     @Autowired
-    private  FinanceService financeService;
-//    private final FinanceService financeService;
+    private FinanceService financeService;
+    // private final FinanceService financeService;
 
-//    @Autowired
-//    public FinanceController(FinanceService financeService) {
-//        this.financeService = financeService;
-//    }
+    // @Autowired
+    // public FinanceController(FinanceService financeService) {
+    // this.financeService = financeService;
+    // }
 
-//    Get paginatated finance records (Transactions) for the authenticated user
+    // Get paginatated finance records (Transactions) for the authenticated user
     @GetMapping("/transactions")
     public Page<FinanceDto> getTransactions(
             @RequestParam(required = false) String type,
@@ -32,35 +33,28 @@ public class FinanceController {
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             Pageable pageable,
-            @AuthenticationPrincipal(expression = "username") String username
-    ){
+            @AuthenticationPrincipal(expression = "username") String username) {
         return financeService.getTransactions(username, type, category, startDate, endDate, pageable);
     }
 
-    //Get a single transaction by ID
+    // Get a single transaction by ID
     @GetMapping("/transactions/{id}")
     public ResponseEntity<FinanceDto> getTransaction(
             @PathVariable Long id,
-            @AuthenticationPrincipal(expression = "username") String username
-    ) {
+            @AuthenticationPrincipal(expression = "username") String username) {
         FinanceDto financeDto = financeService.getTransactionById(username, id);
         return ResponseEntity.ok(financeDto);
     }
 
-
     @PostMapping("/create")
-    public ResponseEntity<?> createFinanceRecord(@RequestBody AddFinance addFinance) {
-        try{
-            financeService.createFinanceRecord(addFinance);
-            return ResponseEntity.ok("Finance record created successfully");
-        }
-        catch(Exception e){
-            return ResponseEntity.status(500).body("Error creating finance record: " + e.getMessage());
-        }
+    public ResponseEntity<?> createFinanceRecord(
+            @Valid @RequestBody AddFinance addFinance,
+            @AuthenticationPrincipal(expression = "username") String username) {
+        financeService.createFinanceRecord(addFinance, username);
+        return ResponseEntity.ok("Finance record created successfully");
     }
 
-
-
-    // Add more endpoints as needed for retrieving, updating, and deleting finance records
+    // Add more endpoints as needed for retrieving, updating, and deleting finance
+    // records
 
 }

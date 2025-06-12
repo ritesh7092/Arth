@@ -1,6 +1,7 @@
 package com.arthManager.finance.dto;
 
 import com.arthManager.finance.model.Finance;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -8,14 +9,23 @@ import java.time.LocalDate;
 
 @Data
 public class AddFinance {
-    private String category; // e.g., "salary", "rent", "groceries", etc.
+    @NotNull(message = "Transaction date is required")
+    private LocalDate transactionDate;
+
+    @NotBlank(message = "Description is required")
     private String description;
-    private Finance.TransactionType transactionType; // can be "income" or "expense", "borrow", or "loan"
+
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
-    private LocalDate transactionDate; // date in the format "YYYY-MM-DD"
-    private String paymentMethod; // e.g., "cash", "credit card", "bank transfer"
-    private String counterparty; // e.g., "John Doe", "XYZ Corp", etc.
-    private Finance.DueStatus dueStatus; // e.g., "pending", "completed"
 
+    @NotBlank(message = "Category is required")
+    private String category;
+
+    @NotNull(message = "Transaction type is required")
+    private Finance.TransactionType transactionType;
+
+    private String paymentMethod;
+    private String counterparty;
+    private Finance.DueStatus dueStatus;
 }
-

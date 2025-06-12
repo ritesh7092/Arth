@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,18 +18,16 @@ public interface FinanceRepository extends JpaRepository<Finance, Long> {
             + " AND (:transactionType IS NULL OR f.transactionType = :transactionType)"
             + " AND (:category IS NULL OR f.category = :category)"
             + " AND (:start IS NULL OR f.transactionDate >= :start)"
-            + " AND (:end IS NULL OR f.transactionDate <= :end)" +
-            " ORDER BY f.transactionDate DESC")
+            + " AND (:end IS NULL OR f.transactionDate <= :end)"
+            + " ORDER BY f.transactionDate DESC")
     Page<Finance> findByUserAndFilters(
             @Param("user") User user,
-            @Param("transactionType") String transactionType,
+            @Param("transactionType") Finance.TransactionType transactionType,
             @Param("category") String category,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end,
             Pageable pageable
     );
 
-
     Optional<Finance> findByIdAndUser(Long id, User user);
-
 }
