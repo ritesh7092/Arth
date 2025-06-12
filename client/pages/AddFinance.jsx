@@ -28,7 +28,7 @@ const AddFinance = () => {
   const [serverTime, setServerTime] = useState(new Date().toLocaleString());
   const [fieldErrors, setFieldErrors] = useState({});
 
-  // --- THEME-AWARE STYLING ---
+  // Theme classes (same as before)
   const themeClasses = {
     bg: isDarkMode
       ? 'bg-gradient-to-br from-gray-900 via-gray-950 to-black'
@@ -71,7 +71,7 @@ const AddFinance = () => {
       dueStatus: financeData.dueStatus === '' ? null : financeData.dueStatus
     };
 
-    // Optionally, check only required fields manually if you want
+    // Only check required fields manually for instant feedback
     if (
       !financeData.transactionDate ||
       !financeData.amount ||
@@ -122,6 +122,7 @@ const AddFinance = () => {
         navigate('/finance/dashboard');
       }, 2000);
     } catch (error) {
+      // Industry-style backend error handling
       let errorMessage =
         error.response?.data?.error ||
         error.response?.data?.message ||
@@ -249,6 +250,7 @@ const AddFinance = () => {
                     onChange={handleChange}
                     required
                     step="0.01"
+                    // No min here, let backend handle validation
                     className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 pl-9 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
                   />
                 </div>

@@ -32,7 +32,7 @@ import autoTable from "jspdf-autotable";
 
 // Format INR
 const formatRupee = amount =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(amount);
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(amount ?? 0);
 
 // Metric Card Component
 const MetricCard = ({ icon: Icon, title, value, colorClass }) => (
@@ -47,11 +47,14 @@ const MetricCard = ({ icon: Icon, title, value, colorClass }) => (
 
 // Transaction Card
 const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }) => {
-  const isExpense = transaction.type === 'Expense';
-  const isLoanOrBorrow = transaction.type === 'LOAN' || transaction.type === 'BORROW';
+  // Support both 'type' and 'transactionType'
+  const type = (transaction.type || transaction.transactionType || '').toUpperCase();
+  const isExpense = type === 'EXPENSE';
+  const isLoanOrBorrow = type === 'LOAN' || type === 'BORROW';
   const isPending = isLoanOrBorrow && (transaction.dueStatus === 'UNPAID' || transaction.dueStatus === 'PARTIALLY_PAID');
   const amountColor = isExpense ? 'text-red-500' : 'text-green-500';
 
+  
   return (
     <div
       className={`
@@ -63,7 +66,7 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className={`font-semibold ${themeClasses.text} truncate text-base sm:text-lg`}>
-              {transaction.note}
+              {transaction.note || transaction.description}
             </p>
             {transaction.attachment && (
               <a
@@ -83,9 +86,9 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
             <span className={`text-xs px-2 py-1 rounded-full ${
               isExpense ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
             }`}>
-              {transaction.type}
+              {type}
             </span>
-            {(transaction.type === 'LOAN' || transaction.type === 'BORROW') && transaction.dueStatus && (
+            {(type === 'LOAN' || type === 'BORROW') && transaction.dueStatus && (
               <span className={`text-xs px-2 py-1 rounded-full ${
                 transaction.dueStatus === 'PAID'
                   ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
@@ -93,14 +96,14 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
                   ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                   : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
               }`}>
-                {transaction.type === 'LOAN'
+                {type === 'LOAN'
                   ? `Given: ${transaction.dueStatus.replace('_', ' ')}`
                   : `Taken: ${transaction.dueStatus.replace('_', ' ')}`}
               </span>
             )}
           </div>
           <p className={`${themeClasses.textSecondary} text-xs sm:text-sm mt-2`}>
-            {new Date(transaction.date).toLocaleDateString('en-IN', {
+            {new Date(transaction.date || transaction.transactionDate).toLocaleDateString('en-IN', {
               year: 'numeric',
               month: 'short',
               day: 'numeric',
@@ -110,7 +113,7 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
         </div>
         <div className="flex flex-col sm:items-end w-full sm:w-auto">
           <p className={`font-bold text-lg sm:text-xl ${amountColor} mb-2 sm:mb-3`}>
-            {formatRupee(isExpense ? -transaction.amount : transaction.amount)}
+            {formatRupee(isExpense ? -Math.abs(transaction.amount) : Math.abs(transaction.amount))}
           </p>
           <div className="flex space-x-2">
             <button
@@ -176,44 +179,51 @@ export default function FinanceDashboard() {
     bg: isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50',
     cardBg: isDarkMode ? 'bg-gray-800' : 'bg-white/80 backdrop-blur-sm',
     text: isDarkMode ? 'text-white' : 'text-gray-900',
-    textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-700', // changed from text-gray-600 to text-gray-700 for better contrast
-    border: isDarkMode ? 'border-gray-700' : 'border-gray-300', // changed from border-gray-200/50 to border-gray-300
-    inputBorder: isDarkMode ? 'border-gray-600' : 'border-gray-400', // changed from border-gray-300 to border-gray-400
-    hover: isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100', // changed from hover:bg-white/90 to hover:bg-gray-100
+    textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-700',
+    border: isDarkMode ? 'border-gray-700' : 'border-gray-300',
+    inputBorder: isDarkMode ? 'border-gray-600' : 'border-gray-400',
+    hover: isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100',
     buttonPrimary: 'bg-emerald-600 hover:bg-emerald-700 text-white',
     buttonSecondary: isDarkMode
       ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-      : 'bg-gray-200 hover:bg-gray-300 text-gray-900', // changed from bg-gray-300 hover:bg-gray-400 text-gray-800
+      : 'bg-gray-200 hover:bg-gray-300 text-gray-900',
   };
 
-  // Auth helper
-  const getToken = useCallback(() => {
-    const t = localStorage.getItem('authToken');
-    if (!t) {
-      setError('Please login to continue.');
-      setTimeout(() => navigate('/login'), 1500);
-    }
-    return t;
-  }, [navigate]);
-
-  // Fetch transactions (mock/API)
+  // Fetch transactions from backend API
   const fetchTransactions = useCallback(async () => {
-    const token = getToken();
-    if (!token) return;
     setLoading(true);
+    setError(null);
     try {
-      // Uncomment and use your real API here:
-      // const res = await baseUrl.get('/api/finance/transactions', { headers: { Authorization: `Bearer ${token}` }});
-      // setTransactions(res.data.content);
-      // For demo, use mock data:
-      await new Promise(r => setTimeout(r, 700));
-      setTransactions(window.mockTransactions || []);
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Please login to continue.');
+        setTimeout(() => navigate('/login'), 1500);
+        return;
+      }
+      const res = await baseUrl.get('/api/finance/transactions', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Robust: support array, {content: [...]}, {transactions: [...]}
+      let txns = [];
+      if (Array.isArray(res.data)) {
+        txns = res.data;
+      } else if (res.data.content) {
+        txns = res.data.content;
+      } else if (res.data.transactions) {
+        txns = res.data.transactions;
+      }
+      setTransactions(txns);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Failed to fetch transactions.");
+      let errorMessage =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to fetch transactions.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [getToken]);
+  }, [navigate]);
 
   useEffect(() => {
     fetchTransactions();
@@ -229,6 +239,11 @@ export default function FinanceDashboard() {
   const previousMonthStr = useMemo(() => getMonthString(prevMonthDate), [getMonthString, prevMonthDate]);
   const currentYearStr = useMemo(() => getYearString(today), [getYearString, today]);
 
+  // Helper to get correct field names
+  const getType = t => t.type || t.transactionType || '';
+  const getDate = t => t.date || t.transactionDate || '';
+  const getAmount = t => typeof t.amount === 'number' ? t.amount : Number(t.amount) || 0;
+
   // Memoized calculations for metrics
   const {
     currentMonthTxns, currentIncome, currentExpense, currentSavings, currentLoss,
@@ -236,25 +251,25 @@ export default function FinanceDashboard() {
     totalIncome, totalExpense, netBalance,
     thisYearTxns, thisYearIncome, thisYearExpense, thisYearSavings, thisYearLoss
   } = useMemo(() => {
-    const currentMonthTxns = transactions.filter(t => t.date && t.date.startsWith(currentMonthStr));
-    const currentIncome = currentMonthTxns.filter(t => t.type === 'Income').reduce((s, t) => s + (t.amount || 0), 0);
-    const currentExpense = currentMonthTxns.filter(t => t.type === 'Expense').reduce((s, t) => s + (t.amount || 0), 0);
+    const currentMonthTxns = transactions.filter(t => getDate(t).startsWith(currentMonthStr));
+    const currentIncome = currentMonthTxns.filter(t => getType(t).toUpperCase() === 'INCOME').reduce((s, t) => s + getAmount(t), 0);
+    const currentExpense = currentMonthTxns.filter(t => getType(t).toUpperCase() === 'EXPENSE').reduce((s, t) => s + getAmount(t), 0);
     const currentSavings = currentIncome - currentExpense;
     const currentLoss = currentSavings < 0 ? Math.abs(currentSavings) : 0;
 
-    const prevMonthTxns = transactions.filter(t => t.date && t.date.startsWith(previousMonthStr));
-    const prevIncome = prevMonthTxns.filter(t => t.type === 'Income').reduce((s, t) => s + (t.amount || 0), 0);
-    const prevExpense = prevMonthTxns.filter(t => t.type === 'Expense').reduce((s, t) => s + (t.amount || 0), 0);
+    const prevMonthTxns = transactions.filter(t => getDate(t).startsWith(previousMonthStr));
+    const prevIncome = prevMonthTxns.filter(t => getType(t).toUpperCase() === 'INCOME').reduce((s, t) => s + getAmount(t), 0);
+    const prevExpense = prevMonthTxns.filter(t => getType(t).toUpperCase() === 'EXPENSE').reduce((s, t) => s + getAmount(t), 0);
     const prevSavings = prevIncome - prevExpense;
     const prevLoss = prevSavings < 0 ? Math.abs(prevSavings) : 0;
 
-    const totalIncome = transactions.filter(t => t.type === 'Income').reduce((s, t) => s + (t.amount || 0), 0);
-    const totalExpense = transactions.filter(t => t.type === 'Expense').reduce((s, t) => s + (t.amount || 0), 0);
+    const totalIncome = transactions.filter(t => getType(t).toUpperCase() === 'INCOME').reduce((s, t) => s + getAmount(t), 0);
+    const totalExpense = transactions.filter(t => getType(t).toUpperCase() === 'EXPENSE').reduce((s, t) => s + getAmount(t), 0);
     const netBalance = totalIncome - totalExpense;
 
-    const thisYearTxns = transactions.filter(t => t.date && t.date.startsWith(currentYearStr));
-    const thisYearIncome = thisYearTxns.filter(t => t.type === 'Income').reduce((s, t) => s + (t.amount || 0), 0);
-    const thisYearExpense = thisYearTxns.filter(t => t.type === 'Expense').reduce((s, t) => s + (t.amount || 0), 0);
+    const thisYearTxns = transactions.filter(t => getDate(t).startsWith(currentYearStr));
+    const thisYearIncome = thisYearTxns.filter(t => getType(t).toUpperCase() === 'INCOME').reduce((s, t) => s + getAmount(t), 0);
+    const thisYearExpense = thisYearTxns.filter(t => getType(t).toUpperCase() === 'EXPENSE').reduce((s, t) => s + getAmount(t), 0);
     const thisYearSavings = thisYearIncome - thisYearExpense;
     const thisYearLoss = thisYearSavings < 0 ? Math.abs(thisYearSavings) : 0;
 
@@ -289,27 +304,63 @@ export default function FinanceDashboard() {
   }
 
   // --- Filtering and Sorting ---
-  const filteredTransactions = useMemo(() =>
-    transactions
-      .filter(t => {
-        if (!t.date) return false;
-        const d = new Date(t.date);
-        const amt = t.amount || 0;
-        const matchesSearch = !searchQuery ||
-          (t.note && t.note.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (t.category && t.category.toLowerCase().includes(searchQuery.toLowerCase()));
-        const matchesType = filterType === 'All' || t.type === filterType;
-        const matchesCat = filterCategory === 'All' || t.category === filterCategory;
-        const start = filterStartDate ? new Date(filterStartDate) : null;
-        const end = filterEndDate ? new Date(filterEndDate) : null;
-        const matchesDate = (!start || d >= start) && (!end || d <= end);
-        const minA = filterMinAmount ? parseFloat(filterMinAmount) : -Infinity;
-        const maxA = filterMaxAmount ? parseFloat(filterMaxAmount) : Infinity;
-        const matchesDueStatus = !filterDueStatus || t.dueStatus === filterDueStatus;
-        return matchesSearch && matchesType && matchesCat && matchesDate && amt >= minA && amt <= maxA && matchesDueStatus;
-      })
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-  , [transactions, searchQuery, filterType, filterCategory, filterStartDate, filterEndDate, filterMinAmount, filterMaxAmount, filterDueStatus]);
+  const filteredTransactions = useMemo(
+    () =>
+      transactions
+        .filter((t) => {
+          const d = getDate(t);
+          if (!d) return false;
+          const dateObj = d ? new Date(d) : null;
+          const amt = getAmount(t);
+          const note = t.note || t.description || '';
+          // Search filter
+          const matchesSearch =
+            !searchQuery ||
+            note.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (t.category && t.category.toLowerCase().includes(searchQuery.toLowerCase()));
+          // Type filter (robust: always compare uppercase)
+          const matchesType =
+            filterType === 'All' ||
+            getType(t).toUpperCase() === filterType.toUpperCase();
+          // Category filter (robust: always compare lowercase)
+          const matchesCat =
+            filterCategory === 'All' ||
+            (t.category && t.category.toLowerCase() === filterCategory.toLowerCase());
+          // Date filter
+          const start = filterStartDate ? new Date(filterStartDate) : null;
+          const end = filterEndDate ? new Date(filterEndDate) : null;
+          const matchesDate =
+            (!start || (dateObj && dateObj >= start)) &&
+            (!end || (dateObj && dateObj <= end));
+          // Amount filter (robust: handle empty string)
+          const minA = filterMinAmount !== '' ? parseFloat(filterMinAmount) : -Infinity;
+          const maxA = filterMaxAmount !== '' ? parseFloat(filterMaxAmount) : Infinity;
+          const matchesAmount = amt >= minA && amt <= maxA;
+          // Due status filter
+          const matchesDueStatus =
+            !filterDueStatus || (t.dueStatus && t.dueStatus === filterDueStatus);
+          return (
+            matchesSearch &&
+            matchesType &&
+            matchesCat &&
+            matchesDate &&
+            matchesAmount &&
+            matchesDueStatus
+          );
+        })
+        .sort((a, b) => new Date(getDate(b)) - new Date(getDate(a))),
+    [
+      transactions,
+      searchQuery,
+      filterType,
+      filterCategory,
+      filterStartDate,
+      filterEndDate,
+      filterMinAmount,
+      filterMaxAmount,
+      filterDueStatus,
+    ]
+  );
 
   // --- Limiting Logic ---
   useEffect(() => {
@@ -364,9 +415,9 @@ export default function FinanceDashboard() {
               </p>
               {transaction && (
                 <div className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-6`}>
-                  <p className={`font-semibold ${themeClasses.text}`}>{transaction.note}</p>
+                  <p className={`font-semibold ${themeClasses.text}`}>{transaction.note || transaction.description}</p>
                   <p className={`text-sm ${themeClasses.textSecondary}`}>
-                    {formatRupee(transaction.amount)} • {transaction.category}
+                    {formatRupee(getAmount(transaction))} • {transaction.category}
                   </p>
                 </div>
               )}
@@ -653,10 +704,10 @@ export default function FinanceDashboard() {
 
   // --- Pending Loans/Borrows Metrics ---
   const pendingLoansGiven = transactions.filter(
-    t => t.type === 'LOAN' && (t.dueStatus === 'UNPAID' || t.dueStatus === 'PARTIALLY_PAID')
+    t => (getType(t) === 'LOAN') && (t.dueStatus === 'UNPAID' || t.dueStatus === 'PARTIALLY_PAID')
   ).length;
   const pendingBorrowsTaken = transactions.filter(
-    t => t.type === 'BORROW' && (t.dueStatus === 'UNPAID' || t.dueStatus === 'PARTIALLY_PAID')
+    t => (getType(t) === 'BORROW') && (t.dueStatus === 'UNPAID' || t.dueStatus === 'PARTIALLY_PAID')
   ).length;
   const totalPending = pendingLoansGiven + pendingBorrowsTaken;
 
@@ -879,8 +930,8 @@ export default function FinanceDashboard() {
                 className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
               >
                 <option value="All">All Types</option>
-                <option value="Income">Income</option>
-                <option value="Expense">Expense</option>
+                <option value="INCOME">Income</option>
+                <option value="EXPENSE">Expense</option>
                 <option value="LOAN">Loan (Given)</option>
                 <option value="BORROW">Borrow (Taken)</option>
               </select>
