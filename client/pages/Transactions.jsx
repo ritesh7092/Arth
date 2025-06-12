@@ -16,6 +16,7 @@ import "./print.css";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
+import { Paperclip } from "lucide-react";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
@@ -743,4 +744,5 @@ const Transactions = () => {
 };
 
 export default Transactions;
+
 

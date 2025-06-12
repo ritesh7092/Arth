@@ -1013,4 +1013,3 @@ function FeaturesCarousel() {
 }
 
 export default Home;
-

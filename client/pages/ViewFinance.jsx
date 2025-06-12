@@ -1,6 +1,7 @@
 // src/components/ViewFinance.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Paperclip } from 'lucide-react';
 import baseUrl from '../api/api';
 import 'animate.css'; // Ensure animate.css is imported
 import { useTheme } from '../src/theme/ThemeProvider'; // Adjust path if necessary

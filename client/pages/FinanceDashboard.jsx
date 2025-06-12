@@ -31,6 +31,7 @@ import {
   Tag,
   Clock,
   ArrowLeftRight,
+  Paperclip,
 } from 'lucide-react';
 import baseUrl from '../api/api';
 import { useTheme } from '../src/theme/ThemeProvider';
@@ -61,9 +62,21 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
     <div className={`${themeClasses.cardBg} border ${themeClasses.border} rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200 animate__animated animate__fadeIn`}>
       <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
         <div className="flex-1 min-w-0">
-          <p className={`font-semibold ${themeClasses.text} truncate text-base sm:text-lg`}>
-            {transaction.description}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className={`font-semibold ${themeClasses.text} truncate text-base sm:text-lg`}>
+              {transaction.note}
+            </p>
+            {transaction.attachment && (
+              <a
+                href={URL.createObjectURL(transaction.attachment)}
+                download={transaction.attachment.name}
+                title="Download attachment"
+                className="inline-block align-middle"
+              >
+                <Paperclip className="inline w-4 h-4 text-blue-500" />
+              </a>
+            )}
+          </div>
           <div className="flex flex-wrap gap-2 mt-2">
             <span className={`${themeClasses.textSecondary} text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full`}>
               {transaction.category}
@@ -269,7 +282,7 @@ export default function FinanceDashboard() {
         const d = new Date(t.date);
         const amt = t.amount || 0;
         const matchesSearch = !searchQuery ||
-          (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (t.note && t.note.toLowerCase().includes(searchQuery.toLowerCase())) ||
           (t.category && t.category.toLowerCase().includes(searchQuery.toLowerCase()));
         const matchesType = filterType === 'All' || t.type === filterType;
         const matchesCat = filterCategory === 'All' || t.category === filterCategory;
@@ -335,7 +348,7 @@ export default function FinanceDashboard() {
               </p>
               {transaction && (
                 <div className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-6`}>
-                  <p className={`font-semibold ${themeClasses.text}`}>{transaction.description}</p>
+                  <p className={`font-semibold ${themeClasses.text}`}>{transaction.note}</p>
                   <p className={`text-sm ${themeClasses.textSecondary}`}>
                     {formatRupee(transaction.amount)} • {transaction.category}
                   </p>
@@ -367,13 +380,14 @@ export default function FinanceDashboard() {
 
   // --- Export Feature ---
   const handleExportCSV = () => {
-    const header = ["Date", "Description", "Category", "Type", "Amount"];
+    const header = ["Date", "Note", "Category", "Type", "Amount", "Attachment"];
     const rows = filteredTransactions.map(t => [
       t.date,
-      t.description,
+      t.note,
       t.category,
       t.type,
-      t.amount
+      t.amount,
+      t.attachment ? t.attachment.name : ""
     ]);
     let csvContent = "data:text/csv;charset=utf-8," + [header, ...rows].map(e => e.join(",")).join("\n");
     const encodedUri = encodeURI(csvContent);
@@ -477,13 +491,14 @@ export default function FinanceDashboard() {
     doc.text("Transaction Details", 14, doc.lastAutoTable.finalY + 20);
 
     autoTable(doc, {
-      head: [["Date", "Description", "Category", "Type", "Amount"]],
+      head: [["Date", "Note", "Category", "Type", "Amount", "Attachment"]],
       body: filteredTransactions.map(t => [
         t.date,
-        t.description,
+        t.note,
         t.category,
         t.type,
-        formatRupee(t.amount)
+        formatRupee(t.amount),
+        t.attachment ? t.attachment.name : ""
       ]),
       startY: doc.lastAutoTable.finalY + 26,
       styles: { fontSize: 10 },
@@ -561,20 +576,22 @@ export default function FinanceDashboard() {
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Description</th>
+                <th>Note</th>
                 <th>Category</th>
                 <th>Type</th>
                 <th>Amount</th>
+                <th>Attachment</th>
               </tr>
             </thead>
             <tbody>
               ${filteredTransactions.map(t => `
                 <tr>
                   <td>${t.date}</td>
-                  <td>${t.description}</td>
+                  <td>${t.note}</td>
                   <td>${t.category}</td>
                   <td>${t.type}</td>
                   <td>${formatRupee(t.amount)}</td>
+                  <td>${t.attachment ? t.attachment.name : ''}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -799,7 +816,7 @@ export default function FinanceDashboard() {
                 <Search className={`w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 ${themeClasses.textSecondary}`} />
                 <input
                   type="text"
-                  placeholder="Search description or category..."
+                  placeholder="Search note or category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={`w-full border ${themeClasses.inputBorder} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
@@ -955,4 +972,5 @@ if (typeof window !== "undefined" && !document.getElementById('arth-bg-loading-s
   `;
   document.head.appendChild(style);
 }
+
 
