@@ -60,7 +60,7 @@ const EditFinance = () => {
       }
 
       try {
-        const response = await baseUrl.get(`/api/finance/${id}`, {
+        const response = await baseUrl.get(`/api/finance/transactions/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         // Format dueDate to 'YYYY-MM-DD' for input type="date"
@@ -114,7 +114,7 @@ const EditFinance = () => {
     });
 
     try {
-      await baseUrl.put(`/api/finance/update/${id}`, payload, {
+      await baseUrl.put(`/api/finance/transactions/update/${id}`, payload, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
 

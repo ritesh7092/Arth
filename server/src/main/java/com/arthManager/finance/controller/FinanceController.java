@@ -46,6 +46,15 @@ public class FinanceController {
         return ResponseEntity.ok(financeDto);
     }
 
+    @PutMapping("/transactions/update/{id}")
+    public ResponseEntity<?> updateTransaction(
+            @PathVariable Long id,
+            @Valid @RequestBody AddFinance addFinance,
+            @AuthenticationPrincipal(expression = "username") String username) {
+        financeService.updateFinanceRecord(id, addFinance, username);
+        return ResponseEntity.ok("Transaction updated successfully");
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createFinanceRecord(
             @Valid @RequestBody AddFinance addFinance,

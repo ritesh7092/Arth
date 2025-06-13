@@ -105,6 +105,51 @@ public class FinanceService {
         return financeRepository.save(finance);
     }
 
+    public FinanceDto updateFinanceRecord(Long id, AddFinance addFinance, String username) {
+        User user = getUserByUsername(username);
+        Finance finance = financeRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Transaction not found or not authorized"));
+
+        // Update fields
+        finance.setTransactionDate(addFinance.getTransactionDate());
+        finance.setDescription(addFinance.getDescription());
+        finance.setAmount(addFinance.getAmount());
+        finance.setCategory(addFinance.getCategory());
+        finance.setTransactionType(addFinance.getTransactionType());
+        finance.setPaymentMethod(addFinance.getPaymentMethod());
+        finance.setCounterparty(addFinance.getCounterparty() == null || addFinance.getCounterparty().isEmpty() ? "Self"
+                : addFinance.getCounterparty());
+
+        // Set dueStatus for LOAN/BORROW
+        if (addFinance.getDueStatus() == null) {
+            if (addFinance.getTransactionType() == Finance.TransactionType.LOAN ||
+                    addFinance.getTransactionType() == Finance.TransactionType.BORROW) {
+                finance.setDueStatus(Finance.DueStatus.UNPAID);
+            }
+        } else {
+            finance.setDueStatus(addFinance.getDueStatus());
+        }
+
+        // When updating Finance from AddFinance:
+        finance.setDueDate(addFinance.getDueDate());
+        finance.setClientDescription(addFinance.getClientDescription());
+        finance.setEmailReminder(addFinance.getEmailReminder());
+
+        // Update user balance
+        BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+        if (addFinance.getTransactionType() == Finance.TransactionType.EXPENSE ||
+                addFinance.getTransactionType() == Finance.TransactionType.LOAN ||
+                addFinance.getTransactionType() == Finance.TransactionType.BORROW) {
+            currentBalance = currentBalance.subtract(finance.getAmount()).add(addFinance.getAmount());
+        } else if (addFinance.getTransactionType() == Finance.TransactionType.INCOME) {
+            currentBalance = currentBalance.add(addFinance.getAmount()).subtract(finance.getAmount());
+        }
+        user.setBalance(currentBalance);
+        finance.setBalance(currentBalance);
+
+        return toDto(financeRepository.save(finance));
+    }
+
     private FinanceDto toDto(Finance finance) {
         FinanceDto dto = new FinanceDto();
         dto.setId(finance.getId());
