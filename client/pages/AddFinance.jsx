@@ -22,6 +22,10 @@ const AddFinance = () => {
     paymentMethod: '',
     counterparty: '',
     dueStatus: '',
+    dueDate: '', // <-- Added dueDate here
+    counterpartyEmail: '',
+    emailReminder: false,
+    clientDescription: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [flashMessage, setFlashMessage] = useState(null);
@@ -47,6 +51,7 @@ const AddFinance = () => {
     errorText: 'text-red-500'
   };
 
+
   useEffect(() => {
     const interval = setInterval(() => {
       setServerTime(new Date().toLocaleString());
@@ -55,9 +60,12 @@ const AddFinance = () => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFinanceData((prev) => ({ ...prev, [name]: value }));
-    setFieldErrors((prev) => ({ ...prev, [name]: undefined })); // Clear field error on change
+    const { name, value, type, checked } = e.target;
+    setFinanceData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+    setFieldErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmit = async (e) => {
@@ -66,9 +74,10 @@ const AddFinance = () => {
     setFieldErrors({});
 
     // Prepare data: convert empty dueStatus to null
+    // Only include dueDate if transactionType is LOAN or BORROW
     const dataToSend = {
       ...financeData,
-      dueStatus: financeData.dueStatus === '' ? null : financeData.dueStatus
+      dueStatus: financeData.dueStatus ? financeData.dueStatus : null,
     };
 
     // Only check required fields manually for instant feedback
@@ -77,10 +86,25 @@ const AddFinance = () => {
       !financeData.amount ||
       !financeData.description ||
       !financeData.category ||
-      !financeData.transactionType
+      !financeData.transactionType ||
+      (
+        // If Loan or Borrow, dueStatus is required
+        (financeData.transactionType === 'LOAN' || financeData.transactionType === 'BORROW') &&
+        !financeData.dueStatus
+      )
     ) {
       setFlashMessage({ type: 'error', message: 'Please fill in all required fields.' });
       setTimeout(() => setFlashMessage(null), 4000);
+      return;
+    }
+
+    // Email validation: check format if provided
+    if (financeData.counterpartyEmail && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(financeData.counterpartyEmail)) {
+      setFieldErrors(prev => ({
+        ...prev,
+        counterpartyEmail: 'Please enter a valid email address.',
+      }));
+      setFlashMessage({ type: 'error', message: 'Please enter a valid email address.' });
       return;
     }
 
@@ -114,6 +138,10 @@ const AddFinance = () => {
         paymentMethod: '',
         counterparty: '',
         dueStatus: '',
+        dueDate: '',
+        counterpartyEmail: '',
+        emailReminder: false,
+        clientDescription: '',
       });
       setFieldErrors({});
 
@@ -364,15 +392,20 @@ const AddFinance = () => {
                 )}
               </div>
               <div>
-                <label htmlFor="dueStatus" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>Due Status</label>
+                <label htmlFor="dueStatus" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>
+                  Due Status
+                  {['LOAN', 'BORROW'].includes(financeData.transactionType) && (
+                    <span className={themeClasses.textHighlight}> *</span>
+                  )}
+                </label>
                 <select
                   id="dueStatus"
                   name="dueStatus"
                   value={financeData.dueStatus}
                   onChange={handleChange}
-                  className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300 appearance-none pr-10 custom-select-arrow`}
+                  required={financeData.transactionType === 'LOAN' || financeData.transactionType === 'BORROW'}
                 >
-                  <option value="">Select Status (if applicable)</option>
+                  <option value="">Select Status *</option>
                   <option value="PAID">Paid</option>
                   <option value="UNPAID">Unpaid</option>
                   <option value="PARTIALLY_PAID">Partially Paid</option>
@@ -382,6 +415,90 @@ const AddFinance = () => {
                 )}
               </div>
             </div>
+
+            {/* Due Date - Conditionally Rendered */}
+            {['LOAN', 'BORROW'].includes(financeData.transactionType) && (
+              <div>
+                <label htmlFor="dueDate" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>Due Date</label>
+                <input
+                  type="date"
+                  id="dueDate"
+                  name="dueDate"
+                  value={financeData.dueDate}
+                  onChange={handleChange}
+                  className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
+                />
+              </div>
+            )}
+
+            {/* Counterparty Email (only for Loan or Borrow) */}
+            {['LOAN', 'BORROW'].includes(financeData.transactionType) && (
+              <div>
+                <label htmlFor="counterpartyEmail" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>
+                  {financeData.transactionType === 'LOAN'
+                    ? 'Client Email (Optional)'
+                    : 'Lender Email (Optional)'}
+                </label>
+                <input
+                  type="email"
+                  id="counterpartyEmail"
+                  name="counterpartyEmail"
+                  value={financeData.counterpartyEmail || ''}
+                  onChange={handleChange}
+                  className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
+                  placeholder="example@email.com"
+                  pattern="^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$"
+                  title="Please enter a valid email address"
+                />
+                {fieldErrors.counterpartyEmail && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.counterpartyEmail}</div>
+                )}
+              </div>
+            )}
+
+            {/* Client Description (only for Loan or Borrow) */}
+            {['LOAN', 'BORROW'].includes(financeData.transactionType) && (
+              <div>
+                <label htmlFor="clientDescription" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>
+                  Client Description (Optional)
+                </label>
+                <input
+                  type="text"
+                  id="clientDescription"
+                  name="clientDescription"
+                  value={financeData.clientDescription || ''}
+                  onChange={handleChange}
+                  className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
+                  placeholder="e.g. Company Name, Contact Details, etc."
+                  maxLength={100}
+                />
+                {fieldErrors.clientDescription && (
+                  <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.clientDescription}</div>
+                )}
+              </div>
+            )}
+
+            {/* Email Reminder Option (only for Loan or Borrow) */}
+            {['LOAN', 'BORROW'].includes(financeData.transactionType) && (
+              <div className="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  id="emailReminder"
+                  name="emailReminder"
+                  checked={!!financeData.emailReminder}
+                  onChange={e =>
+                    setFinanceData(prev => ({
+                      ...prev,
+                      emailReminder: e.target.checked,
+                    }))
+                  }
+                  className="mr-2"
+                />
+                <label htmlFor="emailReminder" className={`text-sm ${themeClasses.textSecondary}`}>
+                  Send email reminder on due date
+                </label>
+              </div>
+            )}
 
             {/* Submit Button */}
             <div className="pt-6">
@@ -409,5 +526,4 @@ const AddFinance = () => {
 };
 
 export default AddFinance;
-
 

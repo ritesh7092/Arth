@@ -17,5 +17,8 @@ public class FinanceDto {
     private LocalDate date; // Format: "YYYY-MM-DD"
     private BigDecimal amount; // Monetary value as a string to handle currency formatting
     private Finance.DueStatus dueStatus; // Enum for loan/borrow status e.g ("PAID", "UNPAID", "PARTIALLY_PAID")
+    private LocalDate dueDate;
+    private String clientDescription;
+    private Boolean emailReminder;
 
 }

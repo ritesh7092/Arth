@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 //import javax.persistence.*;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -26,7 +25,6 @@ public class Finance {
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
 
-
     @Column(name = "description", nullable = false)
     private String description;
 
@@ -38,7 +36,7 @@ public class Finance {
     @Column(name = "category", nullable = false)
     private String category;
 
-    //  to distinguish income, expense, borrow, or loan transactions
+    // to distinguish income, expense, borrow, or loan transactions
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType;
@@ -58,7 +56,8 @@ public class Finance {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Optional balance field to track remaining amount for a loan/borrow transaction
+    // Optional balance field to track remaining amount for a loan/borrow
+    // transaction
     @Column(name = "balance")
     private BigDecimal balance = BigDecimal.ZERO;
 
@@ -67,11 +66,23 @@ public class Finance {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Optional field for loan/borrow transactions: tracks if the transaction is still pending or completed.
+    // Optional field for loan/borrow transactions: tracks if the transaction is
+    // still pending or completed.
     @Enumerated(EnumType.STRING)
     @Column(name = "due_status")
     private DueStatus dueStatus;
 
+    // Optional: Due date for loan/borrow settlement
+    @Column(name = "due_date")
+    private LocalDate dueDate;
+
+    // Optional: Client description for loan/borrow
+    @Column(name = "client_description")
+    private String clientDescription;
+
+    // Optional: Email reminder flag
+    @Column(name = "email_reminder")
+    private Boolean emailReminder;
 
     // Automatically set timestamps when creating/updating a record
     @PrePersist
@@ -88,15 +99,14 @@ public class Finance {
     public enum TransactionType {
         INCOME,
         EXPENSE,
-        BORROW,  // Money borrowed by the user from someone else
-        LOAN     // Money lent by the user to someone else
+        BORROW, // Money borrowed by the user from someone else
+        LOAN // Money lent by the user to someone else
     }
 
     // Enum for loan/borrow status.
     public enum DueStatus {
-        PAID,          // The loan/borrow has been fully paid
-        UNPAID,        // The loan/borrow is still outstanding
+        PAID, // The loan/borrow has been fully paid
+        UNPAID, // The loan/borrow is still outstanding
         PARTIALLY_PAID // Some amount has been paid, but not all
     }
 }
-

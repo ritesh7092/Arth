@@ -28,7 +28,8 @@ public class FinanceService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
-    public Page<FinanceDto> getTransactions(String username, String type, String category, String startDate, String endDate, Pageable pageable) {
+    public Page<FinanceDto> getTransactions(String username, String type, String category, String startDate,
+            String endDate, Pageable pageable) {
         User user = getUserByUsername(username);
         Finance.TransactionType transactionType = null;
         if (type != null && !type.isEmpty()) {
@@ -41,8 +42,7 @@ public class FinanceService {
         LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
         LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
         Page<Finance> page = financeRepository.findByUserAndFilters(
-                user, transactionType, category, start, end, pageable
-        );
+                user, transactionType, category, start, end, pageable);
         return page.map(this::toDto);
     }
 
@@ -63,7 +63,8 @@ public class FinanceService {
         finance.setCategory(addFinance.getCategory());
         finance.setTransactionType(addFinance.getTransactionType());
         finance.setPaymentMethod(addFinance.getPaymentMethod());
-        finance.setCounterparty(addFinance.getCounterparty() == null || addFinance.getCounterparty().isEmpty() ? "Self" : addFinance.getCounterparty());
+        finance.setCounterparty(addFinance.getCounterparty() == null || addFinance.getCounterparty().isEmpty() ? "Self"
+                : addFinance.getCounterparty());
 
         // Set dueStatus for LOAN/BORROW
         if (addFinance.getDueStatus() == null) {
@@ -74,6 +75,11 @@ public class FinanceService {
         } else {
             finance.setDueStatus(addFinance.getDueStatus());
         }
+
+        // When creating Finance from AddFinance:
+        finance.setDueDate(addFinance.getDueDate());
+        finance.setClientDescription(addFinance.getClientDescription());
+        finance.setEmailReminder(addFinance.getEmailReminder());
 
         finance.setUser(user);
 
@@ -89,6 +95,13 @@ public class FinanceService {
         user.setBalance(currentBalance);
         finance.setBalance(currentBalance);
 
+        // Validate due status for LOAN/BORROW
+        if ((addFinance.getTransactionType() == Finance.TransactionType.LOAN ||
+                addFinance.getTransactionType() == Finance.TransactionType.BORROW) &&
+                addFinance.getDueStatus() == null) {
+            throw new IllegalArgumentException("Due status is required for Loan or Borrow transactions.");
+        }
+
         return financeRepository.save(finance);
     }
 
@@ -103,6 +116,10 @@ public class FinanceService {
         dto.setDate(finance.getTransactionDate());
         dto.setAmount(finance.getAmount());
         dto.setDueStatus(finance.getDueStatus());
+        // When mapping to DTO:
+        dto.setDueDate(finance.getDueDate());
+        dto.setClientDescription(finance.getClientDescription());
+        dto.setEmailReminder(finance.getEmailReminder());
         return dto;
     }
 }
