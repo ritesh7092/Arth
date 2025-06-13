@@ -8,7 +8,27 @@ import { useTheme } from '../src/theme/ThemeProvider'; // Adjust path if necessa
 import { FaPaperclip } from 'react-icons/fa';
 
 // Import Lucide React Icons
-import { ArrowLeft, Loader2, AlertTriangle, CheckCircle, Moon, Sun, Calendar, Tag, Info, List, DollarSign, Wallet, Repeat, User2, Clock } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Loader2, 
+  AlertTriangle, 
+  CheckCircle, 
+  Moon, 
+  Sun, 
+  Calendar, 
+  Tag, 
+  Info, 
+  DollarSign, 
+  Wallet, 
+  Repeat, 
+  User2, 
+  Clock, 
+  XCircle,
+  Mail,
+  FileText,
+  Bell,
+  Edit
+} from 'lucide-react';
 
 const ViewFinance = () => {
   const { theme, toggleTheme } = useTheme();
@@ -32,6 +52,7 @@ const ViewFinance = () => {
     textSecondary: isDarkMode ? 'text-gray-400' : 'text-gray-600',
     textMuted: isDarkMode ? 'text-gray-500' : 'text-gray-400', // For labels
     textValue: isDarkMode ? 'text-gray-200' : 'text-gray-800', // For actual values
+    textHighlight: isDarkMode ? 'text-indigo-400' : 'text-indigo-600',
     buttonPrimary: 'bg-gradient-to-r from-purple-700 to-indigo-600 hover:from-purple-800 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl',
     buttonSecondary: isDarkMode ? 'bg-gray-700/50 hover:bg-gray-600/70 text-gray-200 shadow-md' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-md',
     // Specific colors for transaction type tags
@@ -41,10 +62,15 @@ const ViewFinance = () => {
     typeLoan: 'bg-blue-500 text-white',
     typeTransfer: 'bg-purple-500 text-white',
     // Specific colors for due status tags
-    duePending: 'bg-yellow-500 text-gray-900',
-    dueCompleted: 'bg-green-500 text-white',
-    dueOverdue: 'bg-red-700 text-white',
+    duePaid: 'bg-green-500 text-white',
+    dueUnpaid: 'bg-red-500 text-white',
+    duePartiallyPaid: 'bg-yellow-500 text-gray-900',
     dueNA: 'bg-gray-400 text-white',
+    // Section styling
+    sectionBg: isDarkMode ? 'bg-gray-700/30 border border-gray-600/30' : 'bg-gray-50/80 border border-gray-200/50',
+    // Note and attachment styling
+    noteBg: isDarkMode ? 'bg-gray-700/50 border border-gray-600' : 'bg-gray-50 border border-gray-200',
+    attachmentBg: isDarkMode ? 'bg-blue-900/30 hover:bg-blue-800/40 text-blue-300 border border-blue-700' : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200',
   };
 
   // --- FETCH FINANCE RECORD DATA ON COMPONENT MOUNT ---
@@ -60,7 +86,7 @@ const ViewFinance = () => {
       }
 
       try {
-        const response = await baseUrl.get(`/api/finance/${id}`, {
+        const response = await baseUrl.get(`/api/finance/transactions/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFinanceData(response.data);
@@ -89,6 +115,12 @@ const ViewFinance = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Helper to format currency
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return '₹0.00';
+    return `₹${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   // Helper to get transaction type tag classes
   const getTypeClasses = (type) => {
     switch (type) {
@@ -104,11 +136,34 @@ const ViewFinance = () => {
   // Helper to get due status tag classes
   const getDueStatusClasses = (status) => {
     switch (status) {
-      case 'PENDING': return themeClasses.duePending;
-      case 'COMPLETED': return themeClasses.dueCompleted;
-      case 'OVERDUE': return themeClasses.dueOverdue;
+      case 'PAID': return themeClasses.duePaid;
+      case 'UNPAID': return themeClasses.dueUnpaid;
+      case 'PARTIALLY_PAID': return themeClasses.duePartiallyPaid;
       case 'N/A': return themeClasses.dueNA;
       default: return 'bg-gray-400 text-white';
+    }
+  };
+
+  // Helper to get transaction type display name
+  const getTransactionTypeDisplay = (type) => {
+    switch (type) {
+      case 'INCOME': return 'Income';
+      case 'EXPENSE': return 'Expense';
+      case 'BORROW': return 'Borrow';
+      case 'LOAN': return 'Loan (Given)';
+      case 'TRANSFER': return 'Transfer';
+      default: return type || 'N/A';
+    }
+  };
+
+  // Helper to get due status display name
+  const getDueStatusDisplay = (status) => {
+    switch (status) {
+      case 'PAID': return 'Paid';
+      case 'UNPAID': return 'Unpaid';
+      case 'PARTIALLY_PAID': return 'Partially Paid';
+      case 'N/A': return 'Not Applicable';
+      default: return status || 'N/A';
     }
   };
 
@@ -164,16 +219,22 @@ const ViewFinance = () => {
         )}
 
         {loading ? (
-          <div className={`w-full max-w-2xl p-10 rounded-3xl ${themeClasses.cardBg} flex flex-col items-center justify-center min-h-[300px] animate__animated animate__fadeIn`}>
+          <div className={`w-full max-w-4xl p-10 rounded-3xl ${themeClasses.cardBg} flex flex-col items-center justify-center min-h-[300px] animate__animated animate__fadeIn`}>
             <Loader2 className={`w-10 h-10 animate-spin ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
             <p className={`mt-4 text-xl font-semibold ${themeClasses.text}`}>Loading Finance Record...</p>
           </div>
         ) : financeData ? (
-          <div className={`w-full max-w-2xl p-10 rounded-3xl ${themeClasses.cardBg} transition-all duration-700 animate__animated animate__fadeInUp animate__slow`}>
+          <div className={`w-full max-w-4xl p-10 rounded-3xl ${themeClasses.cardBg} transition-all duration-700 animate__animated animate__fadeInUp animate__slow`}>
+            {/* Header */}
             <div className="flex justify-between items-center mb-8">
-              <h2 className={`text-4xl font-extrabold ${themeClasses.text} tracking-tight leading-tight`}>
-                Finance Record Details
-              </h2>
+              <div>
+                <h2 className={`text-4xl font-extrabold ${themeClasses.text} tracking-tight leading-tight`}>
+                  Finance Record Details
+                </h2>
+                <p className={`${themeClasses.textSecondary} mt-2 text-lg leading-relaxed`}>
+                  Complete information about this financial transaction
+                </p>
+              </div>
               <button
                 onClick={() => navigate('/finance/dashboard')}
                 className={`p-3 rounded-full ${themeClasses.buttonSecondary} transition-all duration-300 hover:scale-105 shadow-md`}
@@ -183,115 +244,226 @@ const ViewFinance = () => {
               </button>
             </div>
 
-            <p className={`${themeClasses.textSecondary} mb-10 text-lg leading-relaxed`}>
-              Detailed information about this financial transaction.
-            </p>
-
-            <div className="space-y-6">
-              {/* Transaction Date */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <Calendar size={20} className="mr-2 text-indigo-500" /> Transaction Date:
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Basic Information Section */}
+              <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                <h3 className={`text-2xl font-bold ${themeClasses.text} mb-6 flex items-center`}>
+                  <Info size={24} className="mr-3 text-indigo-500" />
+                  Basic Information
                 </h3>
-                <p className={`mt-2 text-xl font-semibold ${themeClasses.textValue} pl-7`}>{formatDate(financeData.transactionDate)}</p>
+                
+                <div className="space-y-5">
+                  {/* Transaction Date */}
+                  <div className="flex items-start space-x-4">
+                    <Calendar size={20} className="mt-1 text-indigo-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Transaction Date</h4>
+                      <p className={`mt-1 text-lg font-medium ${themeClasses.textValue}`}>{formatDate(financeData.date)}</p>
+                    </div>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="flex items-start space-x-4">
+                    <DollarSign size={20} className="mt-1 text-green-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Amount</h4>
+                      <p className={`mt-1 text-2xl font-bold ${themeClasses.textValue}`}>{formatCurrency(financeData.amount)}</p>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="flex items-start space-x-4">
+                    <FileText size={20} className="mt-1 text-blue-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Description</h4>
+                      <p className={`mt-1 text-lg ${themeClasses.textValue} leading-relaxed`}>{financeData.description || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <div className="flex items-start space-x-4">
+                    <Tag size={20} className="mt-1 text-purple-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Category</h4>
+                      <p className={`mt-1 text-lg ${themeClasses.textValue} capitalize`}>{financeData.category || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Amount */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <DollarSign size={20} className="mr-2 text-indigo-500" /> Amount:
+              {/* Transaction Details Section */}
+              <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                <h3 className={`text-2xl font-bold ${themeClasses.text} mb-6 flex items-center`}>
+                  <Repeat size={24} className="mr-3 text-purple-500" />
+                  Transaction Details
                 </h3>
-                <p className={`mt-2 text-xl font-semibold ${themeClasses.textValue} pl-7`}>₹{financeData.amount ? financeData.amount.toLocaleString('en-IN') : '0.00'}</p>
-              </div>
+                
+                <div className="space-y-5">
+                  {/* Transaction Type */}
+                  <div className="flex items-start space-x-4">
+                    <Repeat size={20} className="mt-1 text-indigo-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Transaction Type</h4>
+                      <div className="mt-2">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getTypeClasses(financeData.transactionType)}`}>
+                          {getTransactionTypeDisplay(financeData.type)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Description */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <Info size={20} className="mr-2 text-indigo-500" /> Description:
-                </h3>
-                <p className={`mt-2 text-lg ${themeClasses.textValue} leading-relaxed pl-7`}>{financeData.description || 'N/A'}</p>
-              </div>
+                  {/* Payment Method */}
+                  <div className="flex items-start space-x-4">
+                    <Wallet size={20} className="mt-1 text-orange-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Payment Method</h4>
+                      <p className={`mt-1 text-lg ${themeClasses.textValue}`}>{financeData.paymentMethod || 'N/A'}</p>
+                    </div>
+                  </div>
 
-              {/* Category */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <Tag size={20} className="mr-2 text-indigo-500" /> Category:
-                </h3>
-                <p className={`mt-2 text-lg ${themeClasses.textValue} capitalize pl-7`}>{financeData.category || 'N/A'}</p>
-              </div>
+                  {/* Counterparty */}
+                  <div className="flex items-start space-x-4">
+                    <User2 size={20} className="mt-1 text-teal-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Counterparty</h4>
+                      <p className={`mt-1 text-lg ${themeClasses.textValue}`}>{financeData.counterparty || 'N/A'}</p>
+                    </div>
+                  </div>
 
-              {/* Transaction Type */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <Repeat size={20} className="mr-2 text-indigo-500" /> Transaction Type:
-                </h3>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold mt-2 ml-7 ${getTypeClasses(financeData.transactionType)}`}>
-                  {financeData.transactionType || 'N/A'}
-                </span>
-              </div>
-
-              {/* Payment Method */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <Wallet size={20} className="mr-2 text-indigo-500" /> Payment Method:
-                </h3>
-                <p className={`mt-2 text-lg ${themeClasses.textValue} pl-7`}>{financeData.paymentMethod || 'N/A'}</p>
-              </div>
-
-              {/* Counterparty */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <User2 size={20} className="mr-2 text-indigo-500" /> Counterparty:
-                </h3>
-                <p className={`mt-2 text-lg ${themeClasses.textValue} pl-7`}>{financeData.counterparty || 'N/A'}</p>
-              </div>
-
-              {/* Due Status */}
-              <div>
-                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
-                  <Clock size={20} className="mr-2 text-indigo-500" /> Due Status:
-                </h3>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold mt-2 ml-7 ${getDueStatusClasses(financeData.dueStatus)}`}>
-                  {financeData.dueStatus || 'N/A'}
-                </span>
+                  {/* Due Status */}
+                  {(financeData.dueStatus || ['LOAN', 'BORROW'].includes(financeData.transactionType)) && (
+                    <div className="flex items-start space-x-4">
+                      <Clock size={20} className="mt-1 text-red-500 flex-shrink-0" />
+                      <div className="flex-1">
+                        <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Due Status</h4>
+                        <div className="mt-2">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getDueStatusClasses(financeData.dueStatus)}`}>
+                            {getDueStatusDisplay(financeData.dueStatus)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Note and Attachment (New Section) */}
-            {financeData.note && (
-              <div className="mb-4">
-                <h3 className="text-lg font-bold mb-1">Note</h3>
-                <p className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3">{financeData.note}</p>
-              </div>
-            )}
+            {/* Additional Information - Full Width Sections */}
+            <div className="mt-8 space-y-6">
+              {/* Due Date - Only show if it exists */}
+              {financeData.dueDate && (
+                <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                  <div className="flex items-center space-x-4">
+                    <Calendar size={24} className="text-orange-500 flex-shrink-0" />
+                    <div>
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Due Date</h4>
+                      <p className={`mt-1 text-xl font-semibold ${themeClasses.textValue}`}>{formatDate(financeData.dueDate)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-            {financeData.attachment && (
-              <div className="mb-4">
-                <h3 className="text-lg font-bold mb-1">Attachment</h3>
-                <a
-                  href={URL.createObjectURL(financeData.attachment)}
-                  download={financeData.attachment.name}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg font-semibold"
-                >
-                  <FaPaperclip className="mr-2" /> {financeData.attachment.name}
-                </a>
-              </div>
-            )}
+              {/* Contact Information - Only show if exists */}
+              {financeData.counterpartyEmail && (
+                <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                  <h3 className={`text-xl font-bold ${themeClasses.text} mb-4 flex items-center`}>
+                    <Mail size={20} className="mr-3 text-blue-500" />
+                    Contact Information
+                  </h3>
+                  <div className="flex items-center space-x-4">
+                    <Mail size={20} className="text-blue-500 flex-shrink-0" />
+                    <div>
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>
+                        {financeData.transactionType === 'LOAN' ? 'Client Email' : 'Lender Email'}
+                      </h4>
+                      <p className={`mt-1 text-lg ${themeClasses.textValue}`}>{financeData.counterpartyEmail}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Client Description - Only show if exists */}
+              {financeData.clientDescription && (
+                <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                  <div className="flex items-start space-x-4">
+                    <Info size={20} className="mt-1 text-green-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Client Description</h4>
+                      <p className={`mt-2 text-lg ${themeClasses.textValue} leading-relaxed`}>{financeData.clientDescription}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Email Reminder Status - Only show if exists */}
+              {financeData.emailReminder !== undefined && (
+                <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                  <div className="flex items-center space-x-4">
+                    <Bell size={20} className="text-purple-500 flex-shrink-0" />
+                    <div>
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Email Reminder</h4>
+                      <div className="mt-2 flex items-center space-x-2">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${financeData.emailReminder ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
+                          {financeData.emailReminder ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Note Section - Only show if note exists */}
+              {financeData.note && (
+                <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                  <h3 className={`text-xl font-bold ${themeClasses.text} mb-4 flex items-center`}>
+                    <FileText size={20} className="mr-3 text-yellow-500" />
+                    Notes
+                  </h3>
+                  <div className={`p-4 rounded-xl ${themeClasses.noteBg}`}>
+                    <p className={`text-lg ${themeClasses.textValue} leading-relaxed`}>{financeData.note}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Attachment Section - Only show if attachment exists */}
+              {financeData.attachment && (
+                <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                  <h3 className={`text-xl font-bold ${themeClasses.text} mb-4 flex items-center`}>
+                    <Paperclip size={20} className="mr-3 text-blue-500" />
+                    Attachment
+                  </h3>
+                  <div className={`inline-flex items-center px-4 py-3 rounded-xl ${themeClasses.attachmentBg} transition-all duration-200 hover:scale-105 shadow-md cursor-pointer`}>
+                    <FaPaperclip className="mr-3 text-lg" />
+                    <span className="font-medium">
+                      {typeof financeData.attachment === 'string' 
+                        ? financeData.attachment 
+                        : financeData.attachment.name || 'Attached File'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Action Buttons */}
-            <div className="pt-8 flex justify-end">
+            <div className="pt-8 flex justify-end space-x-4">
+              <button
+                onClick={() => navigate('/finance/dashboard')}
+                className={`py-3 px-6 rounded-xl font-bold text-lg ${themeClasses.buttonSecondary} transform hover:-translate-y-1 active:scale-95 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ${isDarkMode ? 'focus:ring-offset-gray-900' : 'focus:ring-offset-white'}`}
+              >
+                Back to Dashboard
+              </button>
               <button
                 onClick={() => navigate(`/finance/edit/${financeData._id}`)} // Assuming _id is the record ID
-                className={`py-3 px-6 rounded-xl font-bold text-lg ${themeClasses.buttonPrimary} transform hover:-translate-y-1 active:scale-95 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${isDarkMode ? 'focus:ring-offset-gray-900' : 'focus:ring-offset-white'}`}
+                className={`py-3 px-6 rounded-xl font-bold text-lg ${themeClasses.buttonPrimary} transform hover:-translate-y-1 active:scale-95 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${isDarkMode ? 'focus:ring-offset-gray-900' : 'focus:ring-offset-white'} flex items-center space-x-2`}
               >
-                Edit Record
+                <Edit size={20} />
+                <span>Edit Record</span>
               </button>
             </div>
           </div>
         ) : (
-          <div className={`w-full max-w-2xl p-10 rounded-3xl ${themeClasses.cardBg} flex flex-col items-center justify-center min-h-[300px] animate__animated animate__fadeIn`}>
+          <div className={`w-full max-w-4xl p-10 rounded-3xl ${themeClasses.cardBg} flex flex-col items-center justify-center min-h-[300px] animate__animated animate__fadeIn`}>
             <AlertTriangle className={`w-10 h-10 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`} />
             <p className={`mt-4 text-xl font-semibold ${themeClasses.text}`}>Record not found or an error occurred.</p>
             <button

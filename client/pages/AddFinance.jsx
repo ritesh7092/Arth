@@ -373,8 +373,9 @@ const AddFinance = () => {
                 )}
               </div>
             </div>
-
+           
             {/* Counterparty & Due Status */}
+            {['LOAN', 'BORROW'].includes(financeData.transactionType) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label htmlFor="counterparty" className={`block text-sm font-semibold mb-2 ${themeClasses.textSecondary}`}>Counterparty</label>
@@ -415,6 +416,7 @@ const AddFinance = () => {
                 )}
               </div>
             </div>
+            )}
 
             {/* Due Date - Conditionally Rendered */}
             {['LOAN', 'BORROW'].includes(financeData.transactionType) && (
@@ -526,4 +528,5 @@ const AddFinance = () => {
 };
 
 export default AddFinance;
+
 

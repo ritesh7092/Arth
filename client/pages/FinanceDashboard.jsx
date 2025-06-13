@@ -494,8 +494,7 @@ export default function FinanceDashboard() {
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30, 64, 175);
-    doc.text("Designed, Developed and By Ritesh Raj Tiwari", 14, 60);
-
+    doc.text("Designed and Developed By Ritesh Raj Tiwari", 14, 60);
     // Main Report Title
     doc.setTextColor(30, 64, 175);
     doc.setFontSize(16);
@@ -601,7 +600,7 @@ export default function FinanceDashboard() {
         </head>
         <body>
           <div class="branding">Arth</div>
-          <div class="credit">Designed, Developed and By Ritesh Raj Tiwari</div>
+          <div class="credit">Designed and Developed By Ritesh Raj Tiwari</div>
           <h2>Finance Dashboard Summary</h2>
           <table class="summary-table">
             <thead>

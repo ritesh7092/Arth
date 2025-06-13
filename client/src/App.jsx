@@ -20,6 +20,7 @@ import Chatbot from '../pages/Chatbot';
 import Dashboard from '../pages/Dashboard';
 import { ThemeProvider } from '../src/theme/ThemeProvider'; // adjust the path as needed
 import Transactions from '../pages/Transactions';
+import ViewFinance from '../pages/ViewFinance';
 // import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -136,7 +137,7 @@ function App() {
           path="/finance/view/:id"
           element={
             <MainLayout heading="View Transaction Details">
-              <EditFinance/>
+              <ViewFinance/>
             </MainLayout>
           }
         />
