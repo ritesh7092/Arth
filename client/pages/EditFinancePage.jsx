@@ -217,7 +217,7 @@ const EditFinance = () => {
                     type="date"
                     id="transactionDate"
                     name="transactionDate"
-                    value={financeData.transactionDate}
+                    value={financeData.date}
                     onChange={handleChange}
                     required
                     className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300`}
