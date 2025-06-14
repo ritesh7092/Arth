@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import baseUrl from '../api/api';
-import 'animate.css'; // Ensure animate.css is imported
-import { useTheme } from '../src/theme/ThemeProvider'; // Adjust path if necessary
+import 'animate.css'; 
+import { useTheme } from '../src/theme/ThemeProvider'; 
 
 // Import Lucide React Icons
 import { ArrowLeft, Loader2, AlertTriangle, CheckCircle, XCircle, Moon, Sun, Save, DollarSign } from 'lucide-react';
@@ -340,11 +340,16 @@ const EditFinance = () => {
                     onChange={handleChange}
                     className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300 appearance-none pr-10 custom-select-arrow`}
                   >
-                    <option value="">Select Status (if applicable)</option>
+                  <option value="">Select Type</option>
+                  <option value="INCOME">Income</option>
+                  <option value="EXPENSE">Expense</option>
+                  <option value="BORROW">Borrow</option>
+                  <option value="LOAN">Loan (Given)</option>
+                    {/* <option value="">Select Status (if applicable)</option>
                     <option value="PENDING">Pending</option>
                     <option value="COMPLETED">Completed</option>
                     <option value="OVERDUE">Overdue</option>
-                    <option value="N/A">Not Applicable</option>
+                    <option value="N/A">Not Applicable</option> */}
                   </select>
                 </div>
               </div>

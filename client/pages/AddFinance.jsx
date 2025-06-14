@@ -400,6 +400,19 @@ const AddFinance = () => {
                   )}
                 </label>
                 <select
+                    id="dueStatus"
+                    name="dueStatus"
+                    value={financeData.dueStatus}
+                    onChange={handleChange}
+                    className={`mt-1 w-full border ${themeClasses.inputBorder} ${themeClasses.inputBg} ${themeClasses.text} rounded-xl px-5 py-3.5 focus:outline-none ${themeClasses.focusRing} transition duration-300 appearance-none pr-10 custom-select-arrow`}
+                     required={financeData.transactionType === 'LOAN' || financeData.transactionType === 'BORROW'}
+                  >
+                   <option value="">Select Status *</option>
+                  <option value="PAID">Paid</option>
+                  <option value="UNPAID">Unpaid</option>
+                  <option value="PARTIALLY_PAID">Partially Paid</option>
+                  </select>
+                {/* <select
                   id="dueStatus"
                   name="dueStatus"
                   value={financeData.dueStatus}
@@ -410,7 +423,7 @@ const AddFinance = () => {
                   <option value="PAID">Paid</option>
                   <option value="UNPAID">Unpaid</option>
                   <option value="PARTIALLY_PAID">Partially Paid</option>
-                </select>
+                </select> */}
                 {fieldErrors.dueStatus && (
                   <div className={`${themeClasses.errorText} text-xs mt-1`}>{fieldErrors.dueStatus}</div>
                 )}
