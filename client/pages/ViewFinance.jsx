@@ -259,7 +259,7 @@ const ViewFinance = () => {
                     <Calendar size={20} className="mt-1 text-indigo-500 flex-shrink-0" />
                     <div className="flex-1">
                       <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Transaction Date</h4>
-                      <p className={`mt-1 text-lg font-medium ${themeClasses.textValue}`}>{formatDate(financeData.date)}</p>
+                      <p className={`mt-1 text-lg font-medium ${themeClasses.textValue}`}>{formatDate(financeData.transactionDate)}</p>
                     </div>
                   </div>
 
@@ -307,7 +307,7 @@ const ViewFinance = () => {
                       <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Transaction Type</h4>
                       <div className="mt-2">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getTypeClasses(financeData.transactionType)}`}>
-                          {getTransactionTypeDisplay(financeData.type)}
+                          {getTransactionTypeDisplay(financeData.transactionType)}
                         </span>
                       </div>
                     </div>

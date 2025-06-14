@@ -155,10 +155,10 @@ public class FinanceService {
         dto.setId(finance.getId());
         dto.setDescription(finance.getDescription());
         dto.setCategory(finance.getCategory());
-        dto.setType(finance.getTransactionType().name());
+        dto.setTransactionType(finance.getTransactionType().name());
         dto.setPaymentMethod(finance.getPaymentMethod());
         dto.setCounterparty(finance.getCounterparty());
-        dto.setDate(finance.getTransactionDate());
+        dto.setTransactionDate(finance.getTransactionDate());
         dto.setAmount(finance.getAmount());
         dto.setDueStatus(finance.getDueStatus());
         // When mapping to DTO:
