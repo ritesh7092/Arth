@@ -918,7 +918,6 @@ const TransactionAnalytics = () => {
     </div>
   );
 };
-
 export default TransactionAnalytics;
 
 
@@ -2434,5 +2433,4 @@ export default TransactionAnalytics;
 // // };
 
 // // export default Transactions;
-
 
