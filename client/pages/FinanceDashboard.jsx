@@ -29,6 +29,7 @@ import baseUrl from '../api/api';
 import { useTheme } from '../src/theme/ThemeProvider';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import axios from 'axios';
 
 // Format INR
 const formatRupee = amount =>
@@ -399,51 +400,129 @@ export default function FinanceDashboard() {
   const handleEdit = (id) => {
     navigate(`/finance/edit/${id}`);
   };
-  const handleDelete = (id) => {
-    const transaction = transactions.find(t => t.id === id);
-    confirmAlert({
-      customUI: ({ onClose }) => (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-xl shadow-2xl p-6 max-w-md w-full animate__animated animate__zoomIn`}>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-red-600" />
+
+
+const handleDelete = (id) => {
+  const transaction = transactions.find(t => t.id === id);
+
+  confirmAlert({
+    customUI: ({ onClose }) => (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-xl shadow-2xl p-6 max-w-md w-full animate__animated animate__zoomIn`}>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-8 h-8 text-red-600" />
+            </div>
+            <h1 className={`text-2xl font-bold mb-2 ${themeClasses.text}`}>Confirm Delete</h1>
+            <p className={`${themeClasses.textSecondary} mb-2`}>
+              Are you sure you want to delete this transaction?
+            </p>
+
+            {transaction && (
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-6">
+                <p className={`font-semibold ${themeClasses.text}`}>
+                  {transaction.note || transaction.description}
+                </p>
+                <p className={`text-sm ${themeClasses.textSecondary}`}>
+                  {formatRupee(getAmount(transaction))} • {transaction.category}
+                </p>
               </div>
-              <h1 className={`text-2xl font-bold mb-2 ${themeClasses.text}`}>Confirm Delete</h1>
-              <p className={`${themeClasses.textSecondary} mb-2`}>
-                Are you sure you want to delete this transaction?
-              </p>
-              {transaction && (
-                <div className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-6`}>
-                  <p className={`font-semibold ${themeClasses.text}`}>{transaction.note || transaction.description}</p>
-                  <p className={`text-sm ${themeClasses.textSecondary}`}>
-                    {formatRupee(getAmount(transaction))} • {transaction.category}
-                  </p>
-                </div>
-              )}
-              <div className="flex gap-3">
-                <button
-                  onClick={onClose}
-                  className={`flex-1 px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} font-medium transition-colors`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className={`flex-1 px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} font-medium transition-colors`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('authToken');
+                    if (!token) {
+                      throw new Error('Unauthorized. Please log in.');
+                    }
+
+                    // call your DELETE endpoint
+                    await baseUrl.delete(
+                      `/api/finance/transactions/delete/${id}`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      }
+                    );
+
+                    // only update UI after success
                     setTransactions(prev => prev.filter(t => t.id !== id));
                     onClose();
-                  }}
-                  className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
+                  } catch (error) {
+                    console.error('Delete failed:', error);
+                    setError(
+                      error.response?.data?.message ||
+                      error.message ||
+                      'Failed to delete transaction.'
+                    );
+                  }
+                }}
+                className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
-      ),
-    });
-  };
+      </div>
+    ),
+  });
+};
+
+  // const handleDelete = (id) => {
+  //   const transaction = transactions.find(t => t.id === id);
+  //   confirmAlert({
+  //     customUI: ({ onClose }) => (
+  //       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  //         <div className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-xl shadow-2xl p-6 max-w-md w-full animate__animated animate__zoomIn`}>
+  //           <div className="text-center">
+  //             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+  //               <Trash2 className="w-8 h-8 text-red-600" />
+  //             </div>
+  //             <h1 className={`text-2xl font-bold mb-2 ${themeClasses.text}`}>Confirm Delete</h1>
+  //             <p className={`${themeClasses.textSecondary} mb-2`}>
+  //               Are you sure you want to delete this transaction?
+  //             </p>
+  //             {transaction && (
+  //               <div className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-6`}>
+  //                 <p className={`font-semibold ${themeClasses.text}`}>{transaction.note || transaction.description}</p>
+  //                 <p className={`text-sm ${themeClasses.textSecondary}`}>
+  //                   {formatRupee(getAmount(transaction))} • {transaction.category}
+  //                 </p>
+  //               </div>
+  //             )}
+  //             <div className="flex gap-3">
+  //               <button
+  //                 onClick={onClose}
+  //                 className={`flex-1 px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} font-medium transition-colors`}
+  //               >
+  //                 Cancel
+  //               </button>
+  //               <button
+  //                 onClick={() => {
+  //                   setTransactions(prev => prev.filter(t => t.id !== id));
+  //                   onClose();
+  //                 }}
+  //                 className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+  //               >
+  //                 Delete
+  //               </button>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     ),
+  //   });
+  // };
 
   // --- Export Feature ---
   const handleExportCSV = () => {

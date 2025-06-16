@@ -63,7 +63,12 @@ public class FinanceController {
         return ResponseEntity.ok("Finance record created successfully");
     }
 
-    // Add more endpoints as needed for retrieving, updating, and deleting finance
-    // records
+    @DeleteMapping("/transactions/delete/{id}")
+    public ResponseEntity<?> deleteTransaction(
+            @PathVariable Long id,
+            @AuthenticationPrincipal(expression = "username") String username) {
+        financeService.deleteFinanceRecord(id, username);
+        return ResponseEntity.ok("Transaction deleted successfully");
+    }
 
 }

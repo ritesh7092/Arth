@@ -150,6 +150,26 @@ public class FinanceService {
         return toDto(financeRepository.save(finance));
     }
 
+    @Transactional
+    public void deleteFinanceRecord(Long id, String username) {
+        User user = getUserByUsername(username);
+        Finance finance = financeRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Transaction not found or not authorized"));
+
+        // Update user balance
+        BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+        if (finance.getTransactionType() == Finance.TransactionType.EXPENSE ||
+                finance.getTransactionType() == Finance.TransactionType.LOAN ||
+                finance.getTransactionType() == Finance.TransactionType.BORROW) {
+            currentBalance = currentBalance.add(finance.getAmount());
+        } else if (finance.getTransactionType() == Finance.TransactionType.INCOME) {
+            currentBalance = currentBalance.subtract(finance.getAmount());
+        }
+        user.setBalance(currentBalance);
+
+        financeRepository.delete(finance);
+    }
+
     private FinanceDto toDto(Finance finance) {
         FinanceDto dto = new FinanceDto();
         dto.setId(finance.getId());
