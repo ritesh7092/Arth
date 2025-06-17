@@ -76,6 +76,7 @@ public class TaskService{
         task.setType(addTask.getType());
         task.setCompleted(false); // By default, a new task is not completed
         task.setDateAdded(LocalDate.now()); // Set the current date as the dateAdded
+        task.setEmailReminder(addTask.getEmailReminder());
         return taskRepository.save(task);
     }
 

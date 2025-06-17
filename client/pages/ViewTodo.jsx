@@ -5,7 +5,7 @@ import { useTheme } from '../src/theme/ThemeProvider'; // Adjust path if necessa
 import baseUrl from '../api/api'; // Adjust path if necessary
 
 // Import Lucide React Icons
-import { ArrowLeft, Loader2, AlertTriangle, CheckCircle, Moon, Sun, Calendar, Tag, Info, List, Star } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, CheckCircle, Moon, Sun, Calendar, Tag, Info, List, Star, Bell } from 'lucide-react';
 
 const ViewTodo = () => {
   const { theme, toggleTheme } = useTheme();
@@ -220,6 +220,22 @@ const ViewTodo = () => {
                   )}
                 </p>
               </div>
+
+               {todoData.emailReminder !== undefined && (
+                <div className={`p-6 rounded-2xl ${themeClasses.sectionBg}`}>
+                  <div className="flex items-center space-x-4">
+                    <Bell size={20} className="text-purple-500 flex-shrink-0" />
+                    <div>
+                      <h4 className={`font-semibold ${themeClasses.textMuted} text-sm uppercase tracking-wide`}>Email Reminder</h4>
+                      <div className="mt-2 flex items-center space-x-2">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${todoData.emailReminder ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
+                          {todoData.emailReminder ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Add more fields here if needed, e.g., createdDate, status, etc. */}
             </div>

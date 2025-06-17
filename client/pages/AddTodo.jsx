@@ -18,7 +18,8 @@ const AddTodo = () => {
     description: '',
     priority: '',
     dueDate: '',
-    type: ''
+    type: '',
+    emailReminder: '',
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -291,7 +292,26 @@ const AddTodo = () => {
               {errors.type && <p id="type-error" className={`${themeClasses.errorText} text-sm mt-2 flex items-center animate__animated animate__headShake animate__faster`}><XCircle size={16} className="mr-1.5" />{errors.type}</p>}
             </div>
 
-           
+              {/*Email Remainder Optional */}
+             <div className="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  id="emailReminder"
+                  name="emailReminder"
+                  checked={!!todoData.emailReminder}
+                  onChange={e =>
+                    setTodoData(prev => ({
+                      ...prev,
+                      emailReminder: e.target.checked,
+                    }
+                  ))
+                  }
+                  className="mr-2"
+                />
+                <label htmlFor="emailReminder" className={`text-sm ${themeClasses.textSecondary}`}>
+                  Send email reminder on due date
+                </label>
+              </div>
 
             {/* Action Button */}
             <div className="pt-6">
