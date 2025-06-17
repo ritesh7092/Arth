@@ -291,6 +291,8 @@ const AddTodo = () => {
               {errors.type && <p id="type-error" className={`${themeClasses.errorText} text-sm mt-2 flex items-center animate__animated animate__headShake animate__faster`}><XCircle size={16} className="mr-1.5" />{errors.type}</p>}
             </div>
 
+           
+
             {/* Action Button */}
             <div className="pt-6">
               <button
