@@ -64,7 +64,7 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public  ResponseEntity<TaskDto> updateTask(@PathVariable("id") Long id,
                                                @RequestBody TaskDto taskDto){
         try {
