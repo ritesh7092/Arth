@@ -853,7 +853,7 @@ const TodoDashboard = () => {
                             <Edit2 className="w-4 h-4" />
                         </Link>
                         <Link
-                            to={`/todo/${task.id}`}
+                            to={`/todo/view/${task.id}`}
                             className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                             title="View Details"
                         >

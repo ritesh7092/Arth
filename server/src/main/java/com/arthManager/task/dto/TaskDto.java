@@ -14,7 +14,9 @@ public class TaskDto {
     private String title;
     private String description;
     private String priority;      // "high", "medium", or "low"
+    private String type;          // "official", "family", or "personal"
     private LocalDate dateAdded;
     private LocalDate dueDate;
     private boolean completed;
+    private boolean emailReminder; // Optional field for email reminders
 }

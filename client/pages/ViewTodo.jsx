@@ -207,6 +207,20 @@ const ViewTodo = () => {
                 <p className={`mt-2 text-lg ${themeClasses.textValue} capitalize pl-7`}>{todoData.type}</p>
               </div>
 
+              {/*Completion Status*/}
+              <div>
+                <h3 className={`text-lg font-bold ${themeClasses.textMuted} flex items-center`}>
+                  <CheckCircle size={20} className="mr-2 text-indigo-500"
+                  /> Completion Status:
+                </h3>
+                <p className={`mt-2 text-lg ${themeClasses.textValue} pl-7`}>
+                  {todoData.completed ? 'Completed' : 'Pending'}  
+                  {todoData.completed && (
+                    <span className="text-green-500 font-semibold ml-2">✓</span>
+                  )}
+                </p>
+              </div>
+
               {/* Add more fields here if needed, e.g., createdDate, status, etc. */}
             </div>
 

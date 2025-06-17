@@ -39,6 +39,9 @@ public class Task {
     // Date when the task was marked as completed
     private LocalDate completionDate;
 
+    // Optional field for email reminders
+    private boolean emailReminder;
+
     // Many-to-one relationship with User (each task belongs to a user)
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

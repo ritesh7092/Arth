@@ -21,6 +21,7 @@ import Dashboard from '../pages/Dashboard';
 import { ThemeProvider } from '../src/theme/ThemeProvider'; // adjust the path as needed
 import Transactions from '../pages/Transactions';
 import ViewFinance from '../pages/ViewFinance';
+import ViewTodo from '../pages/ViewTodo';
 // import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -155,7 +156,7 @@ function App() {
           path="/todo/view/:id"
           element={
             <MainLayout heading="View TODO">
-              <EditTodo/>
+              <ViewTodo/>
             </MainLayout>
           }
         />
