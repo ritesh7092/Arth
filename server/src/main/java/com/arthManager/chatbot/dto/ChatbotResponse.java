@@ -5,13 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatBotResponse {
+public class ChatbotResponse {
 
     private String message;
     private boolean success;
@@ -22,20 +21,20 @@ public class ChatBotResponse {
     private String queryType;
     private Object data;
 
-    public ChatBotResponse(String message, boolean success){
+    public ChatbotResponse(String message, boolean success){
         this.message = message;
         this.success = success;
         this.timestamp = LocalDateTime.now();
     }
 
-    public ChatBotResponse(String message, boolean success, String queryType) {
+    public ChatbotResponse(String message, boolean success, String queryType) {
         this.message = message;
         this.success = success;
         this.queryType = queryType;
         this.timestamp = LocalDateTime.now();
     }
 
-    public ChatBotResponse(String message, boolean success, String queryType, Object data) {
+    public ChatbotResponse(String message, boolean success, String queryType, Object data) {
         this.message = message;
         this.success = success;
         this.queryType = queryType;
