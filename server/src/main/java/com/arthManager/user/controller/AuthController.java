@@ -4,6 +4,7 @@ import com.arthManager.user.dto.LoginRequest;
 import com.arthManager.user.dto.RegisterRequest;
 import com.arthManager.user.model.User;
 import com.arthManager.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,7 @@ public class AuthController {
     }
 
     @PostMapping("/public/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest){
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setPassword(registerRequest.getPassword());
