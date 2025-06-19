@@ -4,6 +4,7 @@ package com.arthManager.task.controller;
 import com.arthManager.task.dto.AddTask;
 import com.arthManager.task.dto.TaskDto;
 import com.arthManager.task.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,7 +41,7 @@ public class TaskController {
     @PostMapping("/create")
 //    @PreAuthorize("hasRole('USER')")
 //    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createTask(@RequestBody AddTask addTask) {
+    public ResponseEntity<?> createTask(@Valid @RequestBody AddTask addTask) {
         try {
             taskService.createTask(addTask);
             return ResponseEntity.ok("Task created successfully");

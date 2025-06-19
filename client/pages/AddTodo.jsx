@@ -19,7 +19,7 @@ const AddTodo = () => {
     priority: '',
     dueDate: '',
     type: '',
-    emailReminder: '',
+    emailReminder: 'false',
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -302,7 +302,7 @@ const AddTodo = () => {
                   onChange={e =>
                     setTodoData(prev => ({
                       ...prev,
-                      emailReminder: e.target.checked,
+                      emailReminder: e.target.checked || false,
                     }
                   ))
                   }
