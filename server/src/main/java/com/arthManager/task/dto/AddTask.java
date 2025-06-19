@@ -1,6 +1,6 @@
 package com.arthManager.task.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -8,12 +8,25 @@ import java.time.LocalDate;
 @Data
 public class AddTask {
     @NotBlank(message = "Title is required")
-    String title;
+    @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
+    private String title;
+
     @NotBlank(message = "Description is required")
-    String description;
+    @Size(min = 5, max = 500, message = "Description must be between 5 and 500 characters")
+    private String description;
+
     @NotBlank(message = "Priority is required")
-    String priority; // can be "high", "medium", or "low"
-    LocalDate dueDate;
-    String type; // Task type can be "official", "family", or "personal"
-    Boolean emailReminder; // Optional field for email reminders
+    @Pattern(regexp = "^(high|medium|low)$", message = "Priority must be 'high', 'medium', or 'low'")
+    private String priority;
+
+    @NotNull(message = "Due date is required")
+    @FutureOrPresent(message = "Due date must be in the present or future")
+    private LocalDate dueDate;
+
+    @NotBlank(message = "Type is required")
+//    @Pattern(regexp = "^(official|family|personal)$", message = "Type must be 'official', 'family', or 'personal'")
+    private String type;
+
+    // Optional field - no validation needed as it can be null
+    private Boolean emailReminder;
 }
