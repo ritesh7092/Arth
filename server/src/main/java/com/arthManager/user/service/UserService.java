@@ -6,6 +6,7 @@ import com.arthManager.user.repository.UserRepository;
 import com.arthManager.security.jwt.JwtAuthenticationResponse;
 import com.arthManager.security.jwt.JwtUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService {
     private PasswordEncoder passwordEncoder;
     private UserRepository userRepository;
@@ -42,4 +44,16 @@ public class UserService {
                 () -> new UsernameNotFoundException("User not found with username: " + name)
         );
     }
+
+
+    public User findById(Long userId) {
+        try {
+            return userRepository.findById(userId).orElse(null);
+        } catch (Exception e) {
+            log.error("Error finding user by id: {}", userId, e);
+            throw new RuntimeException("Failed to find user", e);
+        }
+    }
+
+
 }

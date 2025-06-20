@@ -41,6 +41,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(username)
                 .claim("roles", roles)
+                .claim("userId", userDetails.getId())  // Recently Added
                 .issuedAt(new Date())
                 .expiration(new Date((new Date().getTime() + jwtExpirationMs)))
                 .signWith(key())
@@ -71,4 +72,15 @@ public class JwtUtils {
             throw new RuntimeException(e);
         }
     }
+
+//    Recently Added
+    public Long getUserIdFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("userId", Long.class); // Extract the "userId" claim as Long
+    }
+
 }

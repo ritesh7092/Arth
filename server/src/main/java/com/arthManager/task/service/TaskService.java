@@ -6,12 +6,15 @@ import com.arthManager.task.model.Task;
 import com.arthManager.task.repository.TaskRepository;
 import com.arthManager.user.model.User;
 import com.arthManager.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,8 +22,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class TaskService{
     @Autowired
     private TaskRepository taskRepository;
@@ -128,6 +135,29 @@ public class TaskService{
                 () -> new RuntimeException("Task not found with id: " + id)
         );
         taskRepository.delete(task);
+    }
+
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    public List<Map<String, Object>> executeCustomQuery(String sql) {
+        try {
+            log.info("Executing task query: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e) {
+            log.error("Error executing task query: {}", sql, e);
+            throw new RuntimeException("Failed to execute task query", e);
+        }
+    }
+
+    public Task save(Task task) {
+        try {
+            return taskRepository.save(task);
+        } catch (Exception e) {
+            log.error("Error saving task: ", e);
+            throw new RuntimeException("Failed to save task", e);
+        }
     }
 
 

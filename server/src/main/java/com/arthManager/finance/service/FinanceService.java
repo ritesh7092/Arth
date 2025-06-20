@@ -7,17 +7,23 @@ import com.arthManager.user.model.User;
 import com.arthManager.finance.repository.FinanceRepository;
 import com.arthManager.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FinanceService {
 
     private final FinanceRepository financeRepository;
@@ -186,5 +192,28 @@ public class FinanceService {
         dto.setClientDescription(finance.getClientDescription());
         dto.setEmailReminder(finance.getEmailReminder());
         return dto;
+    }
+
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    public List<Map<String, Object>> executeCustomQuery(String sql) {
+        try {
+            log.info("Executing finance query: {}", sql);
+            return jdbcTemplate.queryForList(sql);
+        } catch (Exception e) {
+            log.error("Error executing finance query: {}", sql, e);
+            throw new RuntimeException("Failed to execute finance query", e);
+        }
+    }
+
+    public Finance save(Finance finance) {
+        try {
+            return financeRepository.save(finance);
+        } catch (Exception e) {
+            log.error("Error saving finance record: ", e);
+            throw new RuntimeException("Failed to save finance record", e);
+        }
     }
 }

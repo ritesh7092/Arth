@@ -1,9 +1,21 @@
 package com.arthManager.chatbot.service;
 
+import com.arthManager.chatbot.service.ChatbotService.QueryType;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SchemaProvider {
+
+    public String getSchemaForQueryType(QueryType queryType) {
+        switch (queryType) {
+            case FINANCE:
+                return getFinanceSchema();
+            case TASK:
+                return getTaskSchema();
+            default:
+                return getCombinedSchema();
+        }
+    }
 
     private String getFinanceSchema() {
         return """

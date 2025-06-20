@@ -1,11 +1,12 @@
 package com.arthManager.chatbot.service;
 
-
+import com.arthManager.chatbot.service.ChatbotService.QueryType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
@@ -41,7 +42,50 @@ public class QueryValidator {
             Pattern.compile("(\\$\\w+\\s*=)", Pattern.CASE_INSENSITIVE)
     );
 
+    public String validateAndSanitizeSQL(String sql, QueryType queryType, Long userId) {
+        if (sql == null || sql.trim().isEmpty()) {
+            log.warn("Empty SQL query provided");
+            return null;
+        }
 
+        String cleanSQL = sql.trim();
+        log.info("Validating SQL query: {}", cleanSQL);
+
+        // Check for dangerous keywords
+        if (containsDangerousKeywords(cleanSQL)) {
+            log.warn("SQL query contains dangerous keywords: {}", cleanSQL);
+            return null;
+        }
+
+        // Check for SQL injection patterns
+        if (containsInjectionPatterns(cleanSQL)) {
+            log.warn("SQL query contains potential injection patterns: {}", cleanSQL);
+            return null;
+        }
+
+        // Ensure it's a SELECT query
+        if (!cleanSQL.toUpperCase().trim().startsWith("SELECT")) {
+            log.warn("Non-SELECT query attempted: {}", cleanSQL);
+            return null;
+        }
+
+        // Ensure user_id filtering is present
+        if (!containsUserIdFilter(cleanSQL, userId)) {
+            cleanSQL = addUserIdFilter(cleanSQL, queryType, userId);
+        }
+
+        // Validate table access based on query type
+        if (!validateTableAccess(cleanSQL, queryType)) {
+            log.warn("Invalid table access for query type {}: {}", queryType, cleanSQL);
+            return null;
+        }
+
+        // Add safety limits
+        cleanSQL = addSafetyLimits(cleanSQL);
+
+        log.info("SQL query validated and sanitized successfully");
+        return cleanSQL;
+    }
 
     private boolean containsDangerousKeywords(String sql) {
         String upperSQL = sql.toUpperCase();
@@ -67,8 +111,135 @@ public class QueryValidator {
                 upperSQL.contains(userIdPattern4.toUpperCase());
     }
 
+    private String addUserIdFilter(String sql, QueryType queryType, Long userId) {
+        String upperSQL = sql.toUpperCase();
+
+        // Determine the main table alias or name
+        String tableReference = getTableReference(sql, queryType);
+
+        if (upperSQL.contains("WHERE")) {
+            // Add to existing WHERE clause
+            sql = sql.replaceFirst("(?i)WHERE", "WHERE " + tableReference + ".user_id = " + userId + " AND");
+        } else if (upperSQL.contains("GROUP BY")) {
+            // Add WHERE before GROUP BY
+            sql = sql.replaceFirst("(?i)GROUP BY", "WHERE " + tableReference + ".user_id = " + userId + " GROUP BY");
+        } else if (upperSQL.contains("ORDER BY")) {
+            // Add WHERE before ORDER BY
+            sql = sql.replaceFirst("(?i)ORDER BY", "WHERE " + tableReference + ".user_id = " + userId + " ORDER BY");
+        } else if (upperSQL.contains("LIMIT")) {
+            // Add WHERE before LIMIT
+            sql = sql.replaceFirst("(?i)LIMIT", "WHERE " + tableReference + ".user_id = " + userId + " LIMIT");
+        } else {
+            // Add WHERE at the end
+            if (sql.endsWith(";")) {
+                sql = sql.substring(0, sql.length() - 1) + " WHERE " + tableReference + ".user_id = " + userId + ";";
+            } else {
+                sql += " WHERE " + tableReference + ".user_id = " + userId;
+            }
+        }
+
+        return sql;
+    }
+
+    private String getTableReference(String sql, QueryType queryType) {
+        String upperSQL = sql.toUpperCase();
+
+        // Check for table aliases
+        if (queryType == QueryType.FINANCE) {
+            if (upperSQL.contains("FINANCE F") || upperSQL.contains("FINANCE AS F")) {
+                return "f";
+            }
+            return "finance";
+        } else if (queryType == QueryType.TASK) {
+            if (upperSQL.contains("TASK T") || upperSQL.contains("TASK AS T")) {
+                return "t";
+            }
+            return "task";
+        }
+
+        return "finance"; // default
+    }
+
+    private boolean validateTableAccess(String sql, QueryType queryType) {
+        String upperSQL = sql.toUpperCase();
+
+        if (queryType == QueryType.FINANCE) {
+            // Should access finance table, optionally users table
+            boolean hasFinanceTable = upperSQL.contains("FINANCE") || upperSQL.contains("FROM F ");
+            boolean hasInvalidTable = upperSQL.contains("TASK") && !upperSQL.contains("FINANCE");
+            return hasFinanceTable && !hasInvalidTable;
+        } else if (queryType == QueryType.TASK) {
+            // Should access task table, optionally users table
+            boolean hasTaskTable = upperSQL.contains("TASK") || upperSQL.contains("FROM T ");
+            boolean hasInvalidTable = upperSQL.contains("FINANCE") && !upperSQL.contains("TASK");
+            return hasTaskTable && !hasInvalidTable;
+        }
+
+        return true; // For general queries, allow both tables
+    }
 
 
+
+    private String addSafetyLimits(String sql) {
+        String upperSQL = sql.toUpperCase();
+
+        // Add LIMIT if not present
+        if (!upperSQL.contains("LIMIT")) {
+            if (sql.endsWith(";")) {
+                sql = sql.substring(0, sql.length() - 1) + " LIMIT 100;";
+            } else {
+                sql += " LIMIT 100";
+            }
+        } else {
+            // Use Pattern and Matcher correctly
+            Pattern pattern = Pattern.compile("(?i)LIMIT\\s+(\\d+)");
+            Matcher matcher = pattern.matcher(sql);
+            sql = matcher.replaceAll(matchResult -> {
+                String limitStr = matchResult.group(1);
+                try {
+                    int limit = Integer.parseInt(limitStr);
+                    if (limit > 1000) {
+                        return "LIMIT 1000";
+                    }
+                } catch (NumberFormatException e) {
+                    return "LIMIT 100";
+                }
+                return matchResult.group(0);
+            });
+        }
+
+        return sql;
+    }
+
+
+//    private String addSafetyLimits(String sql) {
+//        String upperSQL = sql.toUpperCase();
+//
+//        // Add LIMIT if not present
+//        if (!upperSQL.contains("LIMIT")) {
+//            if (sql.endsWith(";")) {
+//                sql = sql.substring(0, sql.length() - 1) + " LIMIT 100;";
+//            } else {
+//                sql += " LIMIT 100";
+//            }
+//        } else {
+//            // Ensure LIMIT is not too high
+//            sql = sql.replaceAll("(?i)LIMIT\\s+(\\d+)", (match) -> {
+//                String limitStr = match.group(1);
+//                try {
+//                    int limit = Integer.parseInt(limitStr);
+//                    if (limit > 1000) {
+//                        return "LIMIT 1000";
+//                    }
+//                } catch (NumberFormatException e) {
+//                    return "LIMIT 100";
+//                }
+//                return match.group(0);
+//            });
+//        }
+//
+//        return sql;
+//    }
 
     public boolean isValidReadOnlyQuery(String sql) {
         if (sql == null || sql.trim().isEmpty()) {
