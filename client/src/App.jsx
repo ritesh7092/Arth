@@ -22,6 +22,8 @@ import { ThemeProvider } from '../src/theme/ThemeProvider'; // adjust the path a
 import Transactions from '../pages/Transactions';
 import ViewFinance from '../pages/ViewFinance';
 import ViewTodo from '../pages/ViewTodo';
+import BudgetPlanner from '../pages/BudgetPlanner';
+import CalendarView from '../pages/CalenderView';
 // import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -72,6 +74,14 @@ function App() {
             <Dashboard/>
           }
         />
+        <Route path="/finance/budget" 
+        element={
+       <BudgetPlanner/>
+        } />
+          <Route path="/todo/calendar" 
+          element={
+          <CalendarView/>
+          } />
         {/* <Route
           path='/profile'
           element={
