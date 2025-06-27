@@ -15,8 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TaskService{
+public class TaskService {
     @Autowired
     private TaskRepository taskRepository;
 
@@ -38,43 +36,36 @@ public class TaskService{
     @Autowired
     private ModelMapper modelMapper;
 
-    // Get authenticated user from security context
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        return userRepository.findByUsername(username).orElseThrow(
-                () -> new UsernameNotFoundException("User not found with username: " + username)
-        );
+    // Get user by username
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
-    public Page<TaskDto> getAllTasks(String dateString, String monthString, Integer year, int page, int size){
+    public Page<TaskDto> getAllTasks(String username, String dateString, String monthString, Integer year, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("dateAdded").descending());
-        User user = getAuthenticatedUser();
-        if(dateString != null && !dateString.isEmpty()){
+        User user = getUserByUsername(username);
+
+        if (dateString != null && !dateString.isEmpty()) {
             LocalDate date = LocalDate.parse(dateString);
             Page<Task> entityPage = taskRepository.findByUserAndDateAdded(user, date, pageable);
-            return entityPage.map(e -> modelMapper.map(e,TaskDto.class));
-        }
-        else if(monthString != null && year != null && !"All".equals(monthString)){
+            return entityPage.map(e -> modelMapper.map(e, TaskDto.class));
+        } else if (monthString != null && year != null && !"All".equals(monthString)) {
             int monthIndex = Month.valueOf(monthString.toUpperCase()).getValue();
             LocalDate startDate = LocalDate.of(year, monthIndex, 1);
             LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
             Page<Task> entityPage = taskRepository.findByUserAndDateAddedBetween(user, startDate, endDate, pageable);
             return entityPage.map(e -> modelMapper.map(e, TaskDto.class));
-        }
-        else {
-            Page<Task> entityPage = taskRepository.findAll(pageable);
+        } else {
+            Page<Task> entityPage = taskRepository.findByUser(user, pageable);
             return entityPage.map(e -> modelMapper.map(e, TaskDto.class));
         }
     }
 
-    public Task createTask(AddTask addTask){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+    public Task createTask(AddTask addTask, String username) {
+        User user = getUserByUsername(username);
+
         Task task = new Task();
-        User user = userRepository.findByUsername(username).orElseThrow(
-                () -> new UsernameNotFoundException("User not found with username: " + username)
-        );
         task.setUser(user);
         task.setTitle(addTask.getTitle());
         task.setDescription(addTask.getDescription());
@@ -84,27 +75,20 @@ public class TaskService{
         task.setCompleted(false); // By default, a new task is not completed
         task.setDateAdded(LocalDate.now()); // Set the current date as the dateAdded
         task.setEmailReminder(addTask.getEmailReminder());
+
         return taskRepository.save(task);
     }
 
-    public TaskDto getTaskById(Long id){
-        User user = getAuthenticatedUser();
-        if(user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        Task task = taskRepository.findByUserAndId(user, id).orElseThrow(
-                () -> new RuntimeException("Task not found with id: " + id)
-        );
+    public TaskDto getTaskById(Long id, String username) {
+        User user = getUserByUsername(username);
+        Task task = taskRepository.findByUserAndId(user, id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
         return modelMapper.map(task, TaskDto.class);
     }
 
-    public TaskDto updateTask(Long id, TaskDto updatedTask) {
-        User user = getAuthenticatedUser();
-        if(user == null){
-            throw new UsernameNotFoundException("User not found");
-        }
-        Task existingTask = taskRepository
-                .findByUserAndId(user, id)
+    public TaskDto updateTask(Long id, TaskDto updatedTask, String username) {
+        User user = getUserByUsername(username);
+        Task existingTask = taskRepository.findByUserAndId(user, id)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
 
         modelMapper.map(updatedTask, existingTask);
@@ -113,30 +97,23 @@ public class TaskService{
         return modelMapper.map(saved, TaskDto.class);
     }
 
-    public TaskDto completeTask(Long id) {
-        User user = getAuthenticatedUser();
-        if(user == null){
-            throw new UsernameNotFoundException("User not found");
-        }
-        Task task = taskRepository.findByUserAndId(user, id).orElseThrow(
-                () -> new RuntimeException("Task not found with id: " + id)
-        );
+    public TaskDto completeTask(Long id, String username) {
+        User user = getUserByUsername(username);
+        Task task = taskRepository.findByUserAndId(user, id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
         task.setCompleted(true);
         Task savedTask = taskRepository.save(task);
         return modelMapper.map(savedTask, TaskDto.class);
     }
 
-    public void deleteTask(Long id){
-        User user = getAuthenticatedUser();
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        Task task = taskRepository.findByUserAndId(user, id).orElseThrow(
-                () -> new RuntimeException("Task not found with id: " + id)
-        );
+    public void deleteTask(Long id, String username) {
+        User user = getUserByUsername(username);
+        Task task = taskRepository.findByUserAndId(user, id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
         taskRepository.delete(task);
     }
-
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -159,6 +136,4 @@ public class TaskService{
             throw new RuntimeException("Failed to save task", e);
         }
     }
-
-
 }

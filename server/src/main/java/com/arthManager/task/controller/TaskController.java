@@ -1,6 +1,5 @@
 package com.arthManager.task.controller;
 
-
 import com.arthManager.task.dto.AddTask;
 import com.arthManager.task.dto.TaskDto;
 import com.arthManager.task.service.TaskService;
@@ -9,11 +8,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-//@EnableGlobalAuthentication
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/tasks")
@@ -29,33 +26,33 @@ public class TaskController {
             @RequestParam(value = "month", required = false) String monthString,
             @RequestParam(value = "year", required = false) Integer year,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size
-            ) {
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @AuthenticationPrincipal(expression = "username") String username) {
         try {
-            return taskService.getAllTasks(dateString, monthString, year, page, size);
+            return taskService.getAllTasks(username, dateString, monthString, year, page, size);
         } catch (Exception e) {
             throw new RuntimeException("Error fetching tasks: " + e.getMessage());
         }
     }
 
     @PostMapping("/create")
-//    @PreAuthorize("hasRole('USER')")
-//    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<?> createTask(@Valid @RequestBody AddTask addTask) {
+    public ResponseEntity<?> createTask(
+            @Valid @RequestBody AddTask addTask,
+            @AuthenticationPrincipal(expression = "username") String username) {
         try {
-            taskService.createTask(addTask);
+            taskService.createTask(addTask, username);
             return ResponseEntity.ok("Task created successfully");
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(500).body("Error creating task: " + e.getMessage());
         }
     }
 
-    // Add more endpoints as needed for retrieving, updating, and deleting tasks
-     @GetMapping("/{id}")
-    public ResponseEntity<TaskDto> getTaskById(@PathVariable("id") Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskDto> getTaskById(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal(expression = "username") String username) {
         try {
-            TaskDto taskDto = taskService.getTaskById(id);
+            TaskDto taskDto = taskService.getTaskById(id, username);
             if (taskDto == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -66,10 +63,12 @@ public class TaskController {
     }
 
     @PutMapping("/update/{id}")
-    public  ResponseEntity<TaskDto> updateTask(@PathVariable("id") Long id,
-                                               @RequestBody TaskDto taskDto){
+    public ResponseEntity<TaskDto> updateTask(
+            @PathVariable("id") Long id,
+            @RequestBody TaskDto taskDto,
+            @AuthenticationPrincipal(expression = "username") String username) {
         try {
-            TaskDto updatedTask = taskService.updateTask(id, taskDto);
+            TaskDto updatedTask = taskService.updateTask(id, taskDto, username);
             if (updatedTask == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -80,9 +79,11 @@ public class TaskController {
     }
 
     @PutMapping("/{id}/complete")
-    public ResponseEntity<TaskDto> completeTask(@PathVariable("id") Long id) {
+    public ResponseEntity<TaskDto> completeTask(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal(expression = "username") String username) {
         try {
-            TaskDto completedTask = taskService.completeTask(id);
+            TaskDto completedTask = taskService.completeTask(id, username);
             if (completedTask == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -93,14 +94,14 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable("id") Long id){
+    public ResponseEntity<String> deleteTask(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal(expression = "username") String username) {
         try {
-            taskService.deleteTask(id);
-            return ResponseEntity.ok("Task deleted succesfully");
-        }
-        catch (Exception e){
+            taskService.deleteTask(id, username);
+            return ResponseEntity.ok("Task deleted successfully");
+        } catch (Exception e) {
             return ResponseEntity.status(500).body("Error deleting task: " + e.getMessage());
         }
     }
-
 }
