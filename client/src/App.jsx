@@ -24,6 +24,7 @@ import ViewFinance from '../pages/ViewFinance';
 import ViewTodo from '../pages/ViewTodo';
 import BudgetPlanner from '../pages/BudgetPlanner';
 import CalendarView from '../pages/CalenderView';
+import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 // import { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -179,6 +180,12 @@ function App() {
             </MainLayout>
           }
         />
+        <Route 
+           path="/forgot-password"
+           element={
+           <ForgotPasswordPage/>
+           }
+           />
        
       </Routes>
       <Footer />
