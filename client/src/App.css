@@ -142,3 +142,14 @@ body.arth-bg-loading, html.arth-bg-loading {
   position: relative !important;
 }
 
+/* Force supported colors for html2canvas/pdf export */
+.force-pdf-colors, .force-pdf-colors * {
+  background: #fff !important;
+  background-color: #fff !important;
+  color: #222 !important;
+  border-color: #ccc !important;
+  box-shadow: none !important;
+  /* Remove gradients and oklch backgrounds */
+  background-image: none !important;
+}
+
