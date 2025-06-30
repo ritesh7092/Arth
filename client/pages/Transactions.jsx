@@ -234,41 +234,26 @@ const TransactionAnalytics = () => {
 
   // Advanced analytics calculations
   const analytics = useMemo(() => {
-    const totalIncome = filteredData
-      .filter(txn => txn.transactionType === 'INCOME')
-      .reduce((sum, txn) => sum + txn.amount, 0);
+    // Only INCOME and EXPENSE for balance
+    const totalIncome = filteredData.filter(txn => txn.transactionType === 'INCOME').reduce((sum, txn) => sum + txn.amount, 0);
+    const totalExpense = filteredData.filter(txn => txn.transactionType === 'EXPENSE').reduce((sum, txn) => sum + txn.amount, 0);
+    const balance = totalIncome - totalExpense;
 
-    const totalExpense = filteredData
-      .filter(txn => txn.transactionType === 'EXPENSE')
-      .reduce((sum, txn) => sum + txn.amount, 0);
-
-    const netBalance = totalIncome - totalExpense;
-
-    // Loan calculations
-    const loansGiven = filteredData
-      .filter(txn => txn.category === 'Loan' && txn.transactionType === 'EXPENSE');
-
+    // Loans Given (Asset)
+    const loansGiven = filteredData.filter(txn => txn.transactionType === 'LOAN');
     const totalLoansGiven = loansGiven.reduce((sum, txn) => sum + txn.amount, 0);
-    const unpaidLoans = loansGiven
-      .filter(txn => txn.dueStatus === 'UNPAID')
-      .reduce((sum, txn) => sum + txn.amount, 0);
-    const partiallyPaidLoans = loansGiven
-      .filter(txn => txn.dueStatus === 'PARTIALLY_PAID')
-      .reduce((sum, txn) => sum + txn.amount, 0);
+    const unpaidLoans = loansGiven.filter(txn => txn.dueStatus === 'UNPAID').reduce((sum, txn) => sum + txn.amount, 0);
+    const partiallyPaidLoans = loansGiven.filter(txn => txn.dueStatus === 'PARTIALLY_PAID').reduce((sum, txn) => sum + txn.amount, 0);
 
-    // Borrow calculations
-    const borrowTransactions = filteredData
-      .filter(txn => txn.category === 'Borrow');
+    // Borrows Taken (Liability)
+    const borrowsTaken = filteredData.filter(txn => txn.transactionType === 'BORROW');
+    const totalBorrowed = borrowsTaken.reduce((sum, txn) => sum + txn.amount, 0);
 
-    const totalBorrowed = borrowTransactions
-      .filter(txn => txn.transactionType === 'INCOME')
-      .reduce((sum, txn) => sum + txn.amount, 0);
+    // Net Balance (Net Worth)
+    const netBalance = balance + totalLoansGiven - totalBorrowed;
 
-    const totalRepaid = borrowTransactions
-      .filter(txn => txn.transactionType === 'EXPENSE')
-      .reduce((sum, txn) => sum + txn.amount, 0);
-
-    const outstandingDebt = totalBorrowed - totalRepaid;
+    // Outstanding Debt (if you want to show)
+    const outstandingDebt = totalBorrowed; // Or subtract repayments if you track them
 
     // Category breakdown
     const categoryTotals = filteredData.reduce((acc, txn) => {
@@ -305,12 +290,12 @@ const TransactionAnalytics = () => {
     return {
       totalIncome,
       totalExpense,
+      balance,
       netBalance,
       totalLoansGiven,
       unpaidLoans,
       partiallyPaidLoans,
       totalBorrowed,
-      totalRepaid,
       outstandingDebt,
       categoryTotals,
       monthlyData, // Contains income, expense, and net for each month

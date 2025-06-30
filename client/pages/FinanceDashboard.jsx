@@ -823,6 +823,8 @@ const handleDelete = (id) => {
     );
   }
 
+  
+
   return (
     <div className={`min-h-screen ${themeClasses.bg} transition-all duration-300 font-sans`}>
       {/* HEADER */}
@@ -1168,6 +1170,5 @@ if (typeof window !== "undefined" && !document.getElementById('arth-bg-loading-s
   `;
   document.head.appendChild(style);
 }
-
 
 

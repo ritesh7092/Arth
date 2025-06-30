@@ -91,13 +91,12 @@ public class FinanceService {
 
         // Update user balance
         BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
-        if (addFinance.getTransactionType() == Finance.TransactionType.EXPENSE ||
-                addFinance.getTransactionType() == Finance.TransactionType.LOAN ||
-                addFinance.getTransactionType() == Finance.TransactionType.BORROW) {
+        if (addFinance.getTransactionType() == Finance.TransactionType.EXPENSE) {
             currentBalance = currentBalance.subtract(addFinance.getAmount());
         } else if (addFinance.getTransactionType() == Finance.TransactionType.INCOME) {
             currentBalance = currentBalance.add(addFinance.getAmount());
         }
+        // Do NOT update balance for LOAN or BORROW here
         user.setBalance(currentBalance);
         finance.setBalance(currentBalance);
 
@@ -143,9 +142,7 @@ public class FinanceService {
 
         // Update user balance
         BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
-        if (addFinance.getTransactionType() == Finance.TransactionType.EXPENSE ||
-                addFinance.getTransactionType() == Finance.TransactionType.LOAN ||
-                addFinance.getTransactionType() == Finance.TransactionType.BORROW) {
+        if (addFinance.getTransactionType() == Finance.TransactionType.EXPENSE) {
             currentBalance = currentBalance.subtract(finance.getAmount()).add(addFinance.getAmount());
         } else if (addFinance.getTransactionType() == Finance.TransactionType.INCOME) {
             currentBalance = currentBalance.add(addFinance.getAmount()).subtract(finance.getAmount());
@@ -194,7 +191,6 @@ public class FinanceService {
         return dto;
     }
 
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -215,5 +211,12 @@ public class FinanceService {
             log.error("Error saving finance record: ", e);
             throw new RuntimeException("Failed to save finance record", e);
         }
+    }
+
+    public BigDecimal getNetBalance(User user) {
+        BigDecimal balance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+        BigDecimal loansGiven = financeRepository.sumAmountByUserAndType(user, Finance.TransactionType.LOAN);
+        BigDecimal borrowsTaken = financeRepository.sumAmountByUserAndType(user, Finance.TransactionType.BORROW);
+        return balance.add(loansGiven).subtract(borrowsTaken);
     }
 }

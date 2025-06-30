@@ -139,9 +139,9 @@ const useUserData = () => {
         // Simulate a successful data fetch
         const data = {
           id: "user_123",
-          username: "John Doe",
+          username: "Indian",
           email: "johndoe@example.com",
-          firstName: "John",
+          firstName: "Indian",
           lastName: "Doe",
           avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
           highestQualification: "Bachelor's in Computer Science",

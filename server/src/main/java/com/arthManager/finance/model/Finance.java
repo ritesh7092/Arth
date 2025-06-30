@@ -61,6 +61,9 @@ public class Finance {
     @Column(name = "balance")
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column(name = "net_balance")
+    private BigDecimal netBalance = BigDecimal.ZERO;
+
     // Relationship: Each Finance record belongs to one User.
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
