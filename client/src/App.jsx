@@ -43,6 +43,8 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
+      <div className={`min-h-screen flex flex-col transition-all`}>
+        
       <Routes>
         
         <Route path="/" element={<Home />} />
@@ -189,6 +191,7 @@ function App() {
        
       </Routes>
       <Footer />
+      </div>
       </ThemeProvider>
     </BrowserRouter>
   );
