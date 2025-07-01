@@ -492,37 +492,33 @@ const TransactionAnalytics = () => {
 
   // Function to export filtered data to CSV
   const exportToCSV = () => {
-    // Define headers for the CSV file
-    const headers = ["Date", "Description", "Category", "Type", "Amount", "Payment Method", "Counterparty", "Due Status", "Due Date", "Client Description", "Email Reminder"];
-    // Map filtered data to rows, ensuring date is formatted and all fields are present
+    const headers = [
+      "Date", "Description", "Category", "Type", "Amount", "Payment Method",
+      "Counterparty", "Due Status", "Due Date", "Client Description", "Email Reminder"
+    ];
     const rows = filteredData.map(txn => [
-      txn.transactionDate || "N/A", // Ensure date is included
+      txn.transactionDate || "",
       txn.description || "",
       txn.category || "",
       txn.transactionType || "",
-      txn.amount ? txn.amount.toFixed(2) : "0.00", // Format amount
+      txn.amount ? txn.amount.toFixed(2) : "0.00",
       txn.paymentMethod || "",
       txn.counterparty || "",
-      txn.dueStatus || "N/A",
+      txn.dueStatus || "",
       txn.dueDate || "",
       txn.clientDescription || "",
       txn.emailReminder !== undefined ? (txn.emailReminder ? "Yes" : "No") : "",
     ]);
-
-    // Combine headers and rows, handle commas within data by quoting fields
     const csvContent = [
-      headers.map(h => `"${h}"`).join(','), // Quote headers
-      ...rows.map(row => row.map(field => {
-        const stringField = String(field);
-        return `"${stringField.replace(/"/g, '""')}"`; // Escape double quotes and wrap in quotes
-      }).join(','))
+      headers.map(h => `"${h}"`).join(','),
+      ...rows.map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `Arth_Financial_Report_${filterYear}${filterMonth ? `-${filterMonth}` : ''}.csv`; // Branded filename
+    a.download = `Arth_Analytics_Report_${filterYear}${filterMonth ? `-${filterMonth}` : ''}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -531,98 +527,89 @@ const TransactionAnalytics = () => {
 
   // Function to handle printing the current view (dashboard content)
   const handlePrint = () => {
-    window.print(); // Triggers the browser's print dialog
+    window.print();
   };
 
   // Functional PDF export function using html2canvas and jspdf
   const exportToPDF = async () => {
     setIsPdfGenerating(true);
     try {
-      // Load html2canvas and jspdf dynamically if not already loaded
+      // Dynamically load html2canvas and jsPDF if not already loaded
       if (typeof html2canvas === 'undefined') {
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
       }
-      if (typeof jspdf === 'undefined') {
+      if (typeof jsPDF === 'undefined') {
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
       }
-      const { jsPDF } = window.jspdf; // Access jsPDF globally
+      // Use global jsPDF if loaded dynamically
+      const PDF = window.jspdf ? window.jspdf.jsPDF : jsPDF;
 
+      // Get the dashboard content
       const input = document.getElementById('analytics-dashboard-content');
       if (!input) {
-        console.error("Content div not found for PDF export.");
+        alert("Dashboard content not found for PDF export.");
         setIsPdfGenerating(false);
         return;
       }
 
-      // Convert HTML content to canvas
+      // Hide export/print buttons for clean PDF
+      const exportButtons = input.querySelectorAll('.no-print');
+      exportButtons.forEach(btn => btn.style.display = 'none');
+
+      // Wait a tick for DOM update
+      await new Promise(r => setTimeout(r, 100));
+
+      // Capture as canvas
       const canvas = await html2canvas(input, {
-        scale: 2, // Increase scale for better resolution in PDF
-        useCORS: true, // Important if you have images from other origins
-        logging: true, // Enable logging for debugging html2canvas
-        // ignoreElements: (element) => {
-        //   // Optionally ignore elements that shouldn't be in the PDF, e.g., print buttons
-        //   return element.classList.contains('no-print');
-        // }
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null
       });
 
+      // Restore export/print buttons
+      exportButtons.forEach(btn => btn.style.display = '');
+
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait, millimeters, A4 size
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgCanvasHeight = canvas.height; // Original canvas height in pixels
-      const imgCanvasWidth = canvas.width; // Original canvas width in pixels
+      const pdf = new PDF('p', 'mm', 'a4');
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const imgProps = {
+        width: canvas.width,
+        height: canvas.height
+      };
+      // Calculate image size in PDF
+      const ratio = Math.min(pageWidth / imgProps.width, (pageHeight - 20) / imgProps.height);
+      const pdfWidth = imgProps.width * ratio;
+      const pdfHeight = imgProps.height * ratio;
 
-      // Calculate the image height scaled to PDF width
-      const imgPdfHeight = (imgCanvasHeight * imgWidth) / imgCanvasWidth;
+      // Branding header
+      pdf.setFillColor(30, 64, 175);
+      pdf.rect(0, 0, 210, 18, "F");
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(18);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Arth", 14, 12);
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.text("PRODUCTIVITY", 40, 10);
+      pdf.setFontSize(9);
+      pdf.text("World's #1 Productivity Platform", 140, 8, { align: "right", maxWidth: 60 });
+      pdf.setFontSize(13);
+      pdf.setTextColor(30, 64, 175);
+      pdf.text("Revolutionize Your Productivity", 14, 16);
 
-      let imgY = 0; // Current Y position in the source canvas image
-      const headerSpace = 50; // Space for header/branding on PDF
-      const footerSpace = 10; // Space for a small footer/margin on PDF
-      const usablePageHeight = pageHeight - headerSpace - footerSpace;
+      // Add the dashboard image
+      pdf.addImage(imgData, 'PNG', (pageWidth - pdfWidth) / 2, 20, pdfWidth, pdfHeight);
 
-      while (imgY < imgCanvasHeight) {
-        if (imgY > 0) { // Add a new page for subsequent content
-          pdf.addPage();
-        }
+      // Footer
+      pdf.setFontSize(10);
+      pdf.setTextColor(30, 64, 175);
+      pdf.text("Designed and Developed By Ritesh Raj Tiwari", 14, pageHeight - 6);
 
-        // Re-add header/branding to new page
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(18);
-        pdf.setTextColor(59, 130, 246);
-        pdf.text('Arth: Revolutionize Your Productivity (Cont.)', 14, 20);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(9);
-        pdf.setTextColor(100, 100, 100);
-        pdf.text(`Report for ${filterYear}${filterMonth ? `/${filterMonth}` : ''}`, 14, 28);
-
-        // Calculate how much of the source image can fit on the current PDF page
-        // This is done by figuring out the height in canvas pixels that corresponds to usablePageHeight in PDF mm
-        let imgSegmentHeightInPx = Math.min(imgCanvasHeight - imgY, (usablePageHeight * imgCanvasWidth) / imgWidth);
-
-        // Add image segment to PDF
-        // Args: imgData, format, x, y, width, height, alias, compression, rotation, sX, sY, sWidth, sHeight
-        pdf.addImage(
-          imgData,
-          'PNG',
-          0, // x on PDF page
-          headerSpace, // y on PDF page (below header)
-          imgWidth, // width on PDF page
-          (imgSegmentHeightInPx * imgWidth) / imgCanvasWidth, // height on PDF page
-          null, null, 0, // optional parameters for alias, compression, rotation
-          0, // sX (start X in source image - no horizontal cropping)
-          imgY, // sY (start Y in source image)
-          imgCanvasWidth, // sWidth (width of source segment)
-          imgSegmentHeightInPx // sHeight (height of source segment)
-        );
-
-        imgY += imgSegmentHeightInPx; // Move to the next segment in the source image
-      }
-      
-      pdf.save(`Arth_Financial_Report_${filterYear}${filterMonth ? `-${filterMonth}` : ''}.pdf`);
-
+      pdf.save(`Arth_Analytics_Report_${filterYear}${filterMonth ? `-${filterMonth}` : ''}.pdf`);
     } catch (err) {
-      console.error("Error generating PDF:", err);
-      alert("Failed to generate PDF. Please try again or use the print option. Check browser console for details.");
+      alert("Failed to generate PDF. Please try again or use the print option.");
+      console.error(err);
     } finally {
       setIsPdfGenerating(false);
     }
@@ -659,7 +646,7 @@ const TransactionAnalytics = () => {
   // Main component render
   return (
     <div className={`min-h-screen ${themeClasses.bg} transition-colors duration-300`}>
-      <div id="analytics-dashboard-content" className="container mx-auto px-4 py-6"> {/* ID for PDF capture */}
+      <div id="analytics-dashboard-content" className="container mx-auto px-4 py-6">
         {/* Header with Branding and Theme Toggle */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
           <div>
@@ -834,7 +821,7 @@ const TransactionAnalytics = () => {
             </button>
             <button
               onClick={exportToCSV}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center"
+              className="no-print px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center"
             >
               <Download className="w-4 h-4 mr-2" />
               Export CSV
@@ -954,16 +941,4 @@ const TransactionAnalytics = () => {
   );
 };
 export default TransactionAnalytics;
-
-
-
-
-
-
-
-
-
-
-
-
 

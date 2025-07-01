@@ -54,6 +54,5 @@ public class UserService {
             throw new RuntimeException("Failed to find user", e);
         }
     }
-
-
 }
+

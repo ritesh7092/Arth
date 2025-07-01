@@ -578,7 +578,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
                 <div className="flex items-center space-x-4">
                   {!loggedIn ? (
                     <>
-                      <a href="/register" className={`${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold text-sm tracking-wide`}>
+                      <a href="/signup" className={`${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold text-sm tracking-wide`}>
                         Register
                       </a>
                       <a href="/login" className={`${themeClasses.buttonPrimary} px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 hover:scale-105`}>
@@ -631,7 +631,7 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
               <a href="#features" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Features</a>
               {!loggedIn ? (
                 <>
-                  <a href="/register" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Register</a>
+                  <a href="/signup" className={`block px-4 py-3 ${themeClasses.textPrimary} hover:gradient-text transition-all duration-300 font-semibold rounded-lg`}>Register</a>
                   <a href="/login" className={`block px-4 py-3 ${themeClasses.buttonPrimary} text-white font-semibold rounded-lg text-center mt-4`}>Login</a>
                 </>
               ) : (

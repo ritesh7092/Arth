@@ -113,3 +113,4 @@ public class Finance {
         PARTIALLY_PAID // Some amount has been paid, but not all
     }
 }
+
