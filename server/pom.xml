@@ -146,7 +146,11 @@
 			<version>7.6.0</version>
 		</dependency>
 
-
+<!--		Mail sender-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 
 
 	</dependencies>

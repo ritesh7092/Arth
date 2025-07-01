@@ -39,6 +39,8 @@ public class User implements UserDetails {
 
     private BigDecimal balance = BigDecimal.ZERO;
 
+    private boolean emailVerified = false;
+
 
 
     // Overriding methods of UserDetails interface

@@ -54,5 +54,13 @@ public class UserService {
             throw new RuntimeException("Failed to find user", e);
         }
     }
+
+    public boolean existsByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
 }
 
