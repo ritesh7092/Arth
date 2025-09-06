@@ -70,6 +70,10 @@ public class ChatbotService {
             String contextualPrompt = buildContextualPrompt(userQuery, user, queryType);
             String schema = schemaProvider.getSchemaForQueryType(queryType);
 
+            log.info("Building read operation for query: '{}'", userQuery);
+            log.info("Contextual prompt: {}", contextualPrompt);
+            log.info("Schema: {}", schema);
+
             // Create SQL generator request
             SQLGeneratorRequest sqlRequest = SQLGeneratorRequest.builder()
                     .queryDescription(contextualPrompt)
@@ -78,10 +82,13 @@ public class ChatbotService {
                     .tableNames(getRelevantTableNames(queryType))
                     .build();
 
+            log.info("SQL Generator request: {}", sqlRequest);
+
             // Get SQL from generator
             SQLGeneratorResponse sqlResponse = sqlGeneratorClient.generateSQL(sqlRequest);
 
             if (sqlResponse == null || sqlResponse.getSqlQuery() == null) {
+                log.warn("SQL Generator returned null or empty response for query: '{}'", userQuery);
                 return new ChatbotResponse("I couldn't generate a proper query for your request. Please try rephrasing.", false);
             }
 
@@ -92,6 +99,7 @@ public class ChatbotService {
                     sqlResponse.getSqlQuery(), queryType, user.getId());
 
             if (sanitizedSQL == null) {
+                log.warn("SQL validation failed for query: '{}', original SQL: {}", userQuery, sqlResponse.getSqlQuery());
                 return new ChatbotResponse("I cannot execute this type of query for security reasons. Please try a different request.", false);
             }
 
@@ -152,12 +160,14 @@ public class ChatbotService {
     private String enhanceQueryWithDateContext(String query) {
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
+        LocalDate dayAfterTomorrow = today.plusDays(2);
         LocalDate yesterday = today.minusDays(1);
 
         StringBuilder context = new StringBuilder();
         context.append("Current date context: ");
         context.append("Today is ").append(today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         context.append(", Tomorrow is ").append(tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        context.append(", Day after tomorrow is ").append(dayAfterTomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         context.append(", Yesterday was ").append(yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         context.append(". User query: ").append(query);
 
@@ -180,6 +190,9 @@ public class ChatbotService {
             // Extract finance details from query using enhanced patterns
             FinanceDetails details = extractFinanceDetails(query);
 
+            log.info("Extracted finance details for query '{}': amount={}, description='{}', category='{}', type={}, date={}", 
+                    query, details.amount, details.description, details.category, details.transactionType, details.date);
+
             if (details.amount == null) {
                 return new ChatbotResponse("Please specify the amount for the finance record.", false);
             }
@@ -193,6 +206,8 @@ public class ChatbotService {
             finance.setTransactionDate(details.date != null ? details.date : LocalDate.now());
             finance.setPaymentMethod(details.paymentMethod);
             finance.setCounterparty(details.counterparty);
+
+            log.info("Creating finance record with description: '{}'", finance.getDescription());
 
             Finance savedFinance = financeService.save(finance);
 
@@ -234,6 +249,8 @@ public class ChatbotService {
             task.setDueDate(details.dueDate);
             task.setEmailReminder(details.emailReminder);
 
+            log.info("Creating task with description: '{}'", task.getDescription());
+
             Task savedTask = taskService.save(task);
 
             return new ChatbotResponse(
@@ -259,36 +276,66 @@ public class ChatbotService {
 
     private String buildContextualPrompt(String userQuery, User user, QueryType queryType) {
         LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        LocalDate dayAfterTomorrow = today.plusDays(2);
+        LocalDate yesterday = today.minusDays(1);
+        
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("Current date: ").append(today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Current date context: ").append(today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Tomorrow: ").append(tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Day after tomorrow: ").append(dayAfterTomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Yesterday: ").append(yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
         prompt.append("User query: ").append(userQuery).append("\n");
         prompt.append("User ID: ").append(user.getId()).append("\n");
         prompt.append("Context: This is a ").append(queryType.name().toLowerCase()).append(" related query for user data.\n");
-        prompt.append("Generate a SQL query that filters data by user_id = ").append(user.getId()).append("\n");
+        prompt.append("IMPORTANT: Generate ONLY a SELECT query. Do not include any DDL, DML, or other operations.\n");
+        prompt.append("CRITICAL: Always include user_id = ").append(user.getId()).append(" in WHERE clause.\n");
+        prompt.append("CRITICAL: Use exact table names: 'finance' for finance queries, 'task' for task queries.\n");
+        prompt.append("CRITICAL: Use exact column names and values as shown in examples.\n");
 
         if (queryType == QueryType.FINANCE) {
-            prompt.append("For finance queries, consider transaction types: INCOME, EXPENSE, LOAN, BORROW\n");
-            prompt.append("Available categories include various expense/income categories\n");
-            prompt.append("Date-related terms: 'today', 'yesterday', 'this month', 'last month', 'this year' should be interpreted relative to ").append(today).append("\n");
+            prompt.append("For finance queries, use transaction types: INCOME, EXPENSE, LOAN, BORROW (exact values)\n");
+            prompt.append("Available categories: Food, Transportation, Entertainment, Utilities, Shopping, Healthcare, General\n");
+            prompt.append("Date-related terms: 'today' = '").append(today).append("', 'yesterday' = '").append(yesterday).append("', 'tomorrow' = '").append(tomorrow).append("', 'this month' = MONTH(date) = ").append(today.getMonthValue()).append(" AND YEAR(date) = ").append(today.getYear()).append("\n");
+            prompt.append("Common finance queries:\n");
+            prompt.append("- 'Show my balance' → SELECT SUM(CASE WHEN transaction_type = 'INCOME' THEN amount ELSE -amount END) as balance FROM finance WHERE user_id = ").append(user.getId()).append("\n");
+            prompt.append("- 'Show today's expenses' → SELECT * FROM finance WHERE user_id = ").append(user.getId()).append(" AND transaction_type = 'EXPENSE' AND date = '").append(today).append("'\n");
+            prompt.append("- 'Show this month's income' → SELECT * FROM finance WHERE user_id = ").append(user.getId()).append(" AND transaction_type = 'INCOME' AND MONTH(date) = ").append(today.getMonthValue()).append(" AND YEAR(date) = ").append(today.getYear()).append("\n");
+            prompt.append("- 'Show my expenses this month' → SELECT * FROM finance WHERE user_id = ").append(user.getId()).append(" AND transaction_type = 'EXPENSE' AND MONTH(date) = ").append(today.getMonthValue()).append(" AND YEAR(date) = ").append(today.getYear()).append("\n");
         } else if (queryType == QueryType.TASK) {
-            prompt.append("For task queries, consider priority levels: high, medium, low\n");
-            prompt.append("Task types: official, family, personal\n");
+            prompt.append("For task queries, use priority levels: high, medium, low (exact values)\n");
+            prompt.append("Task types: official, family, personal (exact values)\n");
             prompt.append("Task completion status: completed (true/false)\n");
-            prompt.append("Date-related terms: 'today', 'tomorrow', 'this week', 'next week' should be interpreted relative to ").append(today).append("\n");
+            prompt.append("Date-related terms: 'today' = '").append(today).append("', 'tomorrow' = '").append(tomorrow).append("', 'this week' = due_date BETWEEN '").append(today).append("' AND '").append(today.plusDays(6)).append("'\n");
+            prompt.append("Common task queries:\n");
+            prompt.append("- 'Show pending tasks' → SELECT * FROM task WHERE user_id = ").append(user.getId()).append(" AND completed = false\n");
+            prompt.append("- 'Show today's tasks' → SELECT * FROM task WHERE user_id = ").append(user.getId()).append(" AND due_date = '").append(today).append("'\n");
+            prompt.append("- 'Show high priority tasks' → SELECT * FROM task WHERE user_id = ").append(user.getId()).append(" AND priority = 'high' AND completed = false\n");
         }
+
+        prompt.append("Generate a simple, valid SELECT query that answers the user's question.\n");
+        prompt.append("Always include user_id = ").append(user.getId()).append(" in WHERE clause.\n");
+        prompt.append("Use exact table names and column names as shown in examples.\n");
 
         return prompt.toString();
     }
 
     private String buildFinanceCreationPrompt(String userQuery, User user) {
         LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
+        LocalDate dayAfterTomorrow = today.plusDays(2);
+        LocalDate yesterday = today.minusDays(1);
+        
         StringBuilder prompt = new StringBuilder();
 
-        prompt.append("Current date: ").append(today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Current date context: ").append(today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Tomorrow: ").append(tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Day after tomorrow: ").append(dayAfterTomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
+        prompt.append("Yesterday: ").append(yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\n");
         prompt.append("User wants to create a finance record based on: ").append(userQuery).append("\n");
         prompt.append("Extract financial information like amount, category, transaction type, and date.\n");
-        prompt.append("Date references like 'today', 'yesterday', 'tomorrow' should be relative to ").append(today).append("\n");
+        prompt.append("Date references like 'today', 'yesterday', 'tomorrow', 'day after tomorrow' should be relative to ").append(today).append("\n");
 
         return prompt.toString();
     }
@@ -535,6 +582,8 @@ public class ChatbotService {
             details.date = today;
         } else if (lowerQuery.contains("yesterday")) {
             details.date = today.minusDays(1);
+        } else if (lowerQuery.contains("day after tomorrow")) {
+            details.date = today.plusDays(2);
         } else if (lowerQuery.contains("tomorrow")) {
             details.date = today.plusDays(1);
         } else {
@@ -555,6 +604,7 @@ public class ChatbotService {
     }
 
     private void extractDescription(String query, FinanceDetails details) {
+        // First try the existing keyword-based approach
         String[] descKeywords = {"for", "on", "description", "note", "regarding", "about"};
         for (String keyword : descKeywords) {
             int index = query.toLowerCase().indexOf(keyword);
@@ -562,16 +612,51 @@ public class ChatbotService {
                 String possibleDesc = query.substring(index + keyword.length()).trim();
                 if (possibleDesc.length() > 2 && possibleDesc.length() < 100) {
                     details.description = possibleDesc;
-                    break;
+                    log.info("Extracted description via keyword '{}': '{}'", keyword, possibleDesc);
+                    return;
                 }
             }
+        }
+
+        // Enhanced approach: Look for natural language descriptions after amount and date
+        String lowerQuery = query.toLowerCase();
+        
+        // Remove common finance keywords and amounts to isolate description
+        String cleanQuery = query;
+        
+        // Remove amount patterns
+        cleanQuery = cleanQuery.replaceAll("(?i)(?:₹|rs\\.?|rupees?)\\s*\\d+(?:\\.\\d{1,2})?", "");
+        cleanQuery = cleanQuery.replaceAll("(?i)\\b\\d+(?:\\.\\d{1,2})?\\s*(?:₹|rs\\.?|rupees?|dollars?|\\$)", "");
+        
+        // Remove common finance keywords
+        String[] removeKeywords = {
+            "create", "new", "expense", "record", "income", "earn", "spend", "payment",
+            "transaction", "add", "save", "today", "yesterday", "tomorrow", "day after tomorrow"
+        };
+        
+        for (String keyword : removeKeywords) {
+            cleanQuery = cleanQuery.replaceAll("(?i)\\b" + keyword + "\\b", "");
+        }
+        
+        // Clean up extra whitespace
+        cleanQuery = cleanQuery.replaceAll("\\s+", " ").trim();
+        
+        log.info("After cleaning query '{}': '{}'", query, cleanQuery);
+        
+        // If we have meaningful content left, use it as description
+        if (cleanQuery.length() > 3 && cleanQuery.length() < 100 && 
+            !cleanQuery.matches(".*\\b(?:high|medium|low|priority|urgent|important)\\b.*")) {
+            details.description = cleanQuery;
+            log.info("Extracted description via cleaning: '{}'", cleanQuery);
+        } else {
+            log.info("No description extracted from query: '{}'", query);
         }
     }
 
     private TaskDetails extractTaskDetails(String query) {
         TaskDetails details = new TaskDetails();
 
-        // Enhanced title extraction
+        // Enhanced title extraction with better pattern matching
         String lowerQuery = query.toLowerCase();
         String[] titleKeywords = {"schedule", "add task", "create task", "new task", "task", "add", "create"};
 
@@ -585,11 +670,12 @@ public class ChatbotService {
                     List<String> titleWords = new ArrayList<>();
 
                     for (String word : words) {
-                        if (word.toLowerCase().matches("(for|on|at|tomorrow|today|yesterday|\\d{1,2}[-/]\\d{1,2}[-/]\\d{4})")) {
+                        // Skip date/time keywords and priority keywords
+                        if (word.toLowerCase().matches("(for|on|at|tomorrow|today|yesterday|day after tomorrow|\\d{1,2}[-/]\\d{1,2}[-/]\\d{4}|high|medium|low|priority|urgent|important)")) {
                             break;
                         }
                         titleWords.add(word);
-                        if (titleWords.size() >= 6) break; // Limit title length
+                        if (titleWords.size() >= 8) break; // Increased limit for better title extraction
                     }
 
                     if (!titleWords.isEmpty()) {
@@ -600,17 +686,18 @@ public class ChatbotService {
             }
         }
 
-        // Extract priority
+        // Enhanced priority extraction
         if (lowerQuery.contains("high priority") || lowerQuery.contains("urgent") || lowerQuery.contains("important") ||
-                lowerQuery.contains("critical")) {
+                lowerQuery.contains("critical") || lowerQuery.contains("high")) {
             details.priority = "high";
-        } else if (lowerQuery.contains("low priority") || lowerQuery.contains("later") || lowerQuery.contains("someday")) {
+        } else if (lowerQuery.contains("low priority") || lowerQuery.contains("later") || lowerQuery.contains("someday") ||
+                lowerQuery.contains("low")) {
             details.priority = "low";
         } else {
             details.priority = "medium";
         }
 
-        // Extract type
+        // Enhanced type extraction
         if (lowerQuery.contains("work") || lowerQuery.contains("office") || lowerQuery.contains("official") ||
                 lowerQuery.contains("business") || lowerQuery.contains("meeting")) {
             details.type = "official";
@@ -624,6 +711,12 @@ public class ChatbotService {
         // Enhanced due date extraction
         extractTaskDate(query, details);
 
+        // Extract task description
+        extractTaskDescription(query, details);
+
+        log.info("Extracted task details for query '{}': title='{}', description='{}', priority='{}', type='{}', dueDate={}",
+                query, details.title, details.description, details.priority, details.type, details.dueDate);
+
         return details;
     }
 
@@ -631,7 +724,9 @@ public class ChatbotService {
         LocalDate today = LocalDate.now();
         String lowerQuery = query.toLowerCase();
 
-        if (lowerQuery.contains("tomorrow")) {
+        if (lowerQuery.contains("day after tomorrow")) {
+            details.dueDate = today.plusDays(2);
+        } else if (lowerQuery.contains("tomorrow")) {
             details.dueDate = today.plusDays(1);
         } else if (lowerQuery.contains("today")) {
             details.dueDate = today;
@@ -654,6 +749,98 @@ public class ChatbotService {
                 }
             }
         }
+    }
+
+    private void extractTaskDescription(String query, TaskDetails details) {
+        log.info("Starting task description extraction for query: '{}'", query);
+        
+        // First try the existing keyword-based approach, but be more selective
+        String[] descKeywords = {"for", "description", "note", "regarding", "about", "to", "that"};
+        for (String keyword : descKeywords) {
+            int index = query.toLowerCase().indexOf(keyword);
+            if (index != -1 && index < query.length() - keyword.length() - 1) {
+                String possibleDesc = query.substring(index + keyword.length()).trim();
+                if (possibleDesc.length() > 2 && possibleDesc.length() < 100) {
+                    // Additional filtering to remove date and priority info from keyword-based extraction
+                    String filteredDesc = filterOutDateAndPriority(possibleDesc);
+                    if (filteredDesc != null && filteredDesc.trim().length() > 0) {
+                        details.description = filteredDesc.trim();
+                        log.info("Extracted task description via keyword '{}': '{}' (filtered from '{}')", keyword, details.description, possibleDesc);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Special handling for "on" keyword - only use if it's followed by actual description, not just date
+        int onIndex = query.toLowerCase().indexOf(" on ");
+        if (onIndex != -1 && onIndex < query.length() - 4) {
+            String afterOn = query.substring(onIndex + 4).trim();
+            if (afterOn.length() > 2 && afterOn.length() < 100) {
+                // Check if it's just a date or date + priority
+                String filteredDesc = filterOutDateAndPriority(afterOn);
+                if (filteredDesc != null && filteredDesc.trim().length() > 0 && 
+                    !filteredDesc.trim().matches("\\d{1,2}[-/]\\d{1,2}[-/]\\d{4}") &&
+                    !filteredDesc.trim().matches("\\d{1,2}[-/]\\d{1,2}[-/]\\d{2}")) {
+                    details.description = filteredDesc.trim();
+                    log.info("Extracted task description via 'on' keyword: '{}' (filtered from '{}')", details.description, afterOn);
+                    return;
+                } else {
+                    log.info("Rejected 'on' extraction - filtered result is just a date: '{}'", filteredDesc);
+                }
+            }
+        }
+        
+        // For queries that only specify title, date, and priority without description, don't extract anything
+        // This will allow the default "Added via chatbot" to be used
+        log.info("No meaningful description found in query: '{}'", query);
+
+        // Enhanced approach: Look for natural language descriptions after title and date
+        String cleanQuery = query;
+
+        // Remove task creation keywords
+        String[] removeKeywords = {
+            "create", "new", "task", "add", "schedule", "today", "tomorrow", "yesterday", 
+            "day after tomorrow", "next week", "next month", "high", "medium", "low", 
+            "priority", "urgent", "important", "work", "office", "official", "business", 
+            "meeting", "family", "home", "personal"
+        };
+
+        for (String keyword : removeKeywords) {
+            cleanQuery = cleanQuery.replaceAll("(?i)\\b" + keyword + "\\b", "");
+        }
+
+        // Remove date patterns
+        cleanQuery = cleanQuery.replaceAll("\\b\\d{1,2}[-/]\\d{1,2}[-/]\\d{4}\\b", "");
+
+        // Clean up extra whitespace
+        cleanQuery = cleanQuery.replaceAll("\\s+", " ").trim();
+        log.info("After cleaning task query '{}': '{}'", query, cleanQuery);
+
+        // If we have meaningful content left, use it as description
+        if (cleanQuery.length() > 3 && cleanQuery.length() < 100) {
+            details.description = cleanQuery;
+            log.info("Extracted task description via cleaning: '{}'", cleanQuery);
+        } else {
+            log.info("No task description extracted from query: '{}'", query);
+        }
+    }
+
+    private String filterOutDateAndPriority(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return null;
+        }
+        
+        // Remove date patterns
+        String filtered = text.replaceAll("\\b\\d{1,2}[-/]\\d{1,2}[-/]\\d{4}\\b", "");
+        
+        // Remove priority keywords
+        filtered = filtered.replaceAll("(?i)\\b(high|medium|low|priority)\\b", "");
+        
+        // Clean up extra whitespace
+        filtered = filtered.replaceAll("\\s+", " ").trim();
+        
+        return filtered.length() > 0 ? filtered : null;
     }
 
     public Map<String, Object> getHealthStatus() {
