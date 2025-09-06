@@ -16,16 +16,56 @@ export function ThemeProvider({ children }) {
     }
   });
 
+  // Apply theme immediately on mount and changes
   useEffect(() => {
-    document.body.classList.toggle('dark-theme', theme === 'dark');
-    document.body.classList.toggle('light-theme', theme === 'light');
+    const root = document.documentElement;
+    const body = document.body;
+    
+    // Remove all theme classes first
+    root.classList.remove('light', 'dark');
+    body.classList.remove('light-theme', 'dark-theme');
+    
+    // Add current theme class
+    root.classList.add(theme);
+    body.classList.add(`${theme}-theme`);
+    
+    // Persist to localStorage
     try {
       localStorage.setItem('theme', theme);
-    } catch {}
+    } catch (error) {
+      console.warn('Failed to save theme to localStorage:', error);
+    }
   }, [theme]);
 
+  // Listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      // Only auto-switch if user hasn't manually set a preference
+      const saved = localStorage.getItem('theme');
+      if (!saved) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   const toggleTheme = useCallback(() => {
-    setTheme(t => (t === 'light' ? 'dark' : 'light'));
+    setTheme(prevTheme => {
+      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+      // Apply immediately for instant feedback
+      const root = document.documentElement;
+      const body = document.body;
+      
+      root.classList.remove('light', 'dark');
+      body.classList.remove('light-theme', 'dark-theme');
+      root.classList.add(newTheme);
+      body.classList.add(`${newTheme}-theme`);
+      
+      return newTheme;
+    });
   }, []);
 
   return (
@@ -37,7 +77,11 @@ export function ThemeProvider({ children }) {
 
 // Hook to consume theme/context
 export function useTheme() {
-  return useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
 }
 
 

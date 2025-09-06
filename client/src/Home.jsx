@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useTheme } from './theme/ThemeProvider';
+import ThemeToggle from '../components/ThemeToggle';
 
 // Floating Particles Background component for visual flair
 const FloatingParticles = ({ isDarkMode }) => {
@@ -360,28 +362,11 @@ function FeaturesCarousel() {
 // Main Home Component
 const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
   const navigate = useNavigate();
-  // State for theme management
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    }
-    return 'dark'; // Default to dark if window is not defined (SSR scenario)
-  });
+  const { theme, toggleTheme } = useTheme();
   const [scrollY, setScrollY] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const isDarkMode = theme === 'dark';
-
-  // Function to toggle between dark and light themes
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', newTheme);
-      document.documentElement.setAttribute('data-theme', newTheme);
-    }
-  };
 
   // Apply theme to document element
   useEffect(() => {
@@ -593,28 +578,13 @@ const Home = ({ isAuthenticated = false, handleLogout = () => {} }) => {
                       Logout
                     </button>
                   )}
-                  <button
-                    onClick={toggleTheme}
-                    className={`w-12 h-12 ${themeClasses.themeToggle} rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${isDarkMode ? 'focus:ring-offset-slate-900' : 'focus:ring-offset-white'}`}
-                    aria-label="Toggle theme"
-                  >
-                    {isDarkMode ? (
-                      <Sun className="w-5 h-5 transition-transform duration-300 hover:rotate-12" />
-                    ) : (
-                      <Moon className="w-5 h-5 transition-transform duration-300 hover:-rotate-12" />
-                    )}
-                  </button>
+                  <ThemeToggle variant="default" size="large" />
                 </div>
               </div>
             </div>
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center space-x-4">
-              <button
-                onClick={toggleTheme}
-                className={`w-10 h-10 ${themeClasses.themeToggle} rounded-xl flex items-center justify-center transition-all duration-300`}
-              >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
+              <ThemeToggle variant="default" size="default" />
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className={`${themeClasses.textPrimary} hover:${themeClasses.textSecondary} transition-colors duration-300 p-2`}

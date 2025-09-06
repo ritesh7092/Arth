@@ -21,13 +21,14 @@ import {
   FaMoon,
   FaSun,
 } from "react-icons/fa";
+import { useTheme } from "../src/theme/ThemeProvider";
+import ThemeToggle from "./ThemeToggle";
 
 export default function NavbarWithSidebar({ heading }) {
   const [serverDate, setServerDate] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [financeOpen, setFinanceOpen] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
   const [notifications, setNotifications] = useState(3);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,6 +36,8 @@ export default function NavbarWithSidebar({ heading }) {
   const navigate = useNavigate();
   const currentPath = location.pathname;
   const sidebarRef = useRef(null);
+  const { theme, toggleTheme } = useTheme();
+  const isDarkMode = theme === 'dark';
 
   // Real-time clock update
   useEffect(() => {
@@ -116,10 +119,7 @@ export default function NavbarWithSidebar({ heading }) {
     }
   }, [navigate]);
 
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode((prev) => !prev);
-    // Here you could also update a global theme context
-  }, []);
+  // Remove the local toggleDarkMode function since we're using the global theme context
 
   const isActive = (path) => currentPath === path;
   const isParentActive = (paths) => paths.some(path => currentPath.startsWith(path));
@@ -144,8 +144,8 @@ export default function NavbarWithSidebar({ heading }) {
       children: [
         { label: 'Dashboard', path: '/finance/dashboard' },
         { label: 'Add Finance', path: '/finance/add' },
-        { label: 'Reports', path: '/finance/report' },
-        { label: 'Analytics', path: '/finance/analytics' }
+        { label: 'Analytics', path: '/finance/report' },
+        { label: 'Budget Planner', path: '/finance/budget' }
       ]
     },
     {
@@ -437,13 +437,7 @@ export default function NavbarWithSidebar({ heading }) {
               </button>
 
               {/* Theme Toggle */}
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                aria-label="Toggle theme"
-              >
-                {darkMode ? <FaSun className="text-lg" /> : <FaMoon className="text-lg" />}
-              </button>
+              <ThemeToggle variant="minimal" size="default" />
 
               {/* Profile */}
               <Link

@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
+/* Prevent theme flickering during page load */
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
 
 /* Base styles for light theme */
 body {
@@ -9,6 +22,15 @@ body {
 
 /* Dark theme specific styles */
 .dark body {
+  @apply bg-gray-900 text-gray-50;
+}
+
+/* Theme-specific body classes for better control */
+body.light-theme {
+  @apply bg-gray-50 text-gray-900;
+}
+
+body.dark-theme {
   @apply bg-gray-900 text-gray-50;
 }
 
