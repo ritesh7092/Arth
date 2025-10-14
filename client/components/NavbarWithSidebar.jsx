@@ -203,13 +203,19 @@ export default function NavbarWithSidebar({ heading }) {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`fixed top-0 left-0 h-screen w-80 bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 text-gray-100 z-50 transform transition-all duration-300 ease-in-out shadow-2xl border-r border-slate-700 ${
+        className={`fixed top-0 left-0 h-screen w-80 ${
+          isDarkMode 
+            ? 'bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 text-gray-100 border-r border-slate-700' 
+            : 'bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900 border-r border-gray-200'
+        } z-50 transform transition-all duration-300 ease-in-out shadow-2xl ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label="Main navigation"
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-700 bg-slate-800/50">
+        <div className={`flex items-center justify-between px-6 py-5 border-b ${
+          isDarkMode ? 'border-slate-700 bg-slate-800/50' : 'border-gray-200 bg-gray-50/50'
+        }`}>
           <Link 
             to="/" 
             onClick={closeSidebar} 
@@ -228,7 +234,11 @@ export default function NavbarWithSidebar({ heading }) {
           </Link>
           <button
             onClick={closeSidebar}
-            className="p-2 text-gray-400 hover:text-white hover:bg-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            className={`p-2 ${
+              isDarkMode 
+                ? 'text-gray-400 hover:text-white hover:bg-slate-700' 
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+            } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200`}
             aria-label="Close sidebar"
           >
             <FaTimes className="text-lg" />
@@ -236,13 +246,19 @@ export default function NavbarWithSidebar({ heading }) {
         </div>
 
         {/* Search Bar */}
-        <div className="px-4 py-3 border-b border-slate-700">
+        <div className={`px-4 py-3 border-b ${isDarkMode ? 'border-slate-700' : 'border-gray-200'}`}>
           <div className="relative">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
+            <FaSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-sm ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`} />
             <input
               type="text"
               placeholder="Search menu..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className={`w-full pl-10 pr-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                isDarkMode 
+                  ? 'bg-slate-700/50 border border-slate-600 text-gray-100 placeholder-gray-400' 
+                  : 'bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
             />
           </div>
         </div>
@@ -259,7 +275,9 @@ export default function NavbarWithSidebar({ heading }) {
                       className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 group ${
                         isParentActive([`/${item.id}`])
                           ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white shadow-lg border border-blue-500/20"
-                          : "text-gray-300 hover:bg-slate-700/50 hover:text-white"
+                          : isDarkMode 
+                            ? "text-gray-300 hover:bg-slate-700/50 hover:text-white"
+                            : "text-gray-700 hover:bg-gray-200/50 hover:text-gray-900"
                       }`}
                       aria-expanded={item.isOpen}
                     >
@@ -292,7 +310,9 @@ export default function NavbarWithSidebar({ heading }) {
                               className={`flex items-center px-4 py-2 rounded-lg transition-all duration-150 text-sm group ${
                                 isActive(child.path)
                                   ? "bg-blue-600/30 text-white border-l-2 border-blue-400"
-                                  : "text-gray-300 hover:bg-slate-700/30 hover:text-white hover:translate-x-1"
+                                  : isDarkMode 
+                                    ? "text-gray-300 hover:bg-slate-700/30 hover:text-white hover:translate-x-1"
+                                    : "text-gray-600 hover:bg-gray-200/30 hover:text-gray-900 hover:translate-x-1"
                               }`}
                             >
                               <span className="font-medium">{child.label}</span>
@@ -309,7 +329,9 @@ export default function NavbarWithSidebar({ heading }) {
                     className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${
                       isActive(item.path)
                         ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white shadow-lg border border-blue-500/20"
-                        : "text-gray-300 hover:bg-slate-700/50 hover:text-white hover:translate-x-1"
+                        : isDarkMode 
+                          ? "text-gray-300 hover:bg-slate-700/50 hover:text-white hover:translate-x-1"
+                          : "text-gray-700 hover:bg-gray-200/50 hover:text-gray-900 hover:translate-x-1"
                     }`}
                   >
                     <item.icon 
@@ -324,7 +346,7 @@ export default function NavbarWithSidebar({ heading }) {
           </ul>
 
           {/* Divider */}
-          <div className="my-6 border-t border-slate-700"></div>
+          <div className={`my-6 border-t ${isDarkMode ? 'border-slate-700' : 'border-gray-200'}`}></div>
 
           {/* Bottom Navigation */}
           <ul className="space-y-1">
@@ -335,7 +357,9 @@ export default function NavbarWithSidebar({ heading }) {
                 className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${
                   isActive("/dashboard")
                     ? "bg-gradient-to-r from-orange-600/20 to-yellow-600/20 text-white shadow-lg border border-orange-500/20"
-                    : "text-gray-300 hover:bg-slate-700/50 hover:text-white"
+                    : isDarkMode 
+                      ? "text-gray-300 hover:bg-slate-700/50 hover:text-white"
+                      : "text-gray-700 hover:bg-gray-200/50 hover:text-gray-900"
                 }`}
               >
                 <FaUserCircle className="mr-3 text-lg text-orange-400 transition-transform duration-200 group-hover:scale-110" />
@@ -349,7 +373,9 @@ export default function NavbarWithSidebar({ heading }) {
                 className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${
                   isActive("/settings")
                     ? "bg-gradient-to-r from-gray-600/20 to-slate-600/20 text-white shadow-lg border border-gray-500/20"
-                    : "text-gray-300 hover:bg-slate-700/50 hover:text-white"
+                    : isDarkMode 
+                      ? "text-gray-300 hover:bg-slate-700/50 hover:text-white"
+                      : "text-gray-700 hover:bg-gray-200/50 hover:text-gray-900"
                 }`}
               >
                 <FaCog className="mr-3 text-lg text-gray-400 transition-transform duration-200 group-hover:rotate-90" />
@@ -360,7 +386,11 @@ export default function NavbarWithSidebar({ heading }) {
               <button
                 onClick={handleLogout}
                 disabled={isLoading}
-                className="flex items-center w-full px-4 py-3 rounded-xl text-gray-300 hover:bg-red-600/20 hover:text-red-300 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isDarkMode 
+                    ? 'text-gray-300 hover:bg-red-600/20 hover:text-red-300'
+                    : 'text-gray-700 hover:bg-red-100/50 hover:text-red-600'
+                }`}
               >
                 <FaSignOutAlt className="mr-3 text-lg text-red-400 transition-transform duration-200 group-hover:scale-110" />
                 <span className="font-medium text-base">
@@ -373,14 +403,22 @@ export default function NavbarWithSidebar({ heading }) {
       </aside>
 
       {/* Top Navbar */}
-      <header className="w-full bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700 text-gray-100 fixed top-0 z-30 shadow-xl backdrop-blur-md">
+      <header className={`w-full ${
+        isDarkMode 
+          ? 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700 text-gray-100' 
+          : 'bg-gradient-to-r from-gray-50 via-white to-gray-50 border-b border-gray-200 text-gray-900'
+      } fixed top-0 z-30 shadow-xl backdrop-blur-md`}>
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Left Section */}
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleSidebar}
-                className="p-2 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                className={`p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+                  isDarkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-slate-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                }`}
                 aria-label="Toggle navigation menu"
               >
                 <div className="relative w-6 h-6">
@@ -404,7 +442,9 @@ export default function NavbarWithSidebar({ heading }) {
                   >
                     Arth
                   </h2>
-                  <p className="text-xs text-gray-400 italic -mt-1 hidden sm:block">
+                  <p className={`text-xs italic -mt-1 hidden sm:block ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
                     Advance. Secure. Global.
                   </p>
                 </div>
@@ -414,7 +454,9 @@ export default function NavbarWithSidebar({ heading }) {
             {/* Center Section - Page Heading */}
             <div className="hidden lg:flex flex-1 justify-center px-8">
               <div className="text-center">
-                <h1 className="text-xl xl:text-2xl font-semibold tracking-wide text-white">
+                <h1 className={`text-xl xl:text-2xl font-semibold tracking-wide ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
                   {heading}
                 </h1>
                 <div className="w-16 h-0.5 bg-gradient-to-r from-blue-400 to-purple-500 mx-auto mt-1"></div>
@@ -425,7 +467,11 @@ export default function NavbarWithSidebar({ heading }) {
             <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Notifications */}
               <button
-                className="relative p-2 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                className={`relative p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+                  isDarkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-slate-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                }`}
                 aria-label="Notifications"
               >
                 <FaBell className="text-lg" />
@@ -442,7 +488,11 @@ export default function NavbarWithSidebar({ heading }) {
               {/* Profile */}
               <Link
                 to="/dashboard"
-                className="p-2 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 group"
+                className={`p-2 rounded-lg transition-all duration-200 group ${
+                  isDarkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-slate-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                }`}
                 title="Profile"
               >
                 <FaUserCircle className="text-xl text-orange-400 group-hover:scale-110 transition-transform duration-200" />
@@ -452,7 +502,11 @@ export default function NavbarWithSidebar({ heading }) {
               <button
                 onClick={handleLogout}
                 disabled={isLoading}
-                className="p-2 text-gray-300 hover:text-white hover:bg-red-600/20 rounded-lg transition-all duration-200 group disabled:opacity-50"
+                className={`p-2 rounded-lg transition-all duration-200 group disabled:opacity-50 ${
+                  isDarkMode 
+                    ? 'text-gray-300 hover:text-white hover:bg-red-600/20'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-red-100/50'
+                }`}
                 title="Logout"
               >
                 <FaSignOutAlt className="text-lg text-red-400 group-hover:scale-110 transition-transform duration-200" />
@@ -462,13 +516,17 @@ export default function NavbarWithSidebar({ heading }) {
               <div className="hidden md:flex flex-col text-right">
                 <time 
                   dateTime={serverDate.toISOString()}
-                  className="text-xs text-gray-300 font-mono"
+                  className={`text-xs font-mono ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                  }`}
                 >
                   {formatTime(serverDate)}
                 </time>
                 <time 
                   dateTime={serverDate.toISOString()}
-                  className="text-xs text-gray-400 font-mono"
+                  className={`text-xs font-mono ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}
                 >
                   {formatDate(serverDate)}
                 </time>
@@ -479,8 +537,14 @@ export default function NavbarWithSidebar({ heading }) {
       </header>
 
       {/* Mobile Page Heading */}
-      <div className="lg:hidden fixed top-16 left-0 right-0 z-20 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 px-4 py-2">
-        <h1 className="text-lg font-semibold text-center text-white">
+      <div className={`lg:hidden fixed top-16 left-0 right-0 z-20 backdrop-blur-sm border-b px-4 py-2 ${
+        isDarkMode 
+          ? 'bg-slate-800/95 border-slate-700' 
+          : 'bg-white/95 border-gray-200'
+      }`}>
+        <h1 className={`text-lg font-semibold text-center ${
+          isDarkMode ? 'text-white' : 'text-gray-900'
+        }`}>
           {heading}
         </h1>
       </div>

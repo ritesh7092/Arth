@@ -9,6 +9,9 @@ import com.arthManager.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,6 +37,7 @@ public class FinanceService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
+    @Cacheable(value = "transactions", key="#username")
     public Page<FinanceDto> getTransactions(String username, String type, String category, String startDate,
             String endDate, Pageable pageable) {
         User user = getUserByUsername(username);
@@ -52,6 +56,7 @@ public class FinanceService {
         return page.map(this::toDto);
     }
 
+    @Cacheable(value = "transaction", key="#username + '_' + #id")
     public FinanceDto getTransactionById(String username, Long id) {
         User user = getUserByUsername(username);
         Finance finance = financeRepository.findByIdAndUser(id, user)
@@ -59,6 +64,10 @@ public class FinanceService {
         return toDto(finance);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key = "#username", allEntries = true),
+            @CacheEvict(value = "transaction", key = "#username + '_' + #id", allEntries = true)
+    })
     @Transactional
     public Finance createFinanceRecord(AddFinance addFinance, String username) {
         User user = getUserByUsername(username);
@@ -110,6 +119,11 @@ public class FinanceService {
         return financeRepository.save(finance);
     }
 
+
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key = "#username", allEntries = true),
+            @CacheEvict(value = "transaction", key = "#username + '_' + #id", allEntries = true)
+    })
     public FinanceDto updateFinanceRecord(Long id, AddFinance addFinance, String username) {
         User user = getUserByUsername(username);
         Finance finance = financeRepository.findByIdAndUser(id, user)
@@ -153,6 +167,11 @@ public class FinanceService {
         return toDto(financeRepository.save(finance));
     }
 
+
+    @Caching(evict = {
+            @CacheEvict(value = "transactions", key = "#username", allEntries = true),
+            @CacheEvict(value = "transaction", key = "#username + '_' + #id", allEntries = true)
+    })
     @Transactional
     public void deleteFinanceRecord(Long id, String username) {
         User user = getUserByUsername(username);

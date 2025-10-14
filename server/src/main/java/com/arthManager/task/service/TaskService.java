@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +45,7 @@ public class TaskService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
+    @Cacheable(value = "tasks", key = "#username + '_' + #dateString + '_' + #monthString + '_' + #year + '_' + #page + '_' + #size")
     public Page<TaskDto> getAllTasks(String username, String dateString, String monthString, Integer year, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("dateAdded").descending());
         User user = getUserByUsername(username);
@@ -62,6 +66,10 @@ public class TaskService {
         }
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasks", allEntries = true),
+            @CacheEvict(value = "task", allEntries = true)
+    })
     public Task createTask(AddTask addTask, String username) {
         User user = getUserByUsername(username);
 
@@ -79,6 +87,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    @Cacheable(value = "task", key = "#username + '_' + #id")
     public TaskDto getTaskById(Long id, String username) {
         User user = getUserByUsername(username);
         Task task = taskRepository.findByUserAndId(user, id)
@@ -86,6 +95,10 @@ public class TaskService {
         return modelMapper.map(task, TaskDto.class);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasks", allEntries = true),
+            @CacheEvict(value = "task", key = "#username + '_' + #id")
+    })
     public TaskDto updateTask(Long id, TaskDto updatedTask, String username) {
         User user = getUserByUsername(username);
         Task existingTask = taskRepository.findByUserAndId(user, id)
@@ -97,6 +110,10 @@ public class TaskService {
         return modelMapper.map(saved, TaskDto.class);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasks", allEntries = true),
+            @CacheEvict(value = "task", key = "#username + '_' + #id")
+    })
     public TaskDto completeTask(Long id, String username) {
         User user = getUserByUsername(username);
         Task task = taskRepository.findByUserAndId(user, id)
@@ -107,6 +124,10 @@ public class TaskService {
         return modelMapper.map(savedTask, TaskDto.class);
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasks", allEntries = true),
+            @CacheEvict(value = "task", key = "#username + '_' + #id")
+    })
     public void deleteTask(Long id, String username) {
         User user = getUserByUsername(username);
         Task task = taskRepository.findByUserAndId(user, id)

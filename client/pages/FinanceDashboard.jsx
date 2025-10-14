@@ -24,6 +24,21 @@ import {
   PiggyBank,
   Clock,
   Paperclip,
+  Download,
+  FileText,
+  Printer,
+  Calendar,
+  DollarSign,
+  Target,
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Sparkles,
+  Zap,
+  Shield,
+  Star,
 } from 'lucide-react';
 import baseUrl from '../api/api';
 import { useTheme } from '../src/theme/ThemeProvider';
@@ -35,26 +50,57 @@ import axios from 'axios';
 const formatRupee = amount =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(amount ?? 0);
 
-// Metric Card Component
-const MetricCard = ({ icon: Icon, title, value, colorClass }) => (
-  <div className={`${colorClass} text-white rounded-2xl shadow-xl p-4 sm:p-6 flex flex-col items-center space-y-2 min-w-0 overflow-hidden`}>
-    <div className="bg-white/20 p-3 sm:p-4 rounded-full mb-2">
-      <Icon className="w-7 h-7 sm:w-8 sm:h-8" />
+// Enhanced Metric Card Component
+const MetricCard = ({ icon: Icon, title, value, colorClass, trend, trendValue, subtitle }) => (
+  <div className={`${colorClass} text-white rounded-3xl shadow-2xl p-6 sm:p-8 flex flex-col items-center space-y-3 min-w-0 overflow-hidden relative group hover:scale-105 transition-all duration-300`}>
+    {/* Background Pattern */}
+    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-3xl"></div>
+    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
+    
+    <div className="relative z-10 w-full">
+      <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl mb-4 group-hover:bg-white/30 transition-all duration-300">
+        <Icon className="w-8 h-8 sm:w-10 sm:h-10" />
+      </div>
+      
+       <div className="text-center space-y-2 w-full">
+         <p className="text-sm font-medium opacity-90 text-center break-words">{title}</p>
+         <div className="w-full overflow-hidden">
+           <p
+             className="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-center break-all overflow-hidden"
+             style={{ 
+               fontVariantNumeric: 'tabular-nums', 
+               lineHeight: 1.1,
+               wordBreak: 'break-all',
+               overflowWrap: 'break-word'
+             }}
+             title={typeof value === 'number' ? value.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : value}
+           >
+             {typeof value === 'number'
+               ? `₹${value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+               : value}
+           </p>
+         </div>
+        
+        {subtitle && (
+          <p className="text-xs opacity-75">{subtitle}</p>
+        )}
+        
+        {trend && trendValue && (
+          <div className="flex items-center justify-center space-x-1 mt-2">
+            {trend === 'up' ? (
+              <ArrowUpRight className="w-4 h-4 text-green-200" />
+            ) : (
+              <ArrowDownRight className="w-4 h-4 text-red-200" />
+            )}
+            <span className="text-xs font-medium opacity-90">{trendValue}</span>
+          </div>
+        )}
+      </div>
     </div>
-    <p className="text-xs sm:text-sm font-medium opacity-80 text-center truncate w-full">{title}</p>
-    <p
-      className="text-2xl sm:text-3xl font-bold tracking-tight text-center break-all truncate w-full"
-      style={{ fontVariantNumeric: 'tabular-nums', lineHeight: 1.1, wordBreak: 'break-all' }}
-      title={typeof value === 'number' ? value.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : value}
-    >
-      {typeof value === 'number'
-        ? `₹${value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-        : value}
-    </p>
   </div>
 );
 
-// Transaction Card
+// Enhanced Transaction Card
 const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }) => {
   // Support both 'type' and 'transactionType'
   const type = (transaction.type || transaction.transactionType || '').toUpperCase();
@@ -63,42 +109,67 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
   const isPending = isLoanOrBorrow && (transaction.dueStatus === 'UNPAID' || transaction.dueStatus === 'PARTIALLY_PAID');
   const amountColor = isExpense ? 'text-red-500' : 'text-green-500';
 
+  const getTypeIcon = () => {
+    switch (type) {
+      case 'INCOME': return <TrendingUpIcon className="w-4 h-4" />;
+      case 'EXPENSE': return <TrendingDownIcon className="w-4 h-4" />;
+      case 'LOAN': return <ArrowUpRight className="w-4 h-4" />;
+      case 'BORROW': return <ArrowDownRight className="w-4 h-4" />;
+      default: return <DollarSign className="w-4 h-4" />;
+    }
+  };
+
+  const getTypeColor = () => {
+    switch (type) {
+      case 'INCOME': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300';
+      case 'EXPENSE': return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300';
+      case 'LOAN': return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
+      case 'BORROW': return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300';
+      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300';
+    }
+  };
   
   return (
     <div
       className={`
-        ${themeClasses.cardBg} border ${themeClasses.border} rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200 animate__animated animate__fadeIn
-        ${isPending ? 'ring-2 ring-yellow-400/80 dark:ring-yellow-500/80 bg-yellow-50 dark:bg-yellow-900/30' : ''}
+        ${themeClasses.cardBg} border ${themeClasses.border} rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 animate__animated animate__fadeIn group
+        ${isPending ? 'ring-2 ring-amber-400/60 bg-amber-50/50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800' : 'hover:scale-[1.01]'}
       `}
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className={`font-semibold ${themeClasses.text} truncate text-base sm:text-lg`}>
-              {transaction.note || transaction.description}
-            </p>
-            {transaction.attachment && (
-              <a
-                href={URL.createObjectURL(transaction.attachment)}
-                download={transaction.attachment.name}
-                title="Download attachment"
-                className="inline-block align-middle"
-              >
-                <Paperclip className="inline w-4 h-4 text-blue-500" />
-              </a>
-            )}
+          <div className="flex items-start gap-3">
+            <div className={`p-2 rounded-xl ${getTypeColor()} flex-shrink-0`}>
+              {getTypeIcon()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className={`font-bold ${themeClasses.text} text-lg sm:text-xl truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors`}>
+                {transaction.note || transaction.description}
+              </h3>
+              {transaction.attachment && (
+                <a
+                  href={URL.createObjectURL(transaction.attachment)}
+                  download={transaction.attachment.name}
+                  title="Download attachment"
+                  className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-700 transition-colors mt-1"
+                >
+                  <Paperclip className="w-3 h-3" />
+                  <span className="text-xs">Attachment</span>
+                </a>
+              )}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <span className={`${themeClasses.textSecondary} text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full`}>
+          
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span className={`${themeClasses.textSecondary} text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full font-medium`}>
               {transaction.category}
             </span>
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              isExpense ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-            }`}>
+            <span className={`text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1 ${getTypeColor()}`}>
+              {getTypeIcon()}
               {type}
             </span>
             {(type === 'LOAN' || type === 'BORROW') && transaction.dueStatus && (
-              <span className={`text-xs px-2 py-1 rounded-full ${
+              <span className={`text-xs px-3 py-1.5 rounded-full font-medium ${
                 transaction.dueStatus === 'PAID'
                   ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                   : transaction.dueStatus === 'UNPAID'
@@ -111,37 +182,48 @@ const TransactionCard = ({ transaction, themeClasses, onView, onEdit, onDelete }
               </span>
             )}
           </div>
-          <p className={`${themeClasses.textSecondary} text-xs sm:text-sm mt-2`}>
-            {new Date(transaction.date || transaction.transactionDate).toLocaleDateString('en-IN', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-              weekday: 'short',
-            })}
-          </p>
+          
+          <div className="flex items-center gap-2 mt-3">
+            <Calendar className={`w-4 h-4 ${themeClasses.textSecondary}`} />
+            <p className={`${themeClasses.textSecondary} text-sm font-medium`}>
+              {new Date(transaction.date || transaction.transactionDate).toLocaleDateString('en-IN', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                weekday: 'short',
+              })}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col sm:items-end w-full sm:w-auto">
-          <p className={`font-bold text-lg sm:text-xl ${amountColor} mb-2 sm:mb-3`}>
-            {formatRupee(isExpense ? -Math.abs(transaction.amount) : Math.abs(transaction.amount))}
-          </p>
-          <div className="flex space-x-2">
+        
+        <div className="flex flex-col sm:items-end w-full sm:w-auto gap-3">
+          <div className="text-right">
+            <p className={`font-black text-lg sm:text-xl lg:text-2xl ${amountColor} mb-1 break-all`}>
+              {formatRupee(isExpense ? -Math.abs(transaction.amount) : Math.abs(transaction.amount))}
+            </p>
+            <p className={`text-xs ${themeClasses.textSecondary} font-medium`}>
+              {isExpense ? 'Expense' : 'Income'}
+            </p>
+          </div>
+          
+          <div className="flex space-x-1.5">
             <button
               onClick={() => onView(transaction.id)}
-              className={`p-2 rounded-full ${themeClasses.buttonSecondary} hover:bg-opacity-80 transition-colors group`}
+              className={`p-2.5 rounded-lg ${themeClasses.buttonSecondary} hover:bg-opacity-80 transition-all duration-200 group hover:scale-105`}
               title="View Details"
             >
               <Eye size={16} className={`${themeClasses.text} group-hover:scale-110 transition-transform`} />
             </button>
             <button
               onClick={() => onEdit(transaction.id)}
-              className="p-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors group"
+              className="p-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200 group hover:scale-105 shadow-lg hover:shadow-xl"
               title="Edit Transaction"
             >
               <Edit2 size={16} className="group-hover:scale-110 transition-transform" />
             </button>
             <button
               onClick={() => onDelete(transaction.id)}
-              className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors group"
+              className="p-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-all duration-200 group hover:scale-105 shadow-lg hover:shadow-xl"
               title="Delete Transaction"
             >
               <Trash2 size={16} className="group-hover:scale-110 transition-transform" />
@@ -163,7 +245,7 @@ export default function FinanceDashboard() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const transactionsPerPage = 10;
+  const transactionsPerPage = 5;
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -186,16 +268,16 @@ export default function FinanceDashboard() {
   // Theme-aware Tailwind classes
   const themeClasses = {
     bg: isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50',
-    cardBg: isDarkMode ? 'bg-gray-800' : 'bg-white/80 backdrop-blur-sm',
+    cardBg: isDarkMode ? 'bg-gray-800' : 'bg-white/95 backdrop-blur-sm',
     text: isDarkMode ? 'text-white' : 'text-gray-900',
     textSecondary: isDarkMode ? 'text-gray-300' : 'text-gray-700',
-    border: isDarkMode ? 'border-gray-700' : 'border-gray-300',
+    border: isDarkMode ? 'border-gray-700' : 'border-gray-300/80',
     inputBorder: isDarkMode ? 'border-gray-600' : 'border-gray-400',
     hover: isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100',
     buttonPrimary: 'bg-emerald-600 hover:bg-emerald-700 text-white',
     buttonSecondary: isDarkMode
       ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-      : 'bg-gray-200 hover:bg-gray-300 text-gray-900',
+      : 'bg-gray-200 hover:bg-gray-300 text-gray-900 border border-gray-300',
   };
 
   // Fetch transactions from backend API
@@ -835,54 +917,91 @@ const handleDelete = (id) => {
 
   return (
     <div className={`min-h-screen ${themeClasses.bg} transition-all duration-300 font-sans`}>
-      {/* HEADER */}
+      {/* ENHANCED HEADER */}
       <header className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600" />
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-6">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-transparent to-cyan-500/20" />
+        <div className="absolute inset-0 bg-black/10" />
+        
+        {/* Floating Elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-20 right-20 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-10 left-1/4 w-16 h-16 bg-white/10 rounded-full blur-lg animate-pulse delay-500"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0">
             <div className="flex-1">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <Wallet className="w-6 h-6 text-white" />
+              <div className="flex items-center space-x-4 sm:space-x-6 mb-4 sm:mb-6">
+                <div className="relative">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-2xl">
+                    <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-emerald-400 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+                  </div>
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-4xl font-black text-white">Personal Finance Tracker</h1>
-                  <p className="text-teal-700 text-xs sm:text-sm lg:text-lg">Your financial health at a glance</p>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-white tracking-tight">
+                    Financial Command Center
+                  </h1>
+                  <p className="text-white/80 text-base sm:text-lg lg:text-xl font-medium mt-1 sm:mt-2">
+                    Master your money with intelligent insights
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 text-white/90">
-                <div className="flex items-center space-x-2">
-                  <IndianRupee className="w-5 h-5" />
-                  <span className="font-medium text-xs sm:text-base">Net Balance: {formatRupee(netBalance)}</span>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+                    <IndianRupee className="w-5 h-5 text-emerald-300" />
+                  </div>
+                  <div>
+                    <p className="text-white/70 text-sm font-medium">Net Balance</p>
+                    <p className="text-white text-lg font-bold">{formatRupee(netBalance)}</p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <PieChart className="w-5 h-5" />
-                  <span className="font-medium text-xs sm:text-base">Transactions: {filteredTransactions.length}</span>
+                
+                <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-blue-300" />
+                  </div>
+                  <div>
+                    <p className="text-white/70 text-sm font-medium">Total Transactions</p>
+                    <p className="text-white text-lg font-bold">{filteredTransactions.length}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                    <Target className="w-5 h-5 text-purple-300" />
+                  </div>
+                  <div>
+                    <p className="text-white/70 text-sm font-medium">Financial Health</p>
+                    <p className="text-white text-lg font-bold">
+                      {netBalance > 0 ? 'Excellent' : 'Needs Attention'}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-              <button
-                onClick={toggleTheme}
-                className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all flex items-center justify-center"
-                title={isDarkMode ? 'Light Mode' : 'Dark Mode'}
-              >
-                {isDarkMode ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}
-              </button>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+              
               <Link
                 to="/finance/report"
-                className="inline-flex items-center justify-center px-4 sm:px-5 py-3 rounded-xl font-semibold shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition text-xs sm:text-base"
+                className="inline-flex items-center justify-center px-6 py-4 rounded-2xl font-bold shadow-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 hover:shadow-3xl group"
               >
-                <BarChart3 className="w-5 h-5 mr-2" />
-                <span className="hidden sm:inline">Detailed Report</span>
+                <BarChart3 className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
+                <span className="hidden sm:inline">Analytics Report</span>
                 <span className="sm:hidden">Report</span>
               </Link>
+              
               <Link
                 to="/finance/add"
-                className="inline-flex items-center justify-center px-4 sm:px-6 py-3 rounded-xl font-semibold shadow-lg bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:from-emerald-400 hover:to-green-500 transition text-xs sm:text-base"
+                className="inline-flex items-center justify-center px-6 py-4 rounded-2xl font-bold shadow-2xl bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:from-emerald-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 hover:shadow-3xl group"
               >
-                <PlusCircle className="w-5 h-5 mr-2" />
+                <PlusCircle className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
                 <span className="hidden sm:inline">New Transaction</span>
                 <span className="sm:hidden">Add</span>
               </Link>
@@ -891,275 +1010,456 @@ const handleDelete = (id) => {
         </div>
       </header>
 
-      {/* --- METRICS --- */}
-      <main className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8 space-y-8">
+      {/* --- ENHANCED METRICS --- */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
         {/* --- CURRENT MONTH METRICS --- */}
         <section>
-          <h2 className="mb-4 text-base sm:text-xl font-bold text-gray-800 dark:text-gray-100">Current Month</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            <MetricCard icon={TrendingUp} title="Income (Month)" value={formatRupee(currentIncome)} colorClass="bg-gradient-to-br from-green-500 to-emerald-500" />
-            <MetricCard icon={TrendingDown} title="Expense (Month)" value={formatRupee(currentExpense)} colorClass="bg-gradient-to-br from-red-500 to-pink-500" />
-            <MetricCard icon={PiggyBank} title="Savings (Month)" value={formatRupee(currentSavings)} colorClass="bg-gradient-to-br from-blue-500 to-indigo-500" />
-            <MetricCard icon={AlertCircle} title="Loss (Month)" value={formatRupee(currentLoss)} colorClass="bg-gradient-to-br from-yellow-400 to-red-500" />
-            <MetricCard icon={CreditCard} title="Transactions (Month)" value={currentMonthTxns.length} colorClass="bg-gradient-to-br from-purple-500 to-fuchsia-500" />
-            <MetricCard icon={Wallet} title="Net Balance (Month)" value={formatRupee(currentSavings)} colorClass="bg-gradient-to-br from-blue-500 to-purple-500" />
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className={`text-xl sm:text-2xl lg:text-3xl font-black ${themeClasses.text} mb-2`}>Current Month Overview</h2>
+              <p className={`${themeClasses.textSecondary} font-medium`}>Your financial performance this month</p>
+            </div>
+            <div className="hidden sm:flex items-center space-x-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 py-2">
+              <Calendar className="w-5 h-5 text-blue-500" />
+              <span className={`text-sm font-medium ${themeClasses.textSecondary}`}>
+                {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+            <MetricCard 
+              icon={TrendingUpIcon} 
+              title="Income" 
+              value={currentIncome} 
+              colorClass="bg-gradient-to-br from-emerald-500 to-green-600" 
+              subtitle="This month"
+              trend={currentIncome > prevIncome ? 'up' : 'down'}
+              trendValue={prevIncome > 0 ? `${Math.round(((currentIncome - prevIncome) / prevIncome) * 100)}%` : '0%'}
+            />
+            <MetricCard 
+              icon={TrendingDownIcon} 
+              title="Expenses" 
+              value={currentExpense} 
+              colorClass="bg-gradient-to-br from-red-500 to-rose-600" 
+              subtitle="This month"
+              trend={currentExpense < prevExpense ? 'up' : 'down'}
+              trendValue={prevExpense > 0 ? `${Math.round(((currentExpense - prevExpense) / prevExpense) * 100)}%` : '0%'}
+            />
+            <MetricCard 
+              icon={PiggyBank} 
+              title="Savings" 
+              value={currentSavings} 
+              colorClass="bg-gradient-to-br from-blue-500 to-indigo-600" 
+              subtitle="This month"
+              trend={currentSavings > prevSavings ? 'up' : 'down'}
+              trendValue={prevSavings > 0 ? `${Math.round(((currentSavings - prevSavings) / prevSavings) * 100)}%` : '0%'}
+            />
+            <MetricCard 
+              icon={AlertCircle} 
+              title="Loss" 
+              value={currentLoss} 
+              colorClass="bg-gradient-to-br from-amber-500 to-orange-600" 
+              subtitle="This month"
+            />
+            <MetricCard 
+              icon={CreditCard} 
+              title="Transactions" 
+              value={currentMonthTxns.length} 
+              colorClass="bg-gradient-to-br from-purple-500 to-violet-600" 
+              subtitle="This month"
+            />
+            <MetricCard 
+              icon={Target} 
+              title="Net Balance" 
+              value={currentSavings} 
+              colorClass="bg-gradient-to-br from-cyan-500 to-blue-600" 
+              subtitle="This month"
+            />
           </div>
         </section>
 
         {/* --- PENDING LOANS/BORROWS METRICS --- */}
         <section>
-          <h2 className="mb-4 text-base sm:text-xl font-bold text-gray-800 dark:text-gray-100">Pending Loans & Borrows</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-            <MetricCard
-              icon={AlertCircle}
-              title="Pending Loans Given"
-              value={pendingLoansGiven}
-              colorClass="bg-gradient-to-br from-yellow-400 to-orange-500"
-            />
-            <MetricCard
-              icon={AlertCircle}
-              title="Pending Borrows Taken"
-              value={pendingBorrowsTaken}
-              colorClass="bg-gradient-to-br from-yellow-400 to-pink-500"
-            />
-            <MetricCard
-              icon={AlertCircle}
-              title="All Pending (Loans/Borrows)"
-              value={totalPending}
-              colorClass="bg-gradient-to-br from-yellow-400 to-red-500"
-            />
-          </div>
-        </section>
-
-        {/* --- PREVIOUS MONTH METRICS --- */}
-        <section>
-          <h2 className="mb-4 text-base sm:text-xl font-bold text-gray-800 dark:text-gray-100">Previous Month</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            <MetricCard icon={TrendingUp} title="Income (Prev)" value={formatRupee(prevIncome)} colorClass="bg-gradient-to-br from-green-600 to-emerald-600" />
-            <MetricCard icon={TrendingDown} title="Expense (Prev)" value={formatRupee(prevExpense)} colorClass="bg-gradient-to-br from-red-600 to-rose-600" />
-            <MetricCard icon={PiggyBank} title="Savings (Prev)" value={formatRupee(prevSavings)} colorClass="bg-gradient-to-br from-blue-600 to-indigo-600" />
-            <MetricCard icon={AlertCircle} title="Loss (Prev)" value={formatRupee(prevLoss)} colorClass="bg-gradient-to-br from-yellow-400 to-red-500" />
-          </div>
-        </section>
-
-        {/* --- THIS YEAR --- */}
-        <section>
-          <h2 className="mb-4 text-base sm:text-xl font-bold text-gray-800 dark:text-gray-100">This Year</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            <MetricCard icon={TrendingUp} title="Income (Year)" value={formatRupee(thisYearIncome)} colorClass="bg-gradient-to-br from-green-400 to-emerald-400" />
-            <MetricCard icon={TrendingDown} title="Expense (Year)" value={formatRupee(thisYearExpense)} colorClass="bg-gradient-to-br from-red-400 to-pink-400" />
-            <MetricCard icon={PiggyBank} title="Savings (Year)" value={formatRupee(thisYearSavings)} colorClass="bg-gradient-to-br from-blue-400 to-purple-400" />
-            <MetricCard icon={AlertCircle} title="Loss (Year)" value={formatRupee(thisYearLoss)} colorClass="bg-gradient-to-br from-yellow-400 to-red-500" />
-          </div>
-          <div className={`mt-4 text-base sm:text-lg font-semibold text-center ${netBalanceColor} animate__animated animate__fadeIn`}>
-            {netBalanceMessage}
-            <div className="text-xs sm:text-base mt-2 text-gray-700 dark:text-gray-300">{suggestion}</div>
-          </div>
-        </section>
-
-        {/* --- TRANSACTION RECORDS --- */}
-        <section id="transaction-table-section" className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-2xl p-2 sm:p-4 md:p-6 shadow-lg animate__animated animate__fadeInUp`}>
-          <div className="flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 className={`text-base sm:text-xl font-bold ${themeClasses.text} flex items-center`}>
-              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 mr-3 flex-shrink-0" />
-              Transaction Records ({filteredTransactions.length})
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={handleExportCSV}
-                className="px-3 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 text-white font-medium shadow hover:from-emerald-600 hover:to-green-600 transition text-xs sm:text-base"
-                title="Export as CSV"
-              >
-                Export CSV
-              </button>
-              <button
-                onClick={handleExportPDF}
-                className="px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium shadow hover:from-blue-600 hover:to-indigo-600 transition text-xs sm:text-base"
-                title="Export as PDF"
-              >
-                Export PDF
-              </button>
-              <button
-                onClick={handlePrint}
-                className="px-3 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 text-white font-medium shadow hover:from-pink-600 hover:to-rose-600 transition text-xs sm:text-base"
-                title="Print"
-              >
-                Print
-              </button>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className={`text-2xl sm:text-3xl font-black ${themeClasses.text} mb-2`}>Pending Transactions</h2>
+              <p className={`${themeClasses.textSecondary} font-medium`}>Track your loans and borrows</p>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center space-x-2 p-2 rounded-lg ${themeClasses.hover} transition-colors sm:hidden ${themeClasses.text}`}
-            >
-              <Filter className="w-5 h-5" />
-              <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
-            </button>
-          </div>
-
-          {/* Filter Section */}
-          <div className={`${showFilters ? 'block' : 'hidden'} sm:block animate__animated animate__fadeIn mb-6`}>
-            <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 p-4 border rounded-xl ${themeClasses.border}`}>
-              {/* Search Input */}
-              <div className="relative col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2">
-                <Search className={`w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 ${themeClasses.textSecondary}`} />
-                <input
-                  type="text"
-                  placeholder="Search note or category..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full border ${themeClasses.inputBorder} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-                />
+            {totalPending > 0 && (
+              <div className="flex items-center space-x-2 bg-amber-100 dark:bg-amber-900/30 rounded-2xl px-4 py-2">
+                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                  {totalPending} Pending
+                </span>
               </div>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <MetricCard
+              icon={ArrowUpRight}
+              title="Loans Given"
+              value={pendingLoansGiven}
+              colorClass="bg-gradient-to-br from-amber-500 to-orange-600"
+              subtitle="Awaiting payment"
+            />
+            <MetricCard
+              icon={ArrowDownRight}
+              title="Borrows Taken"
+              value={pendingBorrowsTaken}
+              colorClass="bg-gradient-to-br from-rose-500 to-pink-600"
+              subtitle="To be repaid"
+            />
+            <MetricCard
+              icon={AlertCircle}
+              title="Total Pending"
+              value={totalPending}
+              colorClass="bg-gradient-to-br from-red-500 to-rose-600"
+              subtitle="All transactions"
+            />
+          </div>
+        </section>
 
-              {/* Type Filter */}
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-              >
-                <option value="All">All Types</option>
-                <option value="INCOME">Income</option>
-                <option value="EXPENSE">Expense</option>
-                <option value="LOAN">Loan (Given)</option>
-                <option value="BORROW">Borrow (Taken)</option>
-              </select>
+        {/* --- YEARLY OVERVIEW --- */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className={`text-2xl sm:text-3xl font-black ${themeClasses.text} mb-2`}>Yearly Overview</h2>
+              <p className={`${themeClasses.textSecondary} font-medium`}>Your financial performance this year</p>
+            </div>
+            <div className="hidden sm:flex items-center space-x-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl px-4 py-2">
+              <Star className="w-5 h-5 text-yellow-500" />
+              <span className={`text-sm font-medium ${themeClasses.textSecondary}`}>
+                {new Date().getFullYear()}
+              </span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <MetricCard 
+              icon={TrendingUpIcon} 
+              title="Annual Income" 
+              value={thisYearIncome} 
+              colorClass="bg-gradient-to-br from-emerald-400 to-green-500" 
+              subtitle="This year"
+            />
+            <MetricCard 
+              icon={TrendingDownIcon} 
+              title="Annual Expenses" 
+              value={thisYearExpense} 
+              colorClass="bg-gradient-to-br from-red-400 to-rose-500" 
+              subtitle="This year"
+            />
+            <MetricCard 
+              icon={PiggyBank} 
+              title="Annual Savings" 
+              value={thisYearSavings} 
+              colorClass="bg-gradient-to-br from-blue-400 to-indigo-500" 
+              subtitle="This year"
+            />
+            <MetricCard 
+              icon={Shield} 
+              title="Financial Health" 
+              value={thisYearLoss} 
+              colorClass="bg-gradient-to-br from-purple-400 to-violet-500" 
+              subtitle="This year"
+            />
+          </div>
+          
+          {/* Financial Insights */}
+          <div className={`mt-8 p-6 rounded-3xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 ${netBalanceColor} animate__animated animate__fadeIn`}>
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <Zap className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-2">Financial Insights</h3>
+                <p className="text-base font-medium mb-3">{netBalanceMessage}</p>
+                <p className="text-sm opacity-80">{suggestion}</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-              {/* Category Filter */}
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-
-              {/* Date Filters */}
-              <input
-                type="date"
-                value={filterStartDate}
-                onChange={(e) => setFilterStartDate(e.target.value)}
-                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-                title="Filter by Start Date"
-              />
-              <input
-                type="date"
-                value={filterEndDate}
-                onChange={(e) => setFilterEndDate(e.target.value)}
-                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-                title="Filter by End Date"
-              />
-
-              {/* Amount Filters */}
-              <input
-                type="number"
-                placeholder="Min Amount"
-                value={filterMinAmount}
-                onChange={(e) => setFilterMinAmount(e.target.value)}
-                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-                title="Filter by Minimum Amount"
-              />
-              <input
-                type="number"
-                placeholder="Max Amount"
-                value={filterMaxAmount}
-                onChange={(e) => setFilterMaxAmount(e.target.value)}
-                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-                title="Filter by Maximum Amount"
-              />
-
-              {/* Due Status Filter */}
-              <select
-                value={filterDueStatus}
-                onChange={e => setFilterDueStatus(e.target.value)}
-                className={`border ${themeClasses.inputBorder} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${themeClasses.bg} ${themeClasses.text} text-xs sm:text-sm`}
-              >
-                <option value="">All Status</option>
-                <option value="PAID">Paid</option>
-                <option value="UNPAID">Unpaid</option>
-                <option value="PARTIALLY_PAID">Partially Paid</option>
-              </select>
-
-              {/* Clear Filters Button */}
+        {/* --- ENHANCED TRANSACTION RECORDS --- */}
+        <section id="transaction-table-section" className={`${themeClasses.cardBg} ${themeClasses.border} border rounded-3xl p-6 sm:p-8 shadow-2xl animate__animated animate__fadeInUp`}>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
+            <div className="flex-1">
+              <div className="flex items-center space-x-4 mb-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className={`text-2xl sm:text-3xl font-black ${themeClasses.text}`}>
+                    Transaction Records
+                  </h2>
+                  <p className={`${themeClasses.textSecondary} font-medium`}>
+                    {filteredTransactions.length} transactions found
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
               <button
-                onClick={clearAllFilters}
-                className={`col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-6 w-full flex items-center justify-center p-2 rounded-lg ${themeClasses.buttonSecondary} transition-colors font-medium text-xs sm:text-sm`}
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center justify-center space-x-2 p-3 rounded-2xl ${themeClasses.hover} transition-all duration-300 ${themeClasses.text} border ${themeClasses.border} sm:hidden`}
               >
-                <X className="w-4 h-4 mr-2" />
-                Clear All Filters
+                <Filter className="w-5 h-5" />
+                <span className="font-medium">{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
               </button>
+              
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={handleExportCSV}
+                  className="inline-flex items-center px-4 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold shadow-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group"
+                  title="Export as CSV"
+                >
+                  <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:inline">Export CSV</span>
+                  <span className="sm:hidden">CSV</span>
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  className="inline-flex items-center px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group"
+                  title="Export as PDF"
+                >
+                  <FileText className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:inline">Export PDF</span>
+                  <span className="sm:hidden">PDF</span>
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="inline-flex items-center px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold shadow-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group"
+                  title="Print"
+                >
+                  <Printer className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:inline">Print</span>
+                  <span className="sm:hidden">Print</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Transaction List */}
-          <div className="space-y-2 sm:space-y-3 md:space-y-4">
+          {/* Enhanced Filter Section */}
+          <div className={`${showFilters ? 'block' : 'hidden'} sm:block animate__animated animate__fadeIn mb-6`}>
+            <div className={`bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 border ${themeClasses.border}`}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className={`text-lg font-bold ${themeClasses.text} flex items-center`}>
+                  <Filter className="w-5 h-5 mr-2" />
+                  Advanced Filters
+                </h3>
+                <button
+                  onClick={clearAllFilters}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-300 font-medium"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Clear All</span>
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {/* Search Input */}
+                <div className="relative col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2">
+                  <Search className={`w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 ${themeClasses.textSecondary}`} />
+                  <input
+                    type="text"
+                    placeholder="Search transactions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={`w-full border-2 ${themeClasses.inputBorder} rounded-xl pl-12 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300`}
+                  />
+                </div>
+
+                {/* Type Filter */}
+                <div className="relative">
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    className={`w-full border-2 ${themeClasses.inputBorder} rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300 appearance-none`}
+                  >
+                    <option value="All">All Types</option>
+                    <option value="INCOME">Income</option>
+                    <option value="EXPENSE">Expense</option>
+                    <option value="LOAN">Loan (Given)</option>
+                    <option value="BORROW">Borrow (Taken)</option>
+                  </select>
+                </div>
+
+                {/* Category Filter */}
+                <div className="relative">
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className={`w-full border-2 ${themeClasses.inputBorder} rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300 appearance-none`}
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date Range */}
+                <div className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 grid grid-cols-2 gap-3">
+                  <input
+                    type="date"
+                    value={filterStartDate}
+                    onChange={(e) => setFilterStartDate(e.target.value)}
+                    className={`border-2 ${themeClasses.inputBorder} rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300`}
+                    title="Start Date"
+                  />
+                  <input
+                    type="date"
+                    value={filterEndDate}
+                    onChange={(e) => setFilterEndDate(e.target.value)}
+                    className={`border-2 ${themeClasses.inputBorder} rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300`}
+                    title="End Date"
+                  />
+                </div>
+
+                {/* Amount Range */}
+                <div className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 grid grid-cols-2 gap-3">
+                  <input
+                    type="number"
+                    placeholder="Min Amount"
+                    value={filterMinAmount}
+                    onChange={(e) => setFilterMinAmount(e.target.value)}
+                    className={`border-2 ${themeClasses.inputBorder} rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300`}
+                    title="Minimum Amount"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max Amount"
+                    value={filterMaxAmount}
+                    onChange={(e) => setFilterMaxAmount(e.target.value)}
+                    className={`border-2 ${themeClasses.inputBorder} rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300`}
+                    title="Maximum Amount"
+                  />
+                </div>
+
+                {/* Due Status Filter */}
+                <div className="relative">
+                  <select
+                    value={filterDueStatus}
+                    onChange={e => setFilterDueStatus(e.target.value)}
+                    className={`w-full border-2 ${themeClasses.inputBorder} rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${themeClasses.bg} ${themeClasses.text} font-medium transition-all duration-300 appearance-none`}
+                  >
+                    <option value="">All Status</option>
+                    <option value="PAID">Paid</option>
+                    <option value="UNPAID">Unpaid</option>
+                    <option value="PARTIALLY_PAID">Partially Paid</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Enhanced Transaction List */}
+          <div className="space-y-4">
             {currentTransactions.length === 0 ? (
-              <div className="text-center py-8 sm:py-10 md:py-16">
-                <Search className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 ${themeClasses.textSecondary} mx-auto mb-4 opacity-50`} />
-                <p className={`${themeClasses.textSecondary} text-sm sm:text-base md:text-lg font-medium mb-2`}>
-                  No transactions found matching your criteria.
-                </p>
-                <p className={`${themeClasses.textSecondary} text-xs sm:text-sm mb-4`}>
-                  Try adjusting your filters or search terms.
+              <div className="text-center py-16 sm:py-20">
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Search className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className={`text-xl font-bold ${themeClasses.text} mb-3`}>
+                  No transactions found
+                </h3>
+                <p className={`${themeClasses.textSecondary} text-base mb-6 max-w-md mx-auto`}>
+                  No transactions match your current filters. Try adjusting your search criteria or clear all filters to see all transactions.
                 </p>
                 <button
                   onClick={clearAllFilters}
-                  className={`px-4 py-2 rounded-lg ${themeClasses.buttonSecondary} transition-colors text-xs sm:text-sm font-medium`}
+                  className="inline-flex items-center px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
                 >
-                  Reset Filters
+                  <X className="w-4 h-4 mr-2" />
+                  Reset All Filters
                 </button>
               </div>
             ) : (
               <>
-                {currentTransactions.map((transaction) => (
-                  <TransactionCard
-                    key={transaction.id}
-                    transaction={transaction}
-                    themeClasses={themeClasses}
-                    onView={handleView}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))}
+                <div className="space-y-4">
+                  {currentTransactions.map((transaction) => (
+                    <TransactionCard
+                      key={transaction.id}
+                      transaction={transaction}
+                      themeClasses={themeClasses}
+                      onView={handleView}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+                
                 {totalPages > 1 && (
-                  <div className={`flex flex-col sm:flex-row justify-between items-center mt-6 pt-6 border-t ${themeClasses.border} gap-2`}>
+                  <div className={`flex flex-col sm:flex-row justify-between items-center mt-8 pt-8 border-t-2 ${themeClasses.border} gap-4`}>
                     <button
                       onClick={goPrev}
                       disabled={currentPage === 1}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-base`}
+                      className={`px-6 py-3 rounded-2xl font-bold transition-all duration-300 ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-900'} disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg hover:shadow-xl`}
                     >
-                      Previous
+                      ← Previous
                     </button>
-                    <span className={`${themeClasses.textSecondary} text-xs sm:text-base`}>
-                      Page {currentPage} of {totalPages}
-                    </span>
+                    
+                    <div className="flex items-center space-x-2">
+                      <span className={`${themeClasses.textSecondary} font-medium`}>
+                        Page
+                      </span>
+                      <span className={`px-4 py-2 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold`}>
+                        {currentPage}
+                      </span>
+                      <span className={`${themeClasses.textSecondary} font-medium`}>
+                        of {totalPages}
+                      </span>
+                    </div>
+                    
                     <button
                       onClick={goNext}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-base"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl font-bold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      Next
+                      Next →
                     </button>
                   </div>
                 )}
-                <div className={`text-center pt-4 border-t ${themeClasses.border}`}>
-                  <p className={`${themeClasses.textSecondary} text-xs sm:text-sm`}>
-                    Showing {indexOfFirst + 1} to {Math.min(indexOfLast, filteredTransactions.length)} of {filteredTransactions.length} transactions
-                  </p>
+                
+                <div className={`text-center pt-6 border-t ${themeClasses.border}`}>
+                  <div className="inline-flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-2">
+                    <Activity className="w-4 h-4 text-blue-500" />
+                    <p className={`${themeClasses.textSecondary} font-medium`}>
+                      Showing <span className="font-bold text-blue-600 dark:text-blue-400">{indexOfFirst + 1}</span> to{' '}
+                      <span className="font-bold text-blue-600 dark:text-blue-400">{Math.min(indexOfLast, filteredTransactions.length)}</span> of{' '}
+                      <span className="font-bold text-blue-600 dark:text-blue-400">{filteredTransactions.length}</span> transactions
+                    </p>
+                  </div>
                 </div>
               </>
             )}
           </div>
         </section>
-        <div className="mt-6 text-right text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex items-center justify-end">
-          <Clock className="w-4 h-4 mr-1" /> Server Time: {new Date().toLocaleString()}
+        
+        {/* Enhanced Footer */}
+        <div className="mt-12 pt-8 border-t-2 border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <Clock className="w-4 h-4" />
+              <span>Last updated: {new Date().toLocaleString()}</span>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-xs text-amber-600 dark:text-amber-400">
+                <span className="inline-block w-3 h-3 rounded-full bg-amber-400"></span>
+                <span>Pending transactions highlighted</span>
+              </div>
+              
+              <div className="flex items-center space-x-2 text-xs text-blue-600 dark:text-blue-400">
+                <Shield className="w-3 h-3" />
+                <span>Secure & Encrypted</span>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-      <div className="flex items-center mt-2 text-xs text-yellow-700 dark:text-yellow-300">
-        <span className="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
-        Highlighted = Pending Loan/Borrow (Unpaid or Partially Paid)
-      </div>
     </div>
   );
 }
@@ -1822,7 +2122,7 @@ if (typeof window !== "undefined" && !document.getElementById('arth-bg-loading-s
 //               </div>
 
 //               {/* Stats Grid */}
-//               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+//               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 //                 {statsCards.map((card) => {
 //                   const IconComponent = card.icon;
 //                   return (
@@ -2187,7 +2487,7 @@ if (typeof window !== "undefined" && !document.getElementById('arth-bg-loading-s
 // //                       ? "bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white shadow-lg"
 // //                       : isDarkMode
 // //                       ? "text-gray-200 hover:bg-gray-800 hover:text-gray-100"
-// //                       : "text-gray-700 hover:bg-gray-200 hover:text-gray-900"
+// //                       : "text-gray-700 hover:bg-gray-200 hover:text-gray-900"e toggle
 // //                   }`}
 // //                 >
 // //                   <IconComponent className="mr-2 sm:mr-3 text-lg text-teal-300" />
@@ -2571,4 +2871,3 @@ if (typeof window !== "undefined" && !document.getElementById('arth-bg-loading-s
 // //     </div>
 // //   );
 // // }
-
