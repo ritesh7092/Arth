@@ -62,5 +62,18 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
+
+    /**
+     * Updates the user's password after a successful OTP verification.
+     * Encodes the new password with BCrypt before persisting.
+     */
+    public void resetUserPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("Password reset successfully for user: {}", user.getUsername());
+    }
 }
+
 

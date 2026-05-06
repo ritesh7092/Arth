@@ -25,4 +25,22 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendPasswordResetOtpEmail(String to, String otp) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Arth - Password Reset Code");
+        message.setText(
+                "You recently requested to reset your Arth account password.\n\n" +
+                        "Your password reset code is: " + otp + "\n\n" +
+                        "This code will expire in 10 minutes.\n\n" +
+                        "If you did not request a password reset, please ignore this email — " +
+                        "your password will remain unchanged.\n\n" +
+                        "Best regards,\n" +
+                        "Arth Team"
+        );
+
+        mailSender.send(message);
+    }
 }
+

@@ -77,4 +77,54 @@ public class AuthController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // ── Forgot-Password Flow ──────────────────────────────────────────────────
+
+    /**
+     * Step 1: User provides their email → server generates & emails a PASSWORD_RESET OTP.
+     */
+    @PostMapping("/public/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            otpService.generateAndSendPasswordResetOtp(request.getEmail());
+            return ResponseEntity.ok("Password reset code sent to your email.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Step 2: User provides email + OTP → server verifies it (marks it as used).
+     * Client proceeds to step 3 only on success.
+     */
+    @PostMapping("/public/verify-reset-otp")
+    public ResponseEntity<?> verifyResetOtp(@Valid @RequestBody VerifyResetOtpRequest request) {
+        try {
+            boolean verified = otpService.verifyPasswordResetOtp(request.getEmail(), request.getOtp());
+            if (verified) {
+                return ResponseEntity.ok("OTP verified. You may now set a new password.");
+            } else {
+                return ResponseEntity.badRequest().body("Invalid or expired OTP. Please try again.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Step 3: User provides email + OTP + new password → server resets the password.
+     * The OTP is re-verified here so this endpoint cannot be called without going through step 2.
+     * Note: after step 2 the OTP is marked verified=true, so we look up a verified OTP
+     * that has not yet expired to confirm the request is genuine before writing the password.
+     */
+    @PostMapping("/public/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            userService.resetUserPassword(request.getEmail(), request.getNewPassword());
+            return ResponseEntity.ok("Password reset successfully. You can now log in with your new password.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
+

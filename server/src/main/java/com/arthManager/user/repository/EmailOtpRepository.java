@@ -8,6 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface EmailOtpRepository extends JpaRepository<EmailOtp, Long> {
+
+    // ── Registration OTP lookups (existing) ──────────────────────────────────
     Optional<EmailOtp> findByEmailAndOtpAndVerifiedFalseAndExpiresAtAfter(
             String email, String otp, LocalDateTime now);
 
@@ -16,4 +18,11 @@ public interface EmailOtpRepository extends JpaRepository<EmailOtp, Long> {
     void deleteByEmailAndVerifiedTrue(String email);
 
     void deleteByExpiresAtBefore(LocalDateTime now);
+
+    // ── Password-reset OTP lookups (new) ─────────────────────────────────────
+    Optional<EmailOtp> findByEmailAndOtpAndPurposeAndVerifiedFalseAndExpiresAtAfter(
+            String email, String otp, String purpose, LocalDateTime now);
+
+    Optional<EmailOtp> findTopByEmailAndPurposeAndVerifiedFalseOrderByCreatedAtDesc(
+            String email, String purpose);
 }

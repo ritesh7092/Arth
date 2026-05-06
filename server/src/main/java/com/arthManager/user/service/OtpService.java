@@ -17,6 +17,9 @@ import java.util.Random;
 @AllArgsConstructor
 public class OtpService {
 
+    private static final String PURPOSE_REGISTRATION   = "REGISTRATION";
+    private static final String PURPOSE_PASSWORD_RESET = "PASSWORD_RESET";
+
     private EmailOtpRepository emailOtpRepository;
     private UserRepository userRepository;
     private EmailService emailService;
@@ -26,15 +29,12 @@ public class OtpService {
         return String.format("%06d", random.nextInt(1000000));
     }
 
+    // ── Registration OTP ─────────────────────────────────────────────────────
+
     @Transactional
     public void generateAndSendOtp(String email) {
-        // Check if user already exists
-//        if (userRepository.findByEmail(email).isPresent()) {
-//            throw new RuntimeException("Email already registered");
-//        }
-
         String otp = generateOtp();
-        EmailOtp emailOtp = new EmailOtp(email, otp);
+        EmailOtp emailOtp = new EmailOtp(email, otp, PURPOSE_REGISTRATION);
 
         emailOtpRepository.save(emailOtp);
         emailService.sendOtpEmail(email, otp);
@@ -79,4 +79,62 @@ public class OtpService {
 
         generateAndSendOtp(email);
     }
-}
+
+    // ── Password-Reset OTP ───────────────────────────────────────────────────
+
+    /**
+     * Generates a PASSWORD_RESET OTP and sends it to the user's email.
+     * Throws if the email is not registered.
+     */
+    @Transactional
+    public void generateAndSendPasswordResetOtp(String email) {
+        // Verify that the account actually exists before sending anything
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No account found with that email address."));
+
+        String otp = generateOtp();
+        EmailOtp emailOtp = new EmailOtp(email, otp, PURPOSE_PASSWORD_RESET);
+
+        emailOtpRepository.save(emailOtp);
+        emailService.sendPasswordResetOtpEmail(email, otp);
+    }
+
+    /**
+     * Verifies a PASSWORD_RESET OTP.
+     * Returns true if valid, false otherwise.
+     * Does NOT touch emailVerified — that flag is only for registration.
+     */
+    @Transactional
+    public boolean verifyPasswordResetOtp(String email, String otp) {
+        Optional<EmailOtp> emailOtpOpt = emailOtpRepository
+                .findByEmailAndOtpAndPurposeAndVerifiedFalseAndExpiresAtAfter(
+                        email, otp, PURPOSE_PASSWORD_RESET, LocalDateTime.now());
+
+        if (emailOtpOpt.isPresent()) {
+            EmailOtp emailOtp = emailOtpOpt.get();
+            emailOtp.setVerified(true);
+            emailOtpRepository.save(emailOtp);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Rate-limited resend of a PASSWORD_RESET OTP.
+     */
+    @Transactional
+    public void resendPasswordResetOtp(String email) {
+        Optional<EmailOtp> recentOtpOpt = emailOtpRepository
+                .findTopByEmailAndPurposeAndVerifiedFalseOrderByCreatedAtDesc(email, PURPOSE_PASSWORD_RESET);
+
+        if (recentOtpOpt.isPresent()) {
+            EmailOtp recentOtp = recentOtpOpt.get();
+            if (recentOtp.getCreatedAt().isAfter(LocalDateTime.now().minusMinutes(1))) {
+                throw new RuntimeException("Please wait before requesting a new OTP");
+            }
+        }
+
+        generateAndSendPasswordResetOtp(email);
+    }
+}
